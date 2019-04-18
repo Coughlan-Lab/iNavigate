@@ -1,0 +1,17 @@
+building_name: SKERI
+floor:
+    id: 4
+    features_file: mapFeatures_4.yml
+    walls: walls_4.bmp
+    walkable: walkable_4.bmp
+    rois: rois_4.bmp
+    rois_dictionary: rois_4.csv
+    scale: 11.23
+floor:
+    id: 3
+    features_file: mapFeatures_3.yml
+    walls: walls_3.bmp
+    walkable: walkable_3.bmp
+    rois: rois_4.bmp
+    rois_dictionary: rois_4.csv
+    scale: 11.73

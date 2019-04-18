@@ -1,0 +1,126 @@
+map_feature:
+	name: _
+	id: exit_sign
+	position: [6.198, 5.490]
+	orientation: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+	normal: [1, 0]
+map_feature:
+	name: _
+	id: exit_sign
+	position: [6.685, 16.337]
+	orientation: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+	normal: [0, -1]
+map_feature:
+	name: _
+	id: exit_sign
+	position: [9.297, 17.798]
+	orientation: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+	normal: [-1, 0]
+map_feature:
+	name: _
+	id: exit_sign
+	position: [9.297, 17.798]
+	orientation: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+	normal: [1, 0]
+map_feature:
+	name: _
+	id: exit_sign
+	position: [27.982, 16.426]
+	orientation: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+	normal: [0, -1]
+map_feature:
+	name: _
+	id: exit_sign
+	position: [34.977, 13.858]
+	orientation: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+	normal: [0, -1]
+map_feature:
+	name: _
+	id: exit_sign
+	position: [34.358, 7.039]
+	orientation: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+	normal: [0, 1]
+map_feature:
+	name: _
+	id: exit_sign
+	position: [25.635, 6.685]
+	orientation: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+	normal: [1, 0]
+map_feature:
+	name: _
+	id: exit_sign
+	position: [23.2, 5.445]
+	orientation: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+	normal: [1, 0]
+map_feature:
+	name: Restroom
+	id: aruco 37
+	position: [20.3669249106, 19.1714749702]
+	orientation: [1, 0, 0, 0, 0, -1, 0, 1, 0]
+	normal: [0, -1]
+map_feature:
+	name: Restroom
+	id: aruco 36
+	position: [19.4371305125, 19.1714749702]
+	orientation: [1, 0, 0, 0, 0, -1, 0, 1, 0]
+	normal: [0, -1]
+map_feature:
+	name: Demo Room
+	id: aruco 51
+	position: [24.1, 16.2]
+	orientation: [0, 0, 1, 1, 0, 0, 0, 1, 0]
+	normal: [0, -1]
+map_feature:
+	name: Demo Room
+	id: aruco 52
+	position: [25.5, 11.2]
+	orientation: [0, 0, 1, 1, 0, 0, 0, 1, 0]
+	normal: [0, 1]
+map_feature:
+	name: Elevator, 4th Floor
+	id: aruco 53
+	position: [5.97, 18.2]
+	orientation: [0, 0, 1, 1, 0, 0, 0, 1, 0]
+	normal: [0, -1]
+map_feature:
+  name: Giovanni's Office
+  id: aruco 6
+  position: [7.08414779499, 5.04745530393]
+  orientation: [-1, 0, 0, 0, 0, 1, 0, 1, 0]
+  normal: [0, 1]
+map_feature:
+  name: James' Office
+  id: aruco 18
+  position: [35.5092908224, 13.5927085816]
+  orientation: [1, 0, 0, 0, 0, -1, 0, 1, 0]
+  normal: [0, -1]
+map_feature:
+  name: Stairwell to lower levels
+  id: aruco 34
+  position: [9.74070321812, 17.8431972586]
+  orientation: [1, 0, 0, 0, 0, -1, 0, 1, 0]
+map_feature:
+  name: Conference Room
+  id: aruco 18
+  position: [30.373283671, 14.3011233611]
+  orientation: [1, 0, 0, 0, 0, -1, 0, 1, 0]
+map_feature:
+  name: Huiying's office
+  id: aruco 1
+  position: [4.42759237187, 15.4522973778]
+  orientation: [0, 0, 1, 1, 0, 0, 0, 1, 0]
+map_feature:
+  name: Secondary Stairwell to 3rd floor
+  id: aruco 35
+  position: [12.8400178784, 17.7989213349]
+  orientation: [1, 0, 0, 0, 0, -1, 0, 1, 0]
+map_feature:
+  name: Josh's office
+  id: aruco 9
+  position: [16.6477473182, 5.13600715137]
+  orientation: [-1, 0, 0, 0, 0, 1, 0, 1, 0]
+map_feature:
+  name: Bill's Office
+  id: aruco 28
+  position: [19.7913379023, 16.4706436234]
+  orientation: [-1, 0, 0, 0, 0, 1, 0, 1, 0]

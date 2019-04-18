@@ -7,15 +7,22 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3F1F89CF225FE70A00483EF4 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 3F1F8989225FE70A00483EF4 /* LICENSE */; };
+		3F1F89D0225FE70A00483EF4 /* version.h.in in Resources */ = {isa = PBXBuildFile; fileRef = 3F1F8996225FE70A00483EF4 /* version.h.in */; };
+		3F1F89D3225FE70A00483EF4 /* MedianFlowTracker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F1F89B2225FE70A00483EF4 /* MedianFlowTracker.cpp */; };
+		3F1F89D4225FE70A00483EF4 /* ObjDetector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F1F89B3225FE70A00483EF4 /* ObjDetector.cpp */; };
+		3F1F89D5225FE70A00483EF4 /* DetectionParams.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F1F89B4225FE70A00483EF4 /* DetectionParams.cpp */; };
+		3F5F53B522580B3F00D40A04 /* svm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5F53B422580B3F00D40A04 /* svm.cpp */; };
+		3F5F53F322580CD100D40A04 /* res in Resources */ = {isa = PBXBuildFile; fileRef = 3F5F53F122580CB400D40A04 /* res */; };
 		3FCD2A082253EA800048B140 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FCD2A072253EA800048B140 /* AppDelegate.swift */; };
-		3FCD2A0A2253EA800048B140 /* Scene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 3FCD2A092253EA800048B140 /* Scene.sks */; };
 		3FCD2A0C2253EA800048B140 /* Scene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FCD2A0B2253EA800048B140 /* Scene.swift */; };
 		3FCD2A0E2253EA800048B140 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FCD2A0D2253EA800048B140 /* ViewController.swift */; };
 		3FCD2A112253EA800048B140 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3FCD2A0F2253EA800048B140 /* Main.storyboard */; };
 		3FCD2A132253EA820048B140 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3FCD2A122253EA820048B140 /* Assets.xcassets */; };
 		3FCD2A162253EA820048B140 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3FCD2A142253EA820048B140 /* LaunchScreen.storyboard */; };
-		3FCD2A212253EA820048B140 /* iNavigateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FCD2A202253EA820048B140 /* iNavigateTests.swift */; };
-		3FCD2A2C2253EA820048B140 /* iNavigateUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FCD2A2B2253EA820048B140 /* iNavigateUITests.swift */; };
+		3FCD2A3B225404410048B140 /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3FCD2A3A225404410048B140 /* opencv2.framework */; };
+		3FCD2A40225407170048B140 /* DestinationSelectionControllerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FCD2A3F225407170048B140 /* DestinationSelectionControllerViewController.swift */; };
+		3FCD2A46225412500048B140 /* NavigationCoreWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3FCD2A45225412500048B140 /* NavigationCoreWrapper.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +43,37 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3F1F8989225FE70A00483EF4 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		3F1F898C225FE70A00483EF4 /* MapManager.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MapManager.hpp; sourceTree = "<group>"; };
+		3F1F898D225FE70A00483EF4 /* AnnotatedMap.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = AnnotatedMap.hpp; sourceTree = "<group>"; };
+		3F1F898E225FE70A00483EF4 /* MapFeature.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MapFeature.hpp; sourceTree = "<group>"; };
+		3F1F8990225FE70A00483EF4 /* FloorChangeDetector.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = FloorChangeDetector.hpp; sourceTree = "<group>"; };
+		3F1F8992225FE70A00483EF4 /* ParticleFilter.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ParticleFilter.hpp; sourceTree = "<group>"; };
+		3F1F8993225FE70A00483EF4 /* VIOMeasurements.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = VIOMeasurements.hpp; sourceTree = "<group>"; };
+		3F1F8994225FE70A00483EF4 /* LocalizationSystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LocalizationSystem.hpp; sourceTree = "<group>"; };
+		3F1F8995225FE70A00483EF4 /* Particle.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Particle.hpp; sourceTree = "<group>"; };
+		3F1F8996225FE70A00483EF4 /* version.h.in */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = version.h.in; sourceTree = "<group>"; };
+		3F1F8998225FE70A00483EF4 /* MatUtils.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MatUtils.hpp; sourceTree = "<group>"; };
+		3F1F8999225FE70A00483EF4 /* ParseUtils.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ParseUtils.hpp; sourceTree = "<group>"; };
+		3F1F899B225FE70A00483EF4 /* KnownLocationInitPolicy.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = KnownLocationInitPolicy.hpp; sourceTree = "<group>"; };
+		3F1F899C225FE70A00483EF4 /* AllKnownInitPolicy.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = AllKnownInitPolicy.hpp; sourceTree = "<group>"; };
+		3F1F899D225FE70A00483EF4 /* InitPolicy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InitPolicy.h; sourceTree = "<group>"; };
+		3F1F899E225FE70A00483EF4 /* UniformInitPolicy.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = UniformInitPolicy.hpp; sourceTree = "<group>"; };
+		3F1F899F225FE70A00483EF4 /* UniformWithYawInitPolicy.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = UniformWithYawInitPolicy.hpp; sourceTree = "<group>"; };
+		3F1F89A1225FE70A00483EF4 /* Visualizer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Visualizer.hpp; sourceTree = "<group>"; };
+		3F1F89A3225FE70A00483EF4 /* CVObservation.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CVObservation.hpp; sourceTree = "<group>"; };
+		3F1F89A4225FE70A00483EF4 /* ArucoMarkerDetector.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ArucoMarkerDetector.hpp; sourceTree = "<group>"; };
+		3F1F89A5225FE70A00483EF4 /* MedianFlowTracker.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MedianFlowTracker.hpp; sourceTree = "<group>"; };
+		3F1F89A6225FE70A00483EF4 /* ObjDetector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjDetector.h; sourceTree = "<group>"; };
+		3F1F89A7225FE70A00483EF4 /* CVObservationsManager.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CVObservationsManager.hpp; sourceTree = "<group>"; };
+		3F1F89A8225FE70A00483EF4 /* DetectionParams.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DetectionParams.h; sourceTree = "<group>"; };
+		3F1F89A9225FE70A00483EF4 /* CVDetector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVDetector.h; sourceTree = "<group>"; };
+		3F1F89AB225FE70A00483EF4 /* VIOLoggerParser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = VIOLoggerParser.hpp; sourceTree = "<group>"; };
+		3F1F89B2225FE70A00483EF4 /* MedianFlowTracker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MedianFlowTracker.cpp; sourceTree = "<group>"; };
+		3F1F89B3225FE70A00483EF4 /* ObjDetector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ObjDetector.cpp; sourceTree = "<group>"; };
+		3F1F89B4225FE70A00483EF4 /* DetectionParams.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DetectionParams.cpp; sourceTree = "<group>"; };
+		3F5F53B422580B3F00D40A04 /* svm.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = svm.cpp; sourceTree = "<group>"; };
+		3F5F53F122580CB400D40A04 /* res */ = {isa = PBXFileReference; lastKnownFileType = folder; name = res; path = "___LocalizationCore/res"; sourceTree = "<group>"; };
 		3FCD2A042253EA800048B140 /* iNavigate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iNavigate.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3FCD2A072253EA800048B140 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3FCD2A092253EA800048B140 /* Scene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = Scene.sks; sourceTree = "<group>"; };
@@ -46,11 +84,14 @@
 		3FCD2A152253EA820048B140 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		3FCD2A172253EA820048B140 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3FCD2A1C2253EA820048B140 /* iNavigateTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = iNavigateTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		3FCD2A202253EA820048B140 /* iNavigateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iNavigateTests.swift; sourceTree = "<group>"; };
-		3FCD2A222253EA820048B140 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3FCD2A272253EA820048B140 /* iNavigateUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = iNavigateUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		3FCD2A2B2253EA820048B140 /* iNavigateUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iNavigateUITests.swift; sourceTree = "<group>"; };
-		3FCD2A2D2253EA820048B140 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		3FCD2A3A225404410048B140 /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = opencv2.framework; path = "../opencv-4.0.1/platforms/ios/opencv2.framework"; sourceTree = "<group>"; };
+		3FCD2A3F225407170048B140 /* DestinationSelectionControllerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestinationSelectionControllerViewController.swift; sourceTree = "<group>"; };
+		3FCD2A45225412500048B140 /* NavigationCoreWrapper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = NavigationCoreWrapper.mm; sourceTree = "<group>"; };
+		3FCD2A47225412760048B140 /* NavigationCoreWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NavigationCoreWrapper.h; sourceTree = "<group>"; };
+		3FCD2A48225412A20048B140 /* iNavigate-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "iNavigate-Bridging-Header.h"; sourceTree = "<group>"; };
+		3FCD2A492254134F0048B140 /* NavGraph.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NavGraph.hpp; sourceTree = "<group>"; };
+		3FCD2A4A2254134F0048B140 /* NavigationSystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NavigationSystem.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +99,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3FCD2A3B225404410048B140 /* opencv2.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,13 +120,138 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3F1F896C225FE70A00483EF4 /* LocalizationCore */ = {
+			isa = PBXGroup;
+			children = (
+				3F1F8989225FE70A00483EF4 /* LICENSE */,
+				3F1F898A225FE70A00483EF4 /* include */,
+				3F1F89B0225FE70A00483EF4 /* src */,
+			);
+			name = LocalizationCore;
+			path = ../../iLocalize/iLocalize/LocalizationCore;
+			sourceTree = "<group>";
+		};
+		3F1F898A225FE70A00483EF4 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				3F1F898B225FE70A00483EF4 /* Maps */,
+				3F1F898F225FE70A00483EF4 /* Sensors */,
+				3F1F8991225FE70A00483EF4 /* Core */,
+				3F1F8996225FE70A00483EF4 /* version.h.in */,
+				3F1F8997225FE70A00483EF4 /* Utils */,
+				3F1F899A225FE70A00483EF4 /* InitPolicies */,
+				3F1F89A0225FE70A00483EF4 /* LogTools */,
+				3F1F89A2225FE70A00483EF4 /* CV */,
+				3F1F89AA225FE70A00483EF4 /* TestUtils */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		3F1F898B225FE70A00483EF4 /* Maps */ = {
+			isa = PBXGroup;
+			children = (
+				3F1F898C225FE70A00483EF4 /* MapManager.hpp */,
+				3F1F898D225FE70A00483EF4 /* AnnotatedMap.hpp */,
+				3F1F898E225FE70A00483EF4 /* MapFeature.hpp */,
+			);
+			path = Maps;
+			sourceTree = "<group>";
+		};
+		3F1F898F225FE70A00483EF4 /* Sensors */ = {
+			isa = PBXGroup;
+			children = (
+				3F1F8990225FE70A00483EF4 /* FloorChangeDetector.hpp */,
+			);
+			path = Sensors;
+			sourceTree = "<group>";
+		};
+		3F1F8991225FE70A00483EF4 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				3F1F8992225FE70A00483EF4 /* ParticleFilter.hpp */,
+				3F1F8993225FE70A00483EF4 /* VIOMeasurements.hpp */,
+				3F1F8994225FE70A00483EF4 /* LocalizationSystem.hpp */,
+				3F1F8995225FE70A00483EF4 /* Particle.hpp */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		3F1F8997225FE70A00483EF4 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				3F1F8998225FE70A00483EF4 /* MatUtils.hpp */,
+				3F1F8999225FE70A00483EF4 /* ParseUtils.hpp */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		3F1F899A225FE70A00483EF4 /* InitPolicies */ = {
+			isa = PBXGroup;
+			children = (
+				3F1F899B225FE70A00483EF4 /* KnownLocationInitPolicy.hpp */,
+				3F1F899C225FE70A00483EF4 /* AllKnownInitPolicy.hpp */,
+				3F1F899D225FE70A00483EF4 /* InitPolicy.h */,
+				3F1F899E225FE70A00483EF4 /* UniformInitPolicy.hpp */,
+				3F1F899F225FE70A00483EF4 /* UniformWithYawInitPolicy.hpp */,
+			);
+			path = InitPolicies;
+			sourceTree = "<group>";
+		};
+		3F1F89A0225FE70A00483EF4 /* LogTools */ = {
+			isa = PBXGroup;
+			children = (
+				3F1F89A1225FE70A00483EF4 /* Visualizer.hpp */,
+			);
+			path = LogTools;
+			sourceTree = "<group>";
+		};
+		3F1F89A2225FE70A00483EF4 /* CV */ = {
+			isa = PBXGroup;
+			children = (
+				3F1F89A3225FE70A00483EF4 /* CVObservation.hpp */,
+				3F1F89A4225FE70A00483EF4 /* ArucoMarkerDetector.hpp */,
+				3F1F89A5225FE70A00483EF4 /* MedianFlowTracker.hpp */,
+				3F1F89A6225FE70A00483EF4 /* ObjDetector.h */,
+				3F1F89A7225FE70A00483EF4 /* CVObservationsManager.hpp */,
+				3F1F89A8225FE70A00483EF4 /* DetectionParams.h */,
+				3F1F89A9225FE70A00483EF4 /* CVDetector.h */,
+			);
+			path = CV;
+			sourceTree = "<group>";
+		};
+		3F1F89AA225FE70A00483EF4 /* TestUtils */ = {
+			isa = PBXGroup;
+			children = (
+				3F1F89AB225FE70A00483EF4 /* VIOLoggerParser.hpp */,
+			);
+			path = TestUtils;
+			sourceTree = "<group>";
+		};
+		3F1F89B0225FE70A00483EF4 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				3F1F89B1225FE70A00483EF4 /* CV */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		3F1F89B1225FE70A00483EF4 /* CV */ = {
+			isa = PBXGroup;
+			children = (
+				3F1F89B2225FE70A00483EF4 /* MedianFlowTracker.cpp */,
+				3F1F89B3225FE70A00483EF4 /* ObjDetector.cpp */,
+				3F1F89B4225FE70A00483EF4 /* DetectionParams.cpp */,
+			);
+			path = CV;
+			sourceTree = "<group>";
+		};
 		3FCD29FB2253EA800048B140 = {
 			isa = PBXGroup;
 			children = (
+				3F5F53B422580B3F00D40A04 /* svm.cpp */,
 				3FCD2A062253EA800048B140 /* iNavigate */,
-				3FCD2A1F2253EA820048B140 /* iNavigateTests */,
-				3FCD2A2A2253EA820048B140 /* iNavigateUITests */,
 				3FCD2A052253EA800048B140 /* Products */,
+				3FCD2A39225404410048B140 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -101,6 +268,9 @@
 		3FCD2A062253EA800048B140 /* iNavigate */ = {
 			isa = PBXGroup;
 			children = (
+				3F1F896C225FE70A00483EF4 /* LocalizationCore */,
+				3F5F53F122580CB400D40A04 /* res */,
+				3FCD2A3E2254052E0048B140 /* NavigationCore */,
 				3FCD2A072253EA800048B140 /* AppDelegate.swift */,
 				3FCD2A092253EA800048B140 /* Scene.sks */,
 				3FCD2A0B2253EA800048B140 /* Scene.swift */,
@@ -109,27 +279,31 @@
 				3FCD2A122253EA820048B140 /* Assets.xcassets */,
 				3FCD2A142253EA820048B140 /* LaunchScreen.storyboard */,
 				3FCD2A172253EA820048B140 /* Info.plist */,
+				3FCD2A3F225407170048B140 /* DestinationSelectionControllerViewController.swift */,
+				3FCD2A47225412760048B140 /* NavigationCoreWrapper.h */,
+				3FCD2A45225412500048B140 /* NavigationCoreWrapper.mm */,
+				3FCD2A48225412A20048B140 /* iNavigate-Bridging-Header.h */,
 			);
 			path = iNavigate;
 			sourceTree = "<group>";
 		};
-		3FCD2A1F2253EA820048B140 /* iNavigateTests */ = {
+		3FCD2A39225404410048B140 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				3FCD2A202253EA820048B140 /* iNavigateTests.swift */,
-				3FCD2A222253EA820048B140 /* Info.plist */,
+				3FCD2A3A225404410048B140 /* opencv2.framework */,
 			);
-			path = iNavigateTests;
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		3FCD2A2A2253EA820048B140 /* iNavigateUITests */ = {
+		3FCD2A3E2254052E0048B140 /* NavigationCore */ = {
 			isa = PBXGroup;
 			children = (
-				3FCD2A2B2253EA820048B140 /* iNavigateUITests.swift */,
-				3FCD2A2D2253EA820048B140 /* Info.plist */,
+				3FCD2A492254134F0048B140 /* NavGraph.hpp */,
+				3FCD2A4A2254134F0048B140 /* NavigationSystem.hpp */,
 			);
-			path = iNavigateUITests;
-			sourceTree = "<group>";
+			name = NavigationCore;
+			path = iNavigate/NavigationCore;
+			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXGroup section */
 
@@ -199,6 +373,7 @@
 				TargetAttributes = {
 					3FCD2A032253EA800048B140 = {
 						CreatedOnToolsVersion = 10.2;
+						LastSwiftMigration = 1020;
 					};
 					3FCD2A1B2253EA820048B140 = {
 						CreatedOnToolsVersion = 10.2;
@@ -235,10 +410,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3FCD2A0A2253EA800048B140 /* Scene.sks in Resources */,
+				3F1F89D0225FE70A00483EF4 /* version.h.in in Resources */,
+				3F5F53F322580CD100D40A04 /* res in Resources */,
 				3FCD2A162253EA820048B140 /* LaunchScreen.storyboard in Resources */,
 				3FCD2A132253EA820048B140 /* Assets.xcassets in Resources */,
 				3FCD2A112253EA800048B140 /* Main.storyboard in Resources */,
+				3F1F89CF225FE70A00483EF4 /* LICENSE in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -263,9 +440,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3F1F89D3225FE70A00483EF4 /* MedianFlowTracker.cpp in Sources */,
+				3F5F53B522580B3F00D40A04 /* svm.cpp in Sources */,
+				3F1F89D5225FE70A00483EF4 /* DetectionParams.cpp in Sources */,
+				3FCD2A40225407170048B140 /* DestinationSelectionControllerViewController.swift in Sources */,
 				3FCD2A0E2253EA800048B140 /* ViewController.swift in Sources */,
 				3FCD2A0C2253EA800048B140 /* Scene.swift in Sources */,
+				3F1F89D4225FE70A00483EF4 /* ObjDetector.cpp in Sources */,
 				3FCD2A082253EA800048B140 /* AppDelegate.swift in Sources */,
+				3FCD2A46225412500048B140 /* NavigationCoreWrapper.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -273,7 +456,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3FCD2A212253EA820048B140 /* iNavigateTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -281,7 +463,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3FCD2A2C2253EA820048B140 /* iNavigateUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -440,15 +621,25 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = E9BKVZ8679;
+				FRAMEWORK_SEARCH_PATHS = "/Users/gio/Documents/workspace/opencv-4.0.1/platforms/ios";
+				HEADER_SEARCH_PATHS = (
+					/Users/gio/Documents/workspace/rapidjson/include/,
+					/Users/gio/Documents/workspace/iLocalize/iLocalize/LocalizationCore/include,
+					/Users/gio/Documents/workspace/iLocalize/iLocalize/LocalizationCore/libsvm,
+				);
 				INFOPLIST_FILE = iNavigate/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = ski.org.iNavigate;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "iNavigate/iNavigate-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -458,15 +649,24 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = E9BKVZ8679;
+				FRAMEWORK_SEARCH_PATHS = "/Users/gio/Documents/workspace/opencv-4.0.1/platforms/ios";
+				HEADER_SEARCH_PATHS = (
+					/Users/gio/Documents/workspace/rapidjson/include/,
+					/Users/gio/Documents/workspace/iLocalize/iLocalize/LocalizationCore/include,
+					/Users/gio/Documents/workspace/iLocalize/iLocalize/LocalizationCore/libsvm,
+				);
 				INFOPLIST_FILE = iNavigate/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = ski.org.iNavigate;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "iNavigate/iNavigate-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
