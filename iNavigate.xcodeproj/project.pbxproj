@@ -14,6 +14,7 @@
 		3F1F89D5225FE70A00483EF4 /* DetectionParams.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F1F89B4225FE70A00483EF4 /* DetectionParams.cpp */; };
 		3F5F53B522580B3F00D40A04 /* svm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5F53B422580B3F00D40A04 /* svm.cpp */; };
 		3F5F53F322580CD100D40A04 /* res in Resources */ = {isa = PBXBuildFile; fileRef = 3F5F53F122580CB400D40A04 /* res */; };
+		3FC2BB0C226FC5DE00A1701B /* FloorChangeDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FC2BB0B226FC5DE00A1701B /* FloorChangeDetector.swift */; };
 		3FCD2A082253EA800048B140 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FCD2A072253EA800048B140 /* AppDelegate.swift */; };
 		3FCD2A0C2253EA800048B140 /* Scene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FCD2A0B2253EA800048B140 /* Scene.swift */; };
 		3FCD2A0E2253EA800048B140 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FCD2A0D2253EA800048B140 /* ViewController.swift */; };
@@ -73,7 +74,8 @@
 		3F1F89B3225FE70A00483EF4 /* ObjDetector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ObjDetector.cpp; sourceTree = "<group>"; };
 		3F1F89B4225FE70A00483EF4 /* DetectionParams.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DetectionParams.cpp; sourceTree = "<group>"; };
 		3F5F53B422580B3F00D40A04 /* svm.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = svm.cpp; sourceTree = "<group>"; };
-		3F5F53F122580CB400D40A04 /* res */ = {isa = PBXFileReference; lastKnownFileType = folder; name = res; path = "___LocalizationCore/res"; sourceTree = "<group>"; };
+		3F5F53F122580CB400D40A04 /* res */ = {isa = PBXFileReference; lastKnownFileType = folder; path = res; sourceTree = "<group>"; };
+		3FC2BB0B226FC5DE00A1701B /* FloorChangeDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloorChangeDetector.swift; sourceTree = "<group>"; };
 		3FCD2A042253EA800048B140 /* iNavigate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iNavigate.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3FCD2A072253EA800048B140 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3FCD2A092253EA800048B140 /* Scene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = Scene.sks; sourceTree = "<group>"; };
@@ -274,6 +276,7 @@
 				3FCD2A072253EA800048B140 /* AppDelegate.swift */,
 				3FCD2A092253EA800048B140 /* Scene.sks */,
 				3FCD2A0B2253EA800048B140 /* Scene.swift */,
+				3FC2BB0B226FC5DE00A1701B /* FloorChangeDetector.swift */,
 				3FCD2A0D2253EA800048B140 /* ViewController.swift */,
 				3FCD2A0F2253EA800048B140 /* Main.storyboard */,
 				3FCD2A122253EA820048B140 /* Assets.xcassets */,
@@ -440,6 +443,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3FC2BB0C226FC5DE00A1701B /* FloorChangeDetector.swift in Sources */,
 				3F1F89D3225FE70A00483EF4 /* MedianFlowTracker.cpp in Sources */,
 				3F5F53B522580B3F00D40A04 /* svm.cpp in Sources */,
 				3F1F89D5225FE70A00483EF4 /* DetectionParams.cpp in Sources */,

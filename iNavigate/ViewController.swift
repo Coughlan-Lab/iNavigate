@@ -137,13 +137,15 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
     var locSysInit : Bool = false
     var dumpParticles : Bool = false
     
+    var floorChangeDetector : FloorChangeDetector = FloorChangeDetector()
+    
     // ** QR code reader
     var qrRequests = [VNRequest]()
     var detectedDataAnchor: ARAnchor?
     
     var frameCounter : UInt64 = 0
     var lastProcessedFrameTime: TimeInterval = TimeInterval()
-    let numParticles = 20000
+    let numParticles = 1000
     
     // set user height (retrieve last value from memory)
     var userHeight:String {
@@ -161,16 +163,6 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
         }
     }
     
-    // ** floor change variables
-    var altimeter : CMAltimeter = CMAltimeter()
-    var currentPressure_kPa : Double = 0.0
-    var barometerTstamp : Double = 0
-    let barometerQueue: OperationQueue = {
-        let barometerQueue = OperationQueue()
-        barometerQueue.name = "org.ski.iNavigate.barometerQueue"
-        barometerQueue.qualityOfService = .userInteractive
-        return barometerQueue
-    }()
     
     // ** compass heading
     var compassHeading : Double = 0.0
@@ -223,6 +215,9 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
             let pos = navigationCore.getNodeUVPosition(Int32(startID))
             navigationCore.initializeLocalizationSystem(resURL.relativePath, numParticles: Int32(numParticles), posU: pos[0] as! Double, posV: pos[1] as! Double, initYaw: Double(yaw), initYawNoise: 2 * compassAccuracy * .pi / 180)
         }
+        else{
+            navigationCore.initializeLocalizationSystemUnknownLocation(resURL.relativePath, numParticles: Int32(numParticles), initYaw: Double(yaw), initYawNoise: 2 * compassAccuracy * .pi / 180)
+        }
         
         locSysInit = true
         navigationCore.setCameraHeight(Float(userHeight)!)
@@ -242,9 +237,9 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
             }
         }
         else if (locSysInit) && (frame.timestamp-lastProcessedFrameTime) > 0.1 {
-            
+            let deltaFloors = floorChangeDetector.getFloorsDelta()
             let trackerState = "\(frame.camera.trackingState)"
-            let outimg = navigationCore.step(trackerState, timestamp: frame.timestamp, camera: frame.camera, kPa: currentPressure_kPa, barometerTS: barometerTstamp, frame: pixelBufferToUIImage(pixelBuffer: frame.capturedImage))
+            let outimg = navigationCore.step(trackerState, timestamp: frame.timestamp, camera: frame.camera, deltaFloors: Int32(deltaFloors), frame: pixelBufferToUIImage(pixelBuffer: frame.capturedImage))
             
             cvImage.image = navigationCore.getCVDetectorOutputFrame();
 //            let yaw = navigationCore.getParticlesYaw()*180/3.14;
@@ -336,23 +331,6 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
     }
     
     
-//    func setupBarometer(){
-//        if CMAltimeter.isRelativeAltitudeAvailable() {
-//            let opQueue = OperationQueue.current!
-//            opQueue.qualityOfService = .userInteractive
-//
-//            self.altimeter.startRelativeAltitudeUpdates(to: barometerQueue, withHandler: { (altitudeData:CMAltitudeData?, error:Error?) in
-//
-//                //   let altitude = altitudeData!.relativeAltitude.floatValue    // Relative altitude in meters
-//                // Pressure in kilopascals
-//                self.currentPressure_kPa = altitudeData!.pressure.doubleValue
-//                self.barometerTstamp = altitudeData!.timestamp
-//                self.logger.altimeterPressure = altitudeData!.pressure.doubleValue
-//            })
-//        }
-//    }
-    
-    
     func startQrCodeDetection() {
         // Create a Barcode Detection Request
         let request = VNDetectBarcodesRequest(completionHandler: self.requestHandler)
@@ -364,7 +342,6 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
     func checkQRCode(image : CVPixelBuffer){
         let imageRequestHandler = VNImageRequestHandler(cvPixelBuffer: image,
                                                         options: [:])
-        // Process the request
         do{
             try imageRequestHandler.perform(self.qrRequests)
         }
@@ -380,7 +357,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
                 guard let payload = result.payloadStringValue else {return}
                 userHeight = payload
                 //audioFeedback.announceNow(string: "Camera height set to \(userHeight)")
-                //localizationCore.setCameraHeight(Float(userHeight)!)
+                navigationCore.setCameraHeight(Float(userHeight)!)
             }
         }
     }

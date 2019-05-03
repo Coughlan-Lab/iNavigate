@@ -18,9 +18,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void) initNavigationSystem : (NSString*) mapFolder currentFloor:(int)currentFloor;
 - (void) initializeLocalizationSystem:(NSString *)resPath numParticles:(int) numParticles posU:(double) posU posV:(double) posV initYaw:(double) initYaw initYawNoise:(double) initYawNoise;
-- (UIImage*) step : (NSString*) trackerStatus timestamp:(double)timestamp x:(double) x y:(double) y z:(double) z  rx:(double) rx ry:(double) ry rz:(double) rz kPa:(double)kPa barometerTS:(double) barometerTS frame:(UIImage*) frame;
+- (void) initializeLocalizationSystemUnknownLocation:(NSString *)resPath numParticles:(int) numParticles initYaw:(double) initYaw initYawNoise:(double) initYawNoise;
+
+//- (UIImage*) step : (NSString*) trackerStatus timestamp:(double)timestamp x:(double) x y:(double) y z:(double) z  rx:(double) rx ry:(double) ry rz:(double) rz kPa:(double)kPa barometerTS:(double) barometerTS frame:(UIImage*) frame;
+//- (UIImage*) step: (NSString*) trackerStatus timestamp:(double)timestamp camera:(ARCamera*) camera kPa:(double)kPa barometerTS:(double) barometerTS frame:(UIImage*) frame;
+    
+- (UIImage*) step : (NSString*) trackerStatus timestamp:(double)timestamp x:(double) x y:(double) y z:(double) z  rx:(double) rx ry:(double) ry rz:(double) rz deltaFloors:(int)deltaFloors frame:(UIImage*) frame;
+- (UIImage*) step: (NSString*) trackerStatus timestamp:(double)timestamp camera:(ARCamera*) camera deltaFloors:(int)deltaFloors frame:(UIImage*) frame;
+    
 - (float) getParticlesYaw;
-- (UIImage*) step: (NSString*) trackerStatus timestamp:(double)timestamp camera:(ARCamera*) camera kPa:(double)kPa barometerTS:(double) barometerTS frame:(UIImage*) frame;
+
 
 - (void) setDestinationID: (int) destId;
 - (NSArray*) getNodeUVPosition : (int)nodeId;

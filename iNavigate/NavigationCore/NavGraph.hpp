@@ -122,48 +122,33 @@ namespace navgraph{
         
         // note: uvpos.y is the ascissa, .x the ordinate
         SnappedPosition snapUV2Graph(cv::Point2f uvpos, int floor, bool checkWalls = false){
-            double minDist = 1e9;
-            int id = -1;
-            int minId = -1;
+            double minDist = INF;
             cv::Point2f minpos;
             SnappedPosition spos;
-            struct snapCandidate {
-                int srcId;
-                int destId;
-                bool hit;
-                cv::Point2f pt;
-            };
-            std::map<double, snapCandidate> tmp;
+            
+            // if no location matches, the location stays unchanged
+            spos.uvPos = uvpos;
+            spos.srcNodeId = -1;
+            spos.destNodeId = -1;
             
             for (auto& n : _nodes){
-                for (auto& e : n.second.edges){
-                    cv::Point2f pt = projectPointToGraph(n.second, _nodes[e.first], uvpos);
-                    cv::Point2f diff = uvpos - pt;
-                    double d = sqrt(diff.x*diff.x + diff.y*diff.y);
-                    snapCandidate c;
-                    c.srcId = n.first;
-                    c.destId = e.first;
-                    c.hit = _mapManager->isPathCrossingWalls(_mapManager->uv2pixels(uvpos), _mapManager->uv2pixels(pt));
-                    c.pt = pt;
-                    tmp.insert(std::make_pair(d,c));
+                if (n.second.floor == floor){
+                    for (auto& e : n.second.edges){
+                        cv::Point2f pt = projectPointToGraph(n.second, _nodes[e.first], uvpos);
+                        cv::Point2f diff = uvpos - pt;
+                        double d = sqrt(diff.x*diff.x + diff.y*diff.y);
+                        
+                        if (d < minDist){
+                            bool hit = _mapManager->isPathCrossingWalls(_mapManager->uv2pixels(uvpos), _mapManager->uv2pixels(pt));
+                            if (!hit){
+                                minDist = d;
+                                spos.uvPos = pt;
+                                spos.srcNodeId = n.first;
+                                spos.destNodeId = e.first;
+                            }
+                        }
+                    }
                 }
-            }
-            
-            auto it = tmp.begin();
-            auto c1 = it->second;
-            double d1 = it->first;
-            it++;
-            auto c2 = it->second;
-            double d2 = it->first;
-            if (!c1.hit || d1/d2 <= 0.75){
-                spos.uvPos = c1.pt;
-                spos.srcNodeId = c1.srcId;
-                spos.destNodeId = c1.destId;
-            }
-            else if (c1.hit){
-                spos.uvPos = c2.pt;
-                spos.srcNodeId = c2.srcId;
-                spos.destNodeId = c2.destId;
             }
             return spos;
         }

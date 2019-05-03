@@ -46,11 +46,13 @@ namespace navgraph{
         
         inline void setCameraHeight(float cameraHeight) { _locSystem->setCameraHeight(cameraHeight); }
         
-        cv::Mat step(const locore::VIOMeasurements& vioData){
+        cv::Mat step(const locore::VIOMeasurements& vioData, int deltaFloors){
+            updateCurrentFloor(deltaFloors);
             cv::Mat kde = _locSystem->step(vioData);
             
             cv::Point2f peak = _locSystem->getRobustPeakUV();
-            if (peak.x > 0 && peak.y > 0){
+            
+            if ((destinationId >= 0) && (peak.x > 0 && peak.y > 0)){
                 NavGraph::SnappedPosition snap = _navGraph->snapUV2Graph(peak, _mapManager->currentFloor, true);
                 //cv::Mat map = _mapManager->getWallsImageRGB().clone();
                 if (snap.srcNodeId >= 0 && snap.destNodeId >= 0){
@@ -58,27 +60,27 @@ namespace navgraph{
                     cv::Point2i pt = _mapManager->uv2pixels(snap.uvPos);
                     cv::drawMarker(kde, cv::Point2i(pt.y, pt.x), cv::Scalar(0,255,0), cv::MARKER_DIAMOND, 10, 3);
                     
-                    if (destinationId >= 0){
-                        // find path and plot it
-                        for (int i=0; i < path.size()-1; i++){
-                            cv::Point2i npos1 = _mapManager->uv2pixels(_navGraph->getNode(path[i]).positionUV);
-                            cv::Point2i npos2 = _mapManager->uv2pixels(_navGraph->getNode(path[i+1]).positionUV);
-                            cv::drawMarker(kde, cv::Point2i(npos1.y, npos1.x), cv::Scalar(0,255,255), cv::MARKER_TRIANGLE_DOWN, 10, 2);
-                            cv::line(kde, cv::Point2i(npos1.y, npos1.x), cv::Point2i(npos2.y, npos2.x), cv::Scalar(0,255,255), 2);
-                            if (i == 0)
-                                cv::line(kde, cv::Point2i(pt.y, pt.x), cv::Point2i(npos1.y, npos1.x), cv::Scalar(255,0,255), 2, cv::LINE_4);
-                        }
-                        cv::Point2i npos = _mapManager->uv2pixels(_navGraph->getNode(path[path.size()-1]).positionUV);
-                        cv::drawMarker(kde, cv::Point2i(npos.y, npos.x), cv::Scalar(255,0,255), cv::MARKER_TRIANGLE_DOWN, 10, 3);
+//                        if (destinationId >= 0){
+                    // find path and plot it
+                    for (int i=0; i < path.size()-1; i++){
+                        cv::Point2i npos1 = _mapManager->uv2pixels(_navGraph->getNode(path[i]).positionUV);
+                        cv::Point2i npos2 = _mapManager->uv2pixels(_navGraph->getNode(path[i+1]).positionUV);
+                        cv::drawMarker(kde, cv::Point2i(npos1.y, npos1.x), cv::Scalar(0,255,255), cv::MARKER_TRIANGLE_DOWN, 10, 2);
+                        cv::line(kde, cv::Point2i(npos1.y, npos1.x), cv::Point2i(npos2.y, npos2.x), cv::Scalar(0,255,255), 2);
+                        if (i == 0)
+                            cv::line(kde, cv::Point2i(pt.y, pt.x), cv::Point2i(npos1.y, npos1.x), cv::Scalar(255,0,255), 2, cv::LINE_4);
                     }
+                    cv::Point2i npos = _mapManager->uv2pixels(_navGraph->getNode(path[path.size()-1]).positionUV);
+                    cv::drawMarker(kde, cv::Point2i(npos.y, npos.x), cv::Scalar(255,0,255), cv::MARKER_TRIANGLE_DOWN, 10, 3);
+//                        }
                     cv::rotate(kde, kde, cv::ROTATE_90_CLOCKWISE);
 //                    return _locSystem->getParticlesYawMap();
                     return kde;
                 }
                 else{
-//                    std::cerr << " ++ " << _locSystem->getRobustPeak() << " ++ \n";
+    //                    std::cerr << " ++ " << _locSystem->getRobustPeak() << " ++ \n";
                     return kde;
-//                    return _locSystem->getParticlesYawMap();
+    //                    return _locSystem->getParticlesYawMap();
                 }
             }
             else{
@@ -117,6 +119,10 @@ namespace navgraph{
                 }
                 myfile.close();
             }
+        }
+        
+        void updateCurrentFloor(int floorNumDelta){
+            _mapManager->currentFloor += floorNumDelta;
         }
     
     private:

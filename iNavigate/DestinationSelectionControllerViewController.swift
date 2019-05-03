@@ -27,6 +27,11 @@ class DestinationSelectionControllerViewController: UIViewController , UIPickerV
     var destinationPickerData: [String] = [String]()
     var destinationIDs : [Int] = [Int]()
     var destinationsFloor : [Int] = [Int]()
+    
+    var startPickerData: [String] = [String]()
+    var startIDs : [Int] = [Int]()
+    var startFloors : [Int] = [Int]()
+    
     var destination : String = ""
     var destID : Int = -1
     var startID: Int = -1;
@@ -88,7 +93,7 @@ class DestinationSelectionControllerViewController: UIViewController , UIPickerV
             return destinationPickerData.count
         }
         else if pickerView == startPicker{
-            return destinationPickerData.count
+            return startPickerData.count
         }
         return 0
     }
@@ -101,7 +106,7 @@ class DestinationSelectionControllerViewController: UIViewController , UIPickerV
             return destinationPickerData[row]
         }
         else if pickerView == startPicker{
-            return destinationPickerData[row]
+            return startPickerData[row]
         }
         return ""
     }
@@ -116,9 +121,9 @@ class DestinationSelectionControllerViewController: UIViewController , UIPickerV
             destID = destinationIDs[row]
         }
         else if pickerView == startPicker{
-            startPoint = destinationPickerData[row]
-            startID = destinationIDs[row]
-            startFloor = destinationsFloor[row]
+            startPoint = startPickerData[row]
+            startID = startIDs[row]
+            startFloor = startFloors[row]
         }
     }
     
@@ -144,15 +149,35 @@ class DestinationSelectionControllerViewController: UIViewController , UIPickerV
                         destinationsFloor.append(Int(n.floor) ?? -1)
                     }
                 }
+                
+                startPickerData = destinationPickerData
+                startFloors = destinationsFloor
+                startIDs = destinationIDs
+                
+                startPickerData.append("2nd Floor")
+                startFloors.append(2)
+                startIDs.append(0)
+                startPickerData.append("3rd Floor")
+                startFloors.append(3)
+                startIDs.append(0)
+                startPickerData.append("4th Floor")
+                startFloors.append(4)
+                startIDs.append(0)
+                
+                
+                destinationPickerData.append("No destination")
+                destinationIDs.append(0)
+                destinationsFloor.append(0)
+                
             } catch {
                 // handle error
             }
     }
 
     @IBAction func onStartNavigationButton(_ sender: Any) {
-        if destID > 0 && startID > 0{
+        //if destID > 0 && startID > 0{
             performSegue(withIdentifier: "startNavigation", sender: self)
-        }
+        //}
     }
     
     // pass parameters to next view
