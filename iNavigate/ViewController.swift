@@ -145,7 +145,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
     
     var frameCounter : UInt64 = 0
     var lastProcessedFrameTime: TimeInterval = TimeInterval()
-    let numParticles = 1000
+    let numParticles = 50000
     
     // set user height (retrieve last value from memory)
     var userHeight:String {

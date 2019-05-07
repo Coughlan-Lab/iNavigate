@@ -94,6 +94,7 @@
 		3FCD2A48225412A20048B140 /* iNavigate-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "iNavigate-Bridging-Header.h"; sourceTree = "<group>"; };
 		3FCD2A492254134F0048B140 /* NavGraph.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NavGraph.hpp; sourceTree = "<group>"; };
 		3FCD2A4A2254134F0048B140 /* NavigationSystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NavigationSystem.hpp; sourceTree = "<group>"; };
+		3FCFBC9F2280F8EC0007F567 /* PeakDetector.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PeakDetector.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -174,6 +175,7 @@
 				3F1F8993225FE70A00483EF4 /* VIOMeasurements.hpp */,
 				3F1F8994225FE70A00483EF4 /* LocalizationSystem.hpp */,
 				3F1F8995225FE70A00483EF4 /* Particle.hpp */,
+				3FCFBC9F2280F8EC0007F567 /* PeakDetector.hpp */,
 			);
 			path = Core;
 			sourceTree = "<group>";

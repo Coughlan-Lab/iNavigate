@@ -31,6 +31,7 @@ class FloorChangeDetector{
     var pRef : Double = 0
     var pStart : Double = 0
     var pEnd : Double = 0
+    private var _floorChanging : Int = 0
     private var _floorsDelta : Int = 0
     
     // Concurrent synchronization queue
@@ -39,7 +40,8 @@ class FloorChangeDetector{
     init() {
         NSLog("Floor detector init")
         setupBarometer()
-        var timerFloorDetector : Timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(detectFloorChange), userInfo: nil, repeats: true)
+//        let timerFloorDetector : Timer =
+        Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(detectFloorChange), userInfo: nil, repeats: true)
     }
     
     func setupBarometer(){
@@ -63,6 +65,14 @@ class FloorChangeDetector{
         return delta
     }
     
+    func getFloorChanging() -> Int {
+        var changing : Int = 0
+        queue.sync { // Read
+            changing = _floorChanging
+        }
+        return changing
+    }
+    
     
     @objc func detectFloorChange(){
         
@@ -75,6 +85,7 @@ class FloorChangeDetector{
             let dp = (self.currentPressure_kPa - pRef)
             print(prevBarometerTstamp, dp)
             if (abs(dp) > min_delta){
+                _floorChanging += 1
                 if (pStart == 0){
                     pStart = self.currentPressure_kPa
                 }
@@ -83,6 +94,7 @@ class FloorChangeDetector{
                 }
             }
             else if (pStart > 0 && pEnd > 0){
+                _floorChanging = 0
                 let dPTot = pEnd - pStart
                 if (abs(dPTot) >= floor_threshold){
                     let numStories = -trunc(dPTot / floor_threshold)

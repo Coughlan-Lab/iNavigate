@@ -141,7 +141,7 @@ class DestinationSelectionControllerViewController: UIViewController , UIPickerV
                 let jsonResult = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
                 let jsonResult2 = jsonResult as? Dictionary<String, AnyObject>
                 let nodes = (jsonResult2!["nodes"] as? Dictionary<String, AnyObject>)!
-                for (key, value) in nodes{
+                for (_, value) in nodes{
                     let n = Node(value as! [String : Any])
                     if (n.type == "destination" || n.type == "link"){
                         destinationPickerData.append(n.label)
