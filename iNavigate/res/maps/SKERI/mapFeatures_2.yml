@@ -1,0 +1,60 @@
+map_feature:
+	id: 0
+	type: exit_sign
+	position: [9.3103   17.4138]
+	orientation: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+	normal: [1, 0]
+map_feature:
+    id: 1
+    type: exit_sign
+    position: [9.3103   17.4138]
+    orientation: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+    normal: [-1, 0]
+map_feature:
+    id: 2
+    type: exit_sign
+    position: [31.1207, 5.1724]
+    orientation: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+    normal: [-1, 0]
+map_feature:
+    id: 3
+    type: exit_sign
+    position: [31.1207, 5.1724]
+    orientation: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+    normal: [1, 0]
+map_feature:
+    id: 4
+    type: exit_sign
+    position: [36.2931, 16.3793]
+    orientation: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+    normal: [0, -1]
+map_feature:
+    id: 5
+    type: exit_sign
+    position: [36.2931, 6.4655]
+    orientation: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+    normal: [0, 1]
+map_feature:
+    id: 6
+    type: exit_sign
+    position: [28.1897, 15.4310]
+    orientation: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+    normal: [1, 0]
+map_feature:
+    id: 7
+    type: exit_sign
+    position: [16.2931, 6.9828]
+    orientation: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+    normal: [-1, 0]
+map_feature:
+    id: 8
+    type: exit_sign
+    position: [28.7069, 6.5517]
+    orientation: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+    normal: [0, 1]
+map_feature:
+    id: 9
+    type: exit_sign
+    position: [28.7069, 6.5517]
+    orientation: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+    normal: [0, -1]

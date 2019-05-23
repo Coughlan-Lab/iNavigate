@@ -1,0 +1,31 @@
+building_name: SKERI
+floor:
+    id: 4
+    features_file: mapFeatures_4.yml
+    walls: walls_4.bmp
+    walkable: walkable_4.bmp
+    rois: rois_4.bmp
+    rois_dictionary: rois_4.csv
+    scale: 11.23
+    offset_u: 5.7699   
+    offset_v: 18.8120
+floor:
+    id: 3
+    features_file: mapFeatures_3.yml
+    walls: walls_3.bmp
+    walkable: walkable_3.bmp
+    rois: rois_4.bmp
+    rois_dictionary: rois_4.csv
+    scale: 11.73
+    offset_u: 5.5215   
+    offset_v: 17.3592
+floor:
+    id: 2
+    features_file: mapFeatures_2.yml
+    walls: walls_2.bmp
+    walkable: walkable_2.bmp
+    rois: rois_4.bmp
+    rois_dictionary: rois_4.csv
+    scale: 11.6
+    offset_u: 5.5172  
+    offset_v: 18.6207

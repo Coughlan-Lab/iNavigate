@@ -192,9 +192,9 @@ namespace navgraph{
                     cv::putText(map, std::to_string(n.first), cv::Point2i(pt.y, pt.x), cv::FONT_HERSHEY_PLAIN, 1., cv::Scalar(0,255,0));
                 }
             }
-            cv::imshow("Graph floor " + std::to_string(floor), map);
-            if (pause)
-                cv::waitKey(-1);
+//            cv::imshow("Graph floor " + std::to_string(floor), map);
+//            if (pause)
+//                cv::waitKey(-1);
             return map;
         }
         
@@ -218,12 +218,12 @@ namespace navgraph{
         
         void showClosestNodeToPoint(int floor, bool checkWalls = false){
             cv::Mat map = plotGraph(floor);
-            cv::namedWindow("graph");
+//            cv::namedWindow("graph");
             cv::Point2i pt;
-            cv::setMouseCallback( "graph", onMouse, &pt );
+//            cv::setMouseCallback( "graph", onMouse, &pt );
             
-            cv::imshow("graph", map);
-            cv::waitKey(0);
+//            cv::imshow("graph", map);
+//            cv::waitKey(0);
             
             SnappedPosition snap = snapUV2Graph(_mapManager->pixels2uv(pt), floor, false);
             std::vector<int> p = getPathFromCurrentLocation(snap, 8);
@@ -231,10 +231,10 @@ namespace navgraph{
             //        if (id > 0){
             cv::Point2i ptpx = _mapManager->uv2pixels(snap.uvPos);
             cv::circle(map, cv::Point2i(ptpx.y, ptpx.x), 3, cv::Scalar(0,255,255));
-            cv::imshow("graph", map);
-            cv::waitKey(-1);
+//            cv::imshow("graph", map);
+//            cv::waitKey(-1);
             //        cv::destroyWindow("snapped position");
-            cv::destroyWindow("graph");
+//            cv::destroyWindow("graph");
         }
         
         // for debugging
@@ -245,7 +245,7 @@ namespace navgraph{
             cv::Point* p = (cv::Point*)ptr;
             p->x = y;
             p->y = x;
-            std::cerr << x << "," << y << "\n";
+//            std::cerr << x << "," << y << "\n";
         }
         
         int findClosestNodeId(cv::Point2f pos, int floor, bool checkWalls = false){

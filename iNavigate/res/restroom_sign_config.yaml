@@ -1,0 +1,40 @@
+%YAML:1.0
+
+# ATTENTION: DO NOT USE TAB CHARACTERS WHEN EDITING THIS FILE (you can replace tabs with spaces in you editor settings)
+
+# Classifiers location
+ClassifiersFolder: "res/"    #folder containing the classifiers (used for desktop only)
+CascadeFile: "restroom_sign_cascade.xml"     # cascade classifier filename
+SVMFile: "restroom_sign_model.svm"       # SVM model 
+#SVMFile2: "restroom_binary_model.svm"       # SVM model (stage 3)
+
+
+#tags associated with 3rd stage output
+#posLabel: "MEN"
+#negLabel: "WOM"
+
+Label: restroom
+
+# Cascade search window parameters. It can be changed, but it is a good idea to keep the same aspect ratio 
+minWinSize:
+    width: 6
+    height: 16
+CascadeScaleFactor: 1.1    # scale factor for multiscale detection
+
+maxWinSizeFactor: 4.       #specify largest search window as a multiple of minWinSize
+
+# HOG
+HOG_winSize:               # DO NOT CHANGE: this parameter should be changed only if the SVM is trained with a different window size 
+    width: 24
+    height: 64
+
+SVMThreshold: .5          # sets the SVM confidence threshold   
+
+# Preprocessing
+CroppingFactors:           # specify which section of the image to process. Cropping origin is (0,0) i.e. top left corner
+    width: 1.
+    height: 1.
+
+ScaleFactor: 1.          # specify rescaling factor for cropped frames (helps with detection of small objects)
+
+

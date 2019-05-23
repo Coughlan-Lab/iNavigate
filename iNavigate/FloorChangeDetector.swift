@@ -83,7 +83,7 @@ class FloorChangeDetector{
         else if prevBarometerTstamp > 0 && (self.barometerTstamp - prevBarometerTstamp) > 0{
             prevBarometerTstamp = self.barometerTstamp
             let dp = (self.currentPressure_kPa - pRef)
-            print(prevBarometerTstamp, dp)
+//            print(prevBarometerTstamp, dp)
             if (abs(dp) > min_delta){
                 _floorChanging += 1
                 if (pStart == 0){
