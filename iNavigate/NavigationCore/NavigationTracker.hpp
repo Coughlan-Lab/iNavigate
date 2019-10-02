@@ -35,8 +35,8 @@ namespace navgraph {
             else{
                 
                 float t = cv::norm(pos.uvPos - prevPosition.uvPos);
-                std::cerr << "translation: " << t << "\n";
-                std::cerr << "pos.deltaYaw: " << pos.deltaYaw*180/CV_PI << "\n";
+//                std::cerr << "translation: " << t << "\n";
+//                std::cerr << "pos.deltaYaw: " << pos.deltaYaw*180/CV_PI << "\n";
                 if (abs(t) > 0.){
                     heading = atan2(pos.realuvPos.x - prevPosition.realuvPos.x, pos.realuvPos.y - prevPosition.realuvPos.y)*180/CV_PI;
                 }
@@ -51,11 +51,11 @@ namespace navgraph {
                 else
                     turn = _getTurnDirection(pos.srcNode, firstNodeId);
                 
-                std::cerr << "heading: " << heading << "\n";
+                
                 prevPosition = pos;
-                if (turn == Forward){
-                    std::cerr << "Looking good! \n";
-                }
+//                if (turn == Forward){
+//                    std::cerr << "Looking good! \n";
+//                }
                 return turn;
             }
         }
@@ -73,6 +73,9 @@ namespace navgraph {
                 refAngle += 360;
             if (heading <0)
                 heading += 360;
+            
+            std::cerr << "\n heading: " << heading << ", refAngle: " << refAngle << "\n";
+            std::cerr << "[][][] Heading diff: " << refAngle - heading << "\n";
             
             CompassOrientation refOrientation = _angleToCompass(refAngle);
             CompassOrientation userOrientation = _angleToCompass(heading);

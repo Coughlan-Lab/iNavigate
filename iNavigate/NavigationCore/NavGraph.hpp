@@ -79,9 +79,9 @@ namespace navgraph{
         
         std::vector<int> getPathFromCurrentLocation(SnappedPosition spos, int dest){
             std::vector<int> p1 = getPath(spos.srcNodeId, dest);
-            std::cout << "\n";
+//            std::cout << "\n";
             std::vector<int> p2 = getPath(spos.destNodeId, dest);
-            std::cout << "\n";
+//            std::cout << "\n";
             cv::Point2f diff = spos.uvPos - _nodes[spos.srcNodeId].positionUV;
             float d1 = sqrt(diff.x*diff.x + diff.y*diff.y);
             diff = spos.uvPos - _nodes[spos.destNodeId].positionUV;
