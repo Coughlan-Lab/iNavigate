@@ -12,6 +12,7 @@
 #include "opencv2/core/core.hpp"
 #include <opencv2/highgui/highgui.hpp>
 #include "rapidjson/document.h"
+//#include "NavigationTracker.hpp"
 #include <fstream>
 #include <map>
 
@@ -46,8 +47,17 @@ namespace navgraph{
         
         struct SnappedPosition{
             cv::Point2f uvPos;
+            cv::Point2f realuvPos;
             int srcNodeId;
             int destNodeId;
+            float dist2Src;
+            float dist2Dest;
+            float distance;
+            double deltaYaw;
+            Node closestNode;
+            Node srcNode;
+            Node destNode;
+            std::string instruction;
         };
         
         NavGraph() { ; }
@@ -99,29 +109,11 @@ namespace navgraph{
             return path;
         }
         
-        void _getPath(const std::vector<int>& parent, int j, std::vector<int> &path){
-            if (parent[j] == - 1){
-                path.push_back(j);
-//                printf("%d ", j);
-                return;
-            }
-            _getPath(parent, parent[j], path);
-            path.push_back(j);
-//            printf("%d ", j);
-        }
         
-        void _computePaths(){
-            int v = _weights.cols;
-            for (auto &n : _nodes){
-                std::vector<float> dist (v, std::numeric_limits<float>::max());
-                n.second.paths = _computePathsDjikstra(n.first, dist);
-                n.second.dist = dist;
-            }
-        }
         
         
         // note: uvpos.y is the ascissa, .x the ordinate
-        SnappedPosition snapUV2Graph(cv::Point2f uvpos, int floor, bool checkWalls = false){
+        SnappedPosition snapUV2Graph(cv::Point2f uvpos, float deltaYaw, int floor, bool checkWalls = false){
             double minDist = INF;
             cv::Point2f minpos;
             SnappedPosition spos;
@@ -130,7 +122,8 @@ namespace navgraph{
             spos.uvPos = uvpos;
             spos.srcNodeId = -1;
             spos.destNodeId = -1;
-            
+            spos.realuvPos = uvpos;
+            spos.deltaYaw = deltaYaw;
             for (auto& n : _nodes){
                 if (n.second.floor == floor){
                     for (auto& e : n.second.edges){
@@ -145,6 +138,21 @@ namespace navgraph{
                                 spos.uvPos = pt;
                                 spos.srcNodeId = n.first;
                                 spos.destNodeId = e.first;
+                                spos.srcNode = _nodes[spos.srcNodeId];
+                                spos.destNode = _nodes[spos.destNodeId];
+                                spos.dist2Src = cv::norm(pt-n.second.positionUV);
+                                spos.dist2Dest = cv::norm(pt-_nodes[e.first].positionUV);
+                                
+                                if (spos.dist2Src < spos.dist2Dest){
+                                    spos.closestNode = n.second;
+                                    //spos.distance = spos.dist2Src;
+                                    spos.distance = cv::norm(uvpos-n.second.positionUV);
+                                }
+                                else{
+                                    spos.closestNode = _nodes[e.first];
+                                    //spos.distance = spos.dist2Dest;
+                                    spos.distance = cv::norm(uvpos -_nodes[e.first].positionUV);
+                                }
                             }
                         }
                     }
@@ -192,9 +200,6 @@ namespace navgraph{
                     cv::putText(map, std::to_string(n.first), cv::Point2i(pt.y, pt.x), cv::FONT_HERSHEY_PLAIN, 1., cv::Scalar(0,255,0));
                 }
             }
-//            cv::imshow("Graph floor " + std::to_string(floor), map);
-//            if (pause)
-//                cv::waitKey(-1);
             return map;
         }
         
@@ -218,23 +223,12 @@ namespace navgraph{
         
         void showClosestNodeToPoint(int floor, bool checkWalls = false){
             cv::Mat map = plotGraph(floor);
-//            cv::namedWindow("graph");
             cv::Point2i pt;
-//            cv::setMouseCallback( "graph", onMouse, &pt );
-            
-//            cv::imshow("graph", map);
-//            cv::waitKey(0);
             
             SnappedPosition snap = snapUV2Graph(_mapManager->pixels2uv(pt), floor, false);
             std::vector<int> p = getPathFromCurrentLocation(snap, 8);
-            //        int id = findClosestNodeId(_mapManager->pixels2uv(pt), floor, checkWalls);
-            //        if (id > 0){
             cv::Point2i ptpx = _mapManager->uv2pixels(snap.uvPos);
             cv::circle(map, cv::Point2i(ptpx.y, ptpx.x), 3, cv::Scalar(0,255,255));
-//            cv::imshow("graph", map);
-//            cv::waitKey(-1);
-            //        cv::destroyWindow("snapped position");
-//            cv::destroyWindow("graph");
         }
         
         // for debugging
@@ -266,6 +260,11 @@ namespace navgraph{
             return id;
         }
         
+        Node getClosestNode(cv::Point2f pos, int floor, bool checkWalls = false){
+            int nodeId = findClosestNodeId(pos, floor, checkWalls);
+            return getNode(nodeId);
+        }
+        
     private:
         cv::Mat _weights;
         cv::Mat _angles;
@@ -286,6 +285,8 @@ namespace navgraph{
                 for (rapidjson::SizeType j = 0; j < ai.Size(); j++){
                     Wi[j] = wi[j].GetFloat();
                     Ai[j] = ai[j].GetFloat();
+                    if (Ai[j] < 0)
+                        Ai[j] += 360;
                 }
             }
         }
@@ -377,6 +378,26 @@ namespace navgraph{
                 }
             
             return min_index;
+        }
+    
+        void _getPath(const std::vector<int>& parent, int j, std::vector<int> &path){
+            if (parent[j] == - 1){
+                path.push_back(j);
+                //                printf("%d ", j);
+                return;
+            }
+            _getPath(parent, parent[j], path);
+            path.push_back(j);
+            //            printf("%d ", j);
+        }
+        
+        void _computePaths(){
+            int v = _weights.cols;
+            for (auto &n : _nodes){
+                std::vector<float> dist (v, std::numeric_limits<float>::max());
+                n.second.paths = _computePathsDjikstra(n.first, dist);
+                n.second.dist = dist;
+            }
         }
         
     };

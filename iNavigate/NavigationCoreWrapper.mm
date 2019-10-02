@@ -24,8 +24,8 @@
 
 @implementation NavigationCoreWrapper
 
-- (void) initNavigationSystem:(NSString *)mapFolder currentFloor:(int)currentFloor{
-    navsys = new navgraph::NavigationSystem(std::string([mapFolder cStringUsingEncoding:NSUTF8StringEncoding]), currentFloor);
+- (void) initNavigationSystem:(NSString *)mapFolder currentFloor:(int)currentFloor exploreMode:(bool)exploreMode{
+    navsys = new navgraph::NavigationSystem(std::string([mapFolder cStringUsingEncoding:NSUTF8StringEncoding]), currentFloor, exploreMode);
     logFolderCreated = false;
 }
 
@@ -38,6 +38,15 @@
     navsys->initLocalizationSystem(std::string([resPath cStringUsingEncoding:NSUTF8StringEncoding]), numParticles, locore::InitMode::UNIFORM_WITH_YAW, -1, -1, initYaw, initYawNoise);
         
     }
+
+- (void) initializeLocalizationSystemUniform:(NSString *)resPath numParticles:(int) numParticles initYaw:(double) initYaw initYawNoise:(double) initYawNoise{
+    navsys->initLocalizationSystem(std::string([resPath cStringUsingEncoding:NSUTF8StringEncoding]), numParticles, locore::InitMode::UNIFORM, -1, -1, initYaw, initYawNoise);
+}
+
+- (float) getNorthCorrectionAngle{
+    assert (navsys != nullptr);
+    return navsys->getMapManager()->getAngleToNorth();
+}
 
 - (float) getParticlesYaw{
     return navsys->getParticlesYaw();
@@ -56,7 +65,7 @@
     navsys->destinationId = destId;
 }
 
-- (UIImage*) step : (NSString*) trackerStatus timestamp:(double)timestamp x:(double) x y:(double) y z:(double) z  rx:(double) rx ry:(double) ry rz:(double) rz deltaFloors:(int)deltaFloors frame:(UIImage*) frame{
+- (NSDictionary*) step : (NSString*) trackerStatus timestamp:(double)timestamp x:(double) x y:(double) y z:(double) z  rx:(double) rx ry:(double) ry rz:(double) rz deltaFloors:(int)deltaFloors frame:(UIImage*) frame{
     
     cv::Mat image, image_vga,image_vga_gray;
     UIImageToMat(frame, image);
@@ -64,11 +73,35 @@
     cv::resize(image, image_vga, cv::Size(image.cols/3,image.rows/3), 0, 0, cv::INTER_NEAREST);
     cv::cvtColor(image_vga, image_vga_gray, cv::COLOR_RGB2GRAY);
     locore::VIOMeasurements vioData(tStatus, timestamp, x, y, z, rx, ry, rz, 0, 0, image_vga_gray);
-    cv::Mat kde = navsys->step(vioData, deltaFloors);
-    return MatToUIImage(kde);
+    navgraph::NavGraph::SnappedPosition *snappedPosition = navsys->step(vioData, deltaFloors);
+    if (snappedPosition){
+        std::string ans = snappedPosition->closestNode.label;
+        float dist = snappedPosition->distance;
+        std::string nodeType;
+        if (snappedPosition->closestNode.type == navgraph::NavGraph::NodeType::Control){
+            nodeType = "control";
+        }
+        else if (snappedPosition->closestNode.type == navgraph::NavGraph::NodeType::Destination){
+            nodeType = "destination";
+        }
+        else nodeType = "transfer";
+        
+        std::cerr << "Node Label: " << ans << " | Distance: " << dist << "\n";
+        NSDictionary *dict = @{ @"outputImage" : MatToUIImage(navsys->getNavigationGraph()), @"distance" : [NSNumber numberWithFloat:(dist)],  @"nodeLabel" :[NSString stringWithUTF8String:ans.c_str()], @"nodeType" :[NSString stringWithUTF8String:nodeType.c_str()], @"navInstruction" :[NSString stringWithUTF8String:snappedPosition->instruction.c_str()]};
+        return dict;
+    }
+    else{
+        std::string ans = "";
+        float dist = -1;
+       // std::cerr << "Node Label: " << ans << " | Distance: " << dist << "\n";
+        NSDictionary *dict = @{ @"outputImage" : MatToUIImage(navsys->getNavigationGraph()), @"distance" : [NSNumber numberWithFloat:(dist)],  @"nodeLabel" :[NSString stringWithUTF8String:ans.c_str()]};
+        return dict;
+        }
+//    cv::Mat kde = navsys->step(vioData, deltaFloors);
+//    return MatToUIImage(navsys->getNavigationGraph());
 }
 
-- (UIImage*) step : (NSString*) trackerStatus timestamp:(double)timestamp camera:(ARCamera*) camera deltaFloors:(int)deltaFloors frame:(UIImage*) frame{
+- (NSDictionary*) step : (NSString*) trackerStatus timestamp:(double)timestamp camera:(ARCamera*) camera deltaFloors:(int)deltaFloors frame:(UIImage*) frame{
     double x = camera.transform.columns[3].x;
     double y = camera.transform.columns[3].y;
     double z = camera.transform.columns[3].z;

@@ -57,7 +57,7 @@ class AudioFeedback{
     
     func stopUtterance(){
         if (synthesizer.isSpeaking){
-            synthesizer.stopSpeaking(at: AVSpeechBoundary.word)
+            synthesizer.stopSpeaking(at: AVSpeechBoundary.immediate)
         }
     }
     
@@ -132,6 +132,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
     var start : String = ""
     var startID : Int = -1
     var startFloor : Int = -1
+    var exploreMode : Bool = false
     
     var trackerInitialized : Bool = false
     var locSysInit : Bool = false
@@ -145,7 +146,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
     
     var frameCounter : UInt64 = 0
     var lastProcessedFrameTime: TimeInterval = TimeInterval()
-    let numParticles = 50000
+    let numParticles = 100000
     
     // set user height (retrieve last value from memory)
     var userHeight:String {
@@ -197,7 +198,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
         locationManager.headingOrientation = .portrait
         locationManager.delegate = self;
         audioFeedback.announce(string: "Initializing Tracker", delay:0)
-        navigationCore.initNavigationSystem(locationURL.relativePath, currentFloor: Int32(startFloor))
+        navigationCore.initNavigationSystem(locationURL.relativePath, currentFloor: Int32(startFloor), exploreMode: exploreMode)
         navigationCore.setDestinationID(Int32(destID))
     }
     
@@ -205,18 +206,19 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
     func initLocCore(frame: ARFrame){
         locationManager.stopUpdatingHeading()
         locationManager.stopUpdatingLocation()
-        let theta_star =  90 - (compassHeading - 9.1)
+        let alpha = navigationCore.getNorthCorrectionAngle()
+        let theta_star =  90 - (compassHeading - Double(alpha))
         let phi_star = Double(frame.camera.eulerAngles[1] * 180 / .pi)
         let yaw = (theta_star - phi_star) * .pi/180
-//        let yaw = 0.0
-//        print("Initial yaw: " + String(yaw*180/3.14))
+
         yawLabel.text = String(yaw)
         if startID > 0{
             let pos = navigationCore.getNodeUVPosition(Int32(startID))
             navigationCore.initializeLocalizationSystem(resURL.relativePath, numParticles: Int32(numParticles), posU: pos[0] as! Double, posV: pos[1] as! Double, initYaw: Double(yaw), initYawNoise: 2 * compassAccuracy * .pi / 180)
         }
         else{
-            navigationCore.initializeLocalizationSystemUnknownLocation(resURL.relativePath, numParticles: Int32(numParticles), initYaw: Double(yaw), initYawNoise: 2 * compassAccuracy * .pi / 180)
+            //navigationCore.initializeLocalizationSystemUnknownLocation(resURL.relativePath, numParticles: Int32(numParticles), initYaw: Double(yaw), initYawNoise: 2 * compassAccuracy * .pi / 180)
+            navigationCore.initializeLocalizationSystemUniform(resURL.relativePath, numParticles: Int32(numParticles), initYaw: Double(yaw), initYawNoise: 2 * compassAccuracy * .pi / 180)
         }
         
         locSysInit = true
@@ -225,36 +227,55 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
     
     
     // process new ARKit frame
-    func processARKitFrame(frame: ARFrame) -> UIImage{
-        
+    func processARKitFrame(frame: ARFrame) -> Dictionary<String,Any>{
+
         if (!locSysInit){
-            audioFeedback.announce(string: "heading accuracy, \(compassAccuracy)", delay:0)
+            var res : Dictionary<String, Any> = [:]
+            res["cvDetectorImage"] = UIImage(color: .black)
+            res["outputImage"] = UIImage(color: .black)
+            res["distance"] = -1
+            res["nodeLabel"] = ""
+            audioFeedback.announce(string: "please start walking", delay:1)
             if (compassAccuracy <= 95){
               initLocCore(frame : frame)
             }
             else{
-                audioFeedback.announce(string: "insufficient heading accuracy, \(compassAccuracy)", delay:3.0)
+                audioFeedback.announce(string: "insufficient heading accuracy, please calibrate compass", delay:3.0)
             }
+            return res;
         }
         else if (locSysInit) && (frame.timestamp-lastProcessedFrameTime) > 0.1 {
             let deltaFloors = floorChangeDetector.getFloorsDelta()
             let trackerState = "\(frame.camera.trackingState)"
-            let outimg = navigationCore.step(trackerState, timestamp: frame.timestamp, camera: frame.camera, deltaFloors: Int32(deltaFloors), frame: pixelBufferToUIImage(pixelBuffer: frame.capturedImage))
-            
-            cvImage.image = navigationCore.getCVDetectorOutputFrame();
-//            let yaw = navigationCore.getParticlesYaw()*180/3.14;
-//            yawLabel.text = String(yaw)
+            var res = navigationCore.step(trackerState, timestamp: frame.timestamp, camera: frame.camera, deltaFloors: Int32(deltaFloors), frame: pixelBufferToUIImage(pixelBuffer: frame.capturedImage)) as! Dictionary<String,Any>
+            res["cvDetectorImage"] = navigationCore.getCVDetectorOutputFrame()
+//            cvImage.image = navigationCore.getCVDetectorOutputFrame();
+
             if dumpParticles{
                 navigationCore.dumpParticles();
             }
             lastProcessedFrameTime = frame.timestamp
-            return outimg;
+            return res;
+//            return res["outputImage"] as! UIImage;
         }
-        if (navImage.image == nil){
-            navImage.image = UIImage(color: .black)
-            cvImage.image = UIImage(color: .black);
+        else{
+            var res : Dictionary<String, Any> = [:]
+            res["cvDetectorImage"] = navigationCore.getCVDetectorOutputFrame()
+            res["outputImage"] = navImage.image
+            res["distance"] = -1
+            res["nodeLabel"] = ""
+            return res
         }
-        return navImage.image!
+//        if (navImage.image == nil){
+//            var res : Dictionary<String, Any>
+//            res["cvDetectorImage"] = UIImage(color: .black)
+//            res["outputImage"] = UIImage(color: .black)
+//            res["distance"] = -1
+//            res["nodeLabel"] = ""
+//            //navImage.image = UIImage(color: .black)
+//            //cvImage.image = UIImage(color: .black);
+//        }
+//        return res
     }
     
     //MARK: ARSessionDelegate
@@ -266,12 +287,40 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
             
             // feed frame to localization core
             //  if (frameCounter % 10 == 0){
-            self.navImage.image = self.processARKitFrame(frame : frame)
+            let res : Dictionary<String, Any> = self.processARKitFrame(frame : frame)
+            self.navImage.image = res["outputImage"] as! UIImage
+            self.cvImage.image = res["cvDetectorImage"] as? UIImage
             // }
             
             //check system status and phone pitch and play bkg sound
             //sendPhonePitchFeedback(cameraPitch: frame.camera.eulerAngles.x)
-            
+            if (exploreMode){
+                if (res["nodeLabel"] as! String != ""){
+                    if (res["nodeType"] as! String  == "destination"){
+                        let dist = res["distance"] as! Float
+                        
+                        if (dist < 1.0 && dist >= 0){
+                            print(dist)
+                            audioFeedback.announce(string: res["nodeLabel"] as! String, delay:1)
+                        }
+//                        else{
+//                            audioFeedback.announce(string: "", delay: 0)
+//                        }
+                    }
+//                    else{
+//                        audioFeedback.announce(string: "", delay: 0)
+//                    }
+                }
+//                else{
+//                    audioFeedback.announce(string: "", delay: 0)
+//                }
+            }
+            else{
+                if res["navInstruction"] != nil{
+                    audioFeedback.announce(string: res["navInstruction"] as! String, delay:1)
+                }
+                
+            }
 //            if (locSysInit){
 //                sendLocalizationConfidenceFeedback(hardPeak: localizationCore.isPeakHard())
 //                announceROI(roiLabel: localizationCore.getROILabel())
@@ -319,7 +368,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
             audioFeedback.announce(string: status, delay: 2)
         }
         else if(!trackerInitialized){
-            audioFeedback.announce(string: "Initializing Tracker", delay:0.0)
+            audioFeedback.announce(string: "Initializing Tracker", delay:1.0)
         }
     }
     
@@ -357,7 +406,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
                 guard let payload = result.payloadStringValue else {return}
                 userHeight = payload
                 //audioFeedback.announceNow(string: "Camera height set to \(userHeight)")
-                navigationCore.setCameraHeight(Float(userHeight)!)
+                navigationCore.setCameraHeight(Float(userHeight)!*Float(2.54/100)) //convert inches to mt
             }
         }
     }

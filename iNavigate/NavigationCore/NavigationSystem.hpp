@@ -13,6 +13,7 @@
 #include "MapManager.hpp"
 #include "LocalizationSystem.hpp"
 #include "NavGraph.hpp"
+#include "NavigationTracker.hpp"
 
 namespace navgraph{
     
@@ -21,9 +22,10 @@ namespace navgraph{
         
         int destinationId;
         
-        NavigationSystem(std::string mapFolder, int floor){
+        NavigationSystem(std::string mapFolder, int floor, bool exploreMode){
             _mapManager = std::make_shared<maps::MapManager>();
             _mapManager->init(mapFolder, floor);
+            _exploreMode = exploreMode;
             std::string graphJSONFile = mapFolder + "/navgraph.json";
             _navGraph = std::make_unique<NavGraph>(graphJSONFile, _mapManager);
             destinationId = -1;
@@ -44,51 +46,85 @@ namespace navgraph{
             
         }
         
+        
         inline void setCameraHeight(float cameraHeight) { _locSystem->setCameraHeight(cameraHeight); }
         
-        cv::Mat step(const locore::VIOMeasurements& vioData, int deltaFloors){
+        
+        NavGraph::SnappedPosition* step(const locore::VIOMeasurements& vioData, int deltaFloors){
             updateCurrentFloor(deltaFloors);
-            cv::Mat kde = _locSystem->step(vioData);
             
+            _navigationImage = _locSystem->step(vioData);
             cv::Point2f peak = _locSystem->getRobustPeakUV();
             
-            if ((destinationId >= 0) && (peak.x > 0 && peak.y > 0)){
-                NavGraph::SnappedPosition snap = _navGraph->snapUV2Graph(peak, _mapManager->currentFloor, true);
-                //cv::Mat map = _mapManager->getWallsImageRGB().clone();
-                if (snap.srcNodeId >= 0 && snap.destNodeId >= 0){
-                    std::vector<int> path = _navGraph->getPathFromCurrentLocation(snap, destinationId);
-                    cv::Point2i pt = _mapManager->uv2pixels(snap.uvPos);
-                    cv::drawMarker(kde, cv::Point2i(pt.y, pt.x), cv::Scalar(0,255,0), cv::MARKER_DIAMOND, 10, 3);
-                    
-//                        if (destinationId >= 0){
-                    // find path and plot it
-                    for (int i=0; i < path.size()-1; i++){
-                        cv::Point2i npos1 = _mapManager->uv2pixels(_navGraph->getNode(path[i]).positionUV);
-                        cv::Point2i npos2 = _mapManager->uv2pixels(_navGraph->getNode(path[i+1]).positionUV);
-                        cv::drawMarker(kde, cv::Point2i(npos1.y, npos1.x), cv::Scalar(0,255,255), cv::MARKER_TRIANGLE_DOWN, 10, 2);
-                        cv::line(kde, cv::Point2i(npos1.y, npos1.x), cv::Point2i(npos2.y, npos2.x), cv::Scalar(0,255,255), 2);
-                        if (i == 0)
-                            cv::line(kde, cv::Point2i(pt.y, pt.x), cv::Point2i(npos1.y, npos1.x), cv::Scalar(255,0,255), 2, cv::LINE_4);
+            //if ((destinationId >= 0) && (peak.x > -1e6 && peak.y > -1e6)){
+            if (peak.x > -1e6 && peak.y > -1e6){
+                _currSnappedPosition = _navGraph->snapUV2Graph(peak,  _locSystem->getDeltaYawFromVIO()*180/CV_PI, _mapManager->currentFloor, true);
+                
+                
+                if (_currSnappedPosition.srcNodeId >= 0 && _currSnappedPosition.destNodeId >= 0){
+                    if (destinationId >=0){
+                    _path = _navGraph->getPathFromCurrentLocation(_currSnappedPosition, destinationId);
+                        if (_path.size() > 1){
+                            NavigationTracker::TurnDirection turnDir = _navTrack.update(_currSnappedPosition, _path[0], _path[1]);
+                            
+                            switch (turnDir) {
+                                case NavigationTracker::Forward:
+                                    _currSnappedPosition.instruction = "Go Forward";
+                                    break;
+                                case NavigationTracker::TurnAround:
+                                    _currSnappedPosition.instruction = "Please turn around";
+                                    break;
+                                case NavigationTracker::Left:
+                                _currSnappedPosition.instruction = "turn left";
+                                break;
+                                case NavigationTracker::EasyLeft:
+                                    _currSnappedPosition.instruction = "make an easy left";
+                                break;
+                                case NavigationTracker::Right:
+                                    _currSnappedPosition.instruction = "turn right";
+                                break;
+                                case NavigationTracker::EasyRight:
+                                    _currSnappedPosition.instruction = "make an easy right";
+                                break;
+                                    
+                                default:
+                                    _currSnappedPosition.instruction = "go forward";
+                                    break;
+                            }
+                        }
+                        
+                        drawNavigationGraph();
                     }
-                    cv::Point2i npos = _mapManager->uv2pixels(_navGraph->getNode(path[path.size()-1]).positionUV);
-                    cv::drawMarker(kde, cv::Point2i(npos.y, npos.x), cv::Scalar(255,0,255), cv::MARKER_TRIANGLE_DOWN, 10, 3);
-//                        }
-                    cv::rotate(kde, kde, cv::ROTATE_90_CLOCKWISE);
-//                    return _locSystem->getParticlesYawMap();
-                    return kde;
+                    return &_currSnappedPosition;
                 }
                 else{
-    //                    std::cerr << " ++ " << _locSystem->getRobustPeak() << " ++ \n";
-                    return kde;
-    //                    return _locSystem->getParticlesYawMap();
+                    return nullptr;
                 }
             }
             else{
-                cv::rotate(kde, kde, cv::ROTATE_90_CLOCKWISE);
-                return kde;
-//                return _locSystem->getParticlesYawMap();
+                return nullptr;
             }
         }
+        
+        void drawNavigationGraph(){
+//            std::vector<int> path = _navGraph->getPathFromCurrentLocation(_currSnappedPosition, destinationId);
+            cv::Point2i pt = _mapManager->uv2pixels(_currSnappedPosition.uvPos);
+            cv::drawMarker(_navigationImage, cv::Point2i(pt.y, pt.x), cv::Scalar(0,255,0), cv::MARKER_DIAMOND, 10, 3);
+            
+            // find path and plot it
+            for (int i=0; i < _path.size()-1; i++){
+                cv::Point2i npos1 = _mapManager->uv2pixels(_navGraph->getNode(_path[i]).positionUV);
+                cv::Point2i npos2 = _mapManager->uv2pixels(_navGraph->getNode(_path[i+1]).positionUV);
+                cv::drawMarker(_navigationImage, cv::Point2i(npos1.y, npos1.x), cv::Scalar(0,255,255), cv::MARKER_TRIANGLE_DOWN, 10, 2);
+                cv::line(_navigationImage, cv::Point2i(npos1.y, npos1.x), cv::Point2i(npos2.y, npos2.x), cv::Scalar(0,255,255), 2);
+                if (i == 0)
+                    cv::line(_navigationImage, cv::Point2i(pt.y, pt.x), cv::Point2i(npos1.y, npos1.x), cv::Scalar(255,0,255), 2, cv::LINE_4);
+            }
+            cv::Point2i npos = _mapManager->uv2pixels(_navGraph->getNode(_path[_path.size()-1]).positionUV);
+            cv::drawMarker(_navigationImage, cv::Point2i(npos.y, npos.x), cv::Scalar(255,0,255), cv::MARKER_TRIANGLE_DOWN, 10, 3);
+            cv::rotate(_navigationImage, _navigationImage, cv::ROTATE_90_CLOCKWISE);
+        }
+        
         
         inline cv::Mat getCVDetectorOutputFrame() { return _locSystem->getCVDetectorOutputFrame(); }
         
@@ -124,14 +160,19 @@ namespace navgraph{
         void updateCurrentFloor(int floorNumDelta){
             _mapManager->currentFloor += floorNumDelta;
         }
+        
+        inline cv::Mat getNavigationGraph() { return _navigationImage; }
     
     private:
         std::unique_ptr<NavGraph> _navGraph;
         std::unique_ptr<locore::LocalizationSystem> _locSystem;
         std::shared_ptr<maps::MapManager> _mapManager;
-        
+        bool _exploreMode;
         cv::Point2f _snapPositionToGraph(cv::Point2f pos) { return _navGraph->snapUV2Graph(pos, _mapManager->currentFloor, false).uvPos; }
-        
+        NavGraph::SnappedPosition _currSnappedPosition;
+        cv::Mat _navigationImage;
+        std::vector<int> _path;
+        NavigationTracker _navTrack;
     
     };
     

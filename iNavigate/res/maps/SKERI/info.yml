@@ -9,6 +9,7 @@ floor:
     scale: 11.23
     offset_u: 5.7699   
     offset_v: 18.8120
+    angle_to_north: 9.1
 floor:
     id: 3
     features_file: mapFeatures_3.yml
@@ -19,6 +20,7 @@ floor:
     scale: 11.73
     offset_u: 5.5215   
     offset_v: 17.3592
+    angle_to_north: 9.1
 floor:
     id: 2
     features_file: mapFeatures_2.yml
@@ -29,3 +31,4 @@ floor:
     scale: 11.6
     offset_u: 5.5172  
     offset_v: 18.6207
+    angle_to_north: 9.1

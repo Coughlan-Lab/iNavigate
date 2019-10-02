@@ -37,6 +37,7 @@ class DestinationSelectionControllerViewController: UIViewController , UIPickerV
     var startID: Int = -1;
     var startPoint : String = ""
     var startFloor : Int = -1
+    @IBOutlet weak var exploreMode: UISwitch!
     
     @IBOutlet weak var locationPicker: UIPickerView!
     @IBOutlet weak var destinationPicker: UIPickerView!
@@ -45,6 +46,7 @@ class DestinationSelectionControllerViewController: UIViewController , UIPickerV
     override func viewDidLoad() {
         super.viewDidLoad()
         initPickers()
+        locationURL = mapsURL.appendingPathComponent(locationPickerData[0], isDirectory: true)
         listBuildings()
     }
     
@@ -77,6 +79,11 @@ class DestinationSelectionControllerViewController: UIViewController , UIPickerV
         self.destinationPicker.dataSource = self;
         self.startPicker.delegate = self;
         self.startPicker.dataSource = self;
+        
+        let buildingsFolders = mapsURL.subDirectories
+        for d in buildingsFolders{
+            locationPickerData.append(d.lastPathComponent)
+        }
     }
     
     // Number of columns of data
@@ -115,6 +122,9 @@ class DestinationSelectionControllerViewController: UIViewController , UIPickerV
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         if pickerView == locationPicker{
             locationURL = mapsURL.appendingPathComponent(locationPickerData[row], isDirectory: true)
+            listBuildings()
+            destinationPicker.reloadAllComponents()
+            startPicker.reloadAllComponents()
         }
         else if pickerView == destinationPicker{
             destination = destinationPickerData[row]
@@ -129,18 +139,18 @@ class DestinationSelectionControllerViewController: UIViewController , UIPickerV
     
   
     func listBuildings(){
-        let buildingsFolders = mapsURL.subDirectories
-        for d in buildingsFolders{
-            locationPickerData.append(d.lastPathComponent)
-        }
+        
         //set default location URL (first value in list)
-        locationURL = mapsURL.appendingPathComponent(locationPickerData[0], isDirectory: true)
+        //locationURL = mapsURL.appendingPathComponent(locationPickerData[0], isDirectory: true)
         let path = locationURL.appendingPathComponent("navgraph.json", isDirectory: false)
             do {
                 let data = try Data(contentsOf: path, options: .mappedIfSafe)
                 let jsonResult = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
                 let jsonResult2 = jsonResult as? Dictionary<String, AnyObject>
                 let nodes = (jsonResult2!["nodes"] as? Dictionary<String, AnyObject>)!
+                destinationPickerData.removeAll()
+                destinationIDs.removeAll()
+                destinationsFloor.removeAll()
                 for (_, value) in nodes{
                     let n = Node(value as! [String : Any])
                     if (n.type == "destination" || n.type == "link"){
@@ -149,6 +159,10 @@ class DestinationSelectionControllerViewController: UIViewController , UIPickerV
                         destinationsFloor.append(Int(n.floor) ?? -1)
                     }
                 }
+                
+                startPickerData.removeAll()
+                startFloors.removeAll()
+                startIDs.removeAll()
                 
                 startPickerData = destinationPickerData
                 startFloors = destinationsFloor
@@ -162,6 +176,9 @@ class DestinationSelectionControllerViewController: UIViewController , UIPickerV
                 startIDs.append(0)
                 startPickerData.append("4th Floor")
                 startFloors.append(4)
+                startIDs.append(0)
+                startPickerData.append("10th Floor")
+                startFloors.append(10)
                 startIDs.append(0)
                 
                 
@@ -193,6 +210,7 @@ class DestinationSelectionControllerViewController: UIViewController , UIPickerV
         destVC.start = startPoint
         destVC.startID = startID - 1
         destVC.startFloor = startFloor
+        destVC.exploreMode = exploreMode.isOn
         
     }
     

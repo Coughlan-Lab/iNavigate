@@ -44,6 +44,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3F07CD2122C57AED00CD3652 /* NavGraph.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NavGraph.hpp; sourceTree = "<group>"; };
+		3F07CD2222C57AED00CD3652 /* NavigationSystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NavigationSystem.hpp; sourceTree = "<group>"; };
+		3F07CD2322C57AED00CD3652 /* NavigationTracker.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NavigationTracker.hpp; sourceTree = "<group>"; };
 		3F1F8989225FE70A00483EF4 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		3F1F898C225FE70A00483EF4 /* MapManager.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MapManager.hpp; sourceTree = "<group>"; };
 		3F1F898D225FE70A00483EF4 /* AnnotatedMap.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = AnnotatedMap.hpp; sourceTree = "<group>"; };
@@ -92,8 +95,6 @@
 		3FCD2A45225412500048B140 /* NavigationCoreWrapper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = NavigationCoreWrapper.mm; sourceTree = "<group>"; };
 		3FCD2A47225412760048B140 /* NavigationCoreWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NavigationCoreWrapper.h; sourceTree = "<group>"; };
 		3FCD2A48225412A20048B140 /* iNavigate-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "iNavigate-Bridging-Header.h"; sourceTree = "<group>"; };
-		3FCD2A492254134F0048B140 /* NavGraph.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NavGraph.hpp; sourceTree = "<group>"; };
-		3FCD2A4A2254134F0048B140 /* NavigationSystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NavigationSystem.hpp; sourceTree = "<group>"; };
 		3FCFBC9F2280F8EC0007F567 /* PeakDetector.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PeakDetector.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -123,6 +124,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3F07CD2022C57AED00CD3652 /* NavigationCore */ = {
+			isa = PBXGroup;
+			children = (
+				3F07CD2122C57AED00CD3652 /* NavGraph.hpp */,
+				3F07CD2222C57AED00CD3652 /* NavigationSystem.hpp */,
+				3F07CD2322C57AED00CD3652 /* NavigationTracker.hpp */,
+			);
+			path = NavigationCore;
+			sourceTree = "<group>";
+		};
 		3F1F896C225FE70A00483EF4 /* LocalizationCore */ = {
 			isa = PBXGroup;
 			children = (
@@ -272,9 +283,9 @@
 		3FCD2A062253EA800048B140 /* iNavigate */ = {
 			isa = PBXGroup;
 			children = (
+				3F07CD2022C57AED00CD3652 /* NavigationCore */,
 				3F1F896C225FE70A00483EF4 /* LocalizationCore */,
 				3F5F53F122580CB400D40A04 /* res */,
-				3FCD2A3E2254052E0048B140 /* NavigationCore */,
 				3FCD2A072253EA800048B140 /* AppDelegate.swift */,
 				3FCD2A092253EA800048B140 /* Scene.sks */,
 				3FCD2A0B2253EA800048B140 /* Scene.swift */,
@@ -299,16 +310,6 @@
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
-		};
-		3FCD2A3E2254052E0048B140 /* NavigationCore */ = {
-			isa = PBXGroup;
-			children = (
-				3FCD2A492254134F0048B140 /* NavGraph.hpp */,
-				3FCD2A4A2254134F0048B140 /* NavigationSystem.hpp */,
-			);
-			name = NavigationCore;
-			path = iNavigate/NavigationCore;
-			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXGroup section */
 
