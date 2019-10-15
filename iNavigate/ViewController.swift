@@ -158,7 +158,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
             res["outputImage"] = UIImage(color: .black)
             res["distance"] = -1
             res["nodeLabel"] = ""
-            audioFeedback.announce(string: "please start walking", delay:1)
+            //audioFeedback.announce(string: "please start walking", delay:1)
             if (compassAccuracy <= 95){
               initLocCore(frame : frame)
             }
