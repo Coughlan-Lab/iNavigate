@@ -20,43 +20,48 @@ namespace navgraph {
     class NavigationTracker{
     public:
         
-        enum TurnDirection { Forward = 0, TurnAround = -1, Left = 1, Right = 2, EasyLeft = 3, EasyRight = 4 };
+        enum TurnDirection { Forward = 0, TurnAround = -1, Left = 1, Right = 2, EasyLeft = 3, EasyRight = 4, None = -2 };
         enum CompassOrientation { N = 0, NW = 1, W = 2, SW = 3, S = 4, SE =5, E = 6, NE = 7, UNDEF = -1 };
         
-        NavigationTracker(){ first = true; }
+        NavigationTracker(){ first = true;  distanceMoved = 0;}
         ~NavigationTracker(){;}
         
-        TurnDirection update(NavGraph::SnappedPosition pos, int firstNodeId, int nextNodeId){
+        TurnDirection update(NavGraph::SnappedPosition& pos, int firstNodeId, int nextNodeId){
             if (first){
                 prevPosition = pos;
                 first = false;
-                return Forward;
+                return None;
             }
             else{
                 
                 float t = cv::norm(pos.uvPos - prevPosition.uvPos);
-//                std::cerr << "translation: " << t << "\n";
-//                std::cerr << "pos.deltaYaw: " << pos.deltaYaw*180/CV_PI << "\n";
-                if (abs(t) > 0.){
-                    heading = atan2(pos.realuvPos.x - prevPosition.realuvPos.x, pos.realuvPos.y - prevPosition.realuvPos.y)*180/CV_PI;
+                distanceMoved += t;
+                //!  WARNING: Possible confusion with reference System
+                if (distanceMoved > 0.1){
+                    distanceMoved = 0;
+                        heading = atan2(pos.realuvPos.x - prevPosition.realuvPos.x, pos.realuvPos.y - prevPosition.realuvPos.y)*180/CV_PI;
+                    
+    //                else if ((abs(t) < 0.1) && (abs(t) >0)){
+    //                    heading += pos.deltaYaw*180/CV_PI;
+    //                }
+                    heading = fmod(heading, 360);
+                   
+                    // first make sure the user is walking in the right direction
+                    TurnDirection turn;
+                    if (pos.srcNodeId == firstNodeId)
+                        turn = _getTurnDirection(pos.destNode, firstNodeId, pos);
+                    else
+                        turn = _getTurnDirection(pos.srcNode, firstNodeId, pos);
+                    
+                    
+                    prevPosition = pos;
+    //                if (turn == Forward){
+    //                    std::cerr << "Looking good! \n";
+    //                }
+                    return turn;
                 }
-//                else if ((abs(t) < 0.1) && (abs(t) >0)){
-//                    heading += pos.deltaYaw*180/CV_PI;
-//                }
-                heading = fmod(heading, 360);
-                // first make sure the user is walking in the right direction
-                TurnDirection turn;// = TurnDirection.forward;
-                if (pos.srcNodeId == firstNodeId)
-                    turn = _getTurnDirection(pos.destNode, firstNodeId);
                 else
-                    turn = _getTurnDirection(pos.srcNode, firstNodeId);
-                
-                
-                prevPosition = pos;
-//                if (turn == Forward){
-//                    std::cerr << "Looking good! \n";
-//                }
-                return turn;
+                    return None;
             }
         }
         
@@ -65,8 +70,9 @@ namespace navgraph {
         NavGraph::SnappedPosition prevPosition;
         float heading;
         bool first;
+        float distanceMoved;
         
-        TurnDirection _getTurnDirection(NavGraph::Node srcNode, int destId){
+        TurnDirection _getTurnDirection(NavGraph::Node srcNode, int destId, NavGraph::SnappedPosition& pos){
             NavGraph::Edge edge = srcNode.edges[destId];
             float refAngle = edge.angleDeg;
             if (refAngle < 0)
@@ -74,14 +80,35 @@ namespace navgraph {
             if (heading <0)
                 heading += 360;
             
+            pos.heading = heading;
+            pos.refAngle = refAngle;
+            float diffAngle = atan2(sin((refAngle-heading)*3.14/180), cos((refAngle-heading)*3.14/180));
             std::cerr << "\n heading: " << heading << ", refAngle: " << refAngle << "\n";
-            std::cerr << "[][][] Heading diff: " << refAngle - heading << "\n";
-            
-            CompassOrientation refOrientation = _angleToCompass(refAngle);
-            CompassOrientation userOrientation = _angleToCompass(heading);
-            
-            TurnDirection turn = calculateTurn(refOrientation, userOrientation);
+//            std::cerr << "[][][] Heading diff: " << refAngle - heading << "\n";
+            pos.headingDiff = diffAngle * 180/3.14;
+//            CompassOrientation refOrientation = _angleToCompass(refAngle);
+//            CompassOrientation userOrientation = _angleToCompass(heading);
+//            CompassOrientation headingCorrection = _angleToCompass(diffAngle);
+//            if headingCorrection
+            TurnDirection turn = calculateTurn(pos.headingDiff, 15);
             return turn;
+        }
+        
+        TurnDirection calculateTurn(float  diffAngleDeg, float threshold){
+            if (diffAngleDeg > threshold && diffAngleDeg <= 45)
+                return EasyLeft;
+            else if (diffAngleDeg > 45 && diffAngleDeg >= 90 + threshold)
+                return Left;
+            else if (diffAngleDeg > 90 + threshold)
+                return TurnAround;
+            else if (diffAngleDeg >= -45 && diffAngleDeg < -threshold)
+                return EasyRight;
+            else if (diffAngleDeg >= -90 - threshold && diffAngleDeg < -45)
+                return Right;
+            else if (diffAngleDeg < -90 - threshold)
+                return TurnAround;
+            else
+                return None;
         }
         
         TurnDirection calculateTurn(CompassOrientation refOrientation, CompassOrientation userOrientation){

@@ -30,88 +30,11 @@ public extension UIImage {
 }
 
 
-class AudioFeedback{
-    var lastPOIAnnouncedTime : Date
-    var lastAnnouncement : String
-    var player: AVAudioPlayer?
-    var synthesizer : AVSpeechSynthesizer
-    
-    init(){
-        self.lastPOIAnnouncedTime = Date()
-        synthesizer = AVSpeechSynthesizer()
-        lastAnnouncement = ""
-        guard let url = Bundle.main.url(forResource: "white_noise_filt", withExtension: "wav") else { return }
-        
-        do {
-            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
-            try AVAudioSession.sharedInstance().setActive(true)
-            
-            player = try AVAudioPlayer(contentsOf: url, fileTypeHint: AVFileType.wav.rawValue)
-            //guard let player = player else { return }
-            
-            
-        } catch let error {
-            print(error.localizedDescription)
-        }
-    }
-    
-    func stopUtterance(){
-        if (synthesizer.isSpeaking){
-            synthesizer.stopSpeaking(at: AVSpeechBoundary.immediate)
-        }
-    }
-    
-    func announce(string: String, delay: Double){
-        //if string != " "{
-        if abs(lastPOIAnnouncedTime.timeIntervalSinceNow) > delay{ //|| lastAnnouncement != string{
-            lastAnnouncement = string
-            let utterance = AVSpeechUtterance(string: string)
-            let psynthesizer = AVSpeechSynthesizer()
-            utterance.rate = 0.68
-            
-            stopUtterance()
-            psynthesizer.speak(utterance)
-            lastPOIAnnouncedTime = Date();
-            
-            //  }
-        }
-    }
-    
-    func announceNow(string: String){
-        let utterance = AVSpeechUtterance(string: string)
-        
-        utterance.rate = 0.62
-        
-        //utterance.voice = AVSpeechSynthesisVoice.
-        // if repeating same message, wait for previous utterance to finish
-        if (lastAnnouncement == string){
-            synthesizer.speak(utterance)
-        }
-            // if it is a new message, interrupt previous message, if any
-        else{
-            if (synthesizer.isSpeaking){
-                synthesizer.stopSpeaking(at: AVSpeechBoundary.immediate)
-            }
-            print(string)
-            synthesizer.speak(utterance)
-            //lastPOIAnnouncedTime = Date();
-        }
-        lastAnnouncement = string
-    }
-    
-    func playStaticSound() {
-        player?.play()
-    }
-}
-
-
 class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDelegate{
     
     @IBOutlet weak var sceneView: ARSCNView!
     
     var audioFeedback : AudioFeedback = AudioFeedback()
-    
-    @IBOutlet weak var dumpSwitch: UISwitch!
     
     // ** the navigation system (wrapper)
     let navigationCore : NavigationCoreWrapper = NavigationCoreWrapper()
@@ -123,7 +46,8 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
     // ** user selected location (set by previous activity)
     var locationURL : URL = Bundle.main.resourceURL!.appendingPathComponent("res/maps")
     
-    @IBOutlet weak var yawLabel: UILabel!
+    @IBOutlet weak var refAngleImage: UIImageView!
+    @IBOutlet weak var headingImage: UIImageView!
     @IBOutlet weak var cvImage: UIImageView!
     @IBOutlet weak var navImage: UIImageView!
     // ** user selected destination
@@ -211,7 +135,6 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
         let phi_star = Double(frame.camera.eulerAngles[1] * 180 / .pi)
         let yaw = (theta_star - phi_star) * .pi/180
 
-        yawLabel.text = String(yaw)
         if startID > 0{
             let pos = navigationCore.getNodeUVPosition(Int32(startID))
             navigationCore.initializeLocalizationSystem(resURL.relativePath, numParticles: Int32(numParticles), posU: pos[0] as! Double, posV: pos[1] as! Double, initYaw: Double(yaw), initYawNoise: 2 * compassAccuracy * .pi / 180)
@@ -303,21 +226,21 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
                             print(dist)
                             audioFeedback.announce(string: res["nodeLabel"] as! String, delay:1)
                         }
-//                        else{
-//                            audioFeedback.announce(string: "", delay: 0)
-//                        }
                     }
-//                    else{
-//                        audioFeedback.announce(string: "", delay: 0)
-//                    }
                 }
-//                else{
-//                    audioFeedback.announce(string: "", delay: 0)
-//                }
             }
             else{
                 if res["navInstruction"] != nil{
                     audioFeedback.announce(string: res["navInstruction"] as! String, delay:1)
+                }
+                if res["heading"] != nil{
+                    // Note: UIImage rotates clockwise (i.e. 90 degrees points down in a unit circle)
+                    var angle = res["heading"] as! Double
+                    var head_rad = angle * (Double.pi/180.0)
+                    headingImage.transform = CGAffineTransform(rotationAngle: CGFloat(-head_rad));
+                    angle = res["refAngle"] as! Double
+                    head_rad = angle * (Double.pi/180.0)
+                    refAngleImage.transform = CGAffineTransform(rotationAngle: CGFloat(-head_rad));
                 }
                 
             }
@@ -341,8 +264,8 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
         case .normal:
             if !trackerInitialized{
                 trackerInitialized = true
-                status = "Tracker ready! Camera height \(userHeight)"
-                audioFeedback.announce(string: status, delay: 0)
+                status = "Tracker ready! Camera height \(userHeight) inches"
+                audioFeedback.announce(string: status, delay: 1)
                 status = ""
             }
         case .notAvailable:

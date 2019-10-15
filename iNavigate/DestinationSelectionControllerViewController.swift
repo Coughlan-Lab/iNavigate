@@ -151,12 +151,31 @@ class DestinationSelectionControllerViewController: UIViewController , UIPickerV
                 destinationPickerData.removeAll()
                 destinationIDs.removeAll()
                 destinationsFloor.removeAll()
+                
+                // part of hack
+                var cnt : Int = 0
+                
                 for (_, value) in nodes{
                     let n = Node(value as! [String : Any])
                     if (n.type == "destination" || n.type == "link"){
                         destinationPickerData.append(n.label)
                         destinationIDs.append(n.id)
                         destinationsFloor.append(Int(n.floor) ?? -1)
+                        
+                        //this is a hack so I don't have to enter stuff all the time when at SKI
+                        if (n.label == "elevator" && Int(n.floor) == 4){
+                            destID = n.id
+                            startFloor = 4
+                            destination = "elevator"
+                            destinationPicker.selectRow(destinationIDs.count - 1, inComponent: 0, animated: true)
+                        }
+                        if (n.label == "414" && Int(n.floor) == 4){
+                            startID = n.id
+                            startFloor = 4
+                            cnt = destinationIDs.count - 1
+                            
+                        }
+                        // end hack
                     }
                 }
                 
@@ -181,6 +200,9 @@ class DestinationSelectionControllerViewController: UIViewController , UIPickerV
                 startFloors.append(10)
                 startIDs.append(0)
                 
+                //hack
+                print(cnt)
+                startPicker.selectRow(cnt, inComponent: 0, animated: true)
                 
                 destinationPickerData.append("No destination")
                 destinationIDs.append(0)

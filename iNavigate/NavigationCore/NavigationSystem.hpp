@@ -46,9 +46,7 @@ namespace navgraph{
             
         }
         
-        
         inline void setCameraHeight(float cameraHeight) { _locSystem->setCameraHeight(cameraHeight); }
-        
         
         NavGraph::SnappedPosition* step(const locore::VIOMeasurements& vioData, int deltaFloors){
             updateCurrentFloor(deltaFloors);
@@ -60,12 +58,14 @@ namespace navgraph{
             if (peak.x > -1e6 && peak.y > -1e6){
                 _currSnappedPosition = _navGraph->snapUV2Graph(peak,  _locSystem->getDeltaYawFromVIO()*180/CV_PI, _mapManager->currentFloor, true);
                 
-                
                 if (_currSnappedPosition.srcNodeId >= 0 && _currSnappedPosition.destNodeId >= 0){
                     if (destinationId >=0){
                     _path = _navGraph->getPathFromCurrentLocation(_currSnappedPosition, destinationId);
                         if (_path.size() > 1){
                             NavigationTracker::TurnDirection turnDir = _navTrack.update(_currSnappedPosition, _path[0], _path[1]);
+                            
+//                            std::cerr << "\n heading: " << _currSnappedPosition.heading << ", refAngle: " << _currSnappedPosition.refAngle << "\n";
+//                            std::cerr << "[][][] Heading diff: " << _currSnappedPosition.refAngle - _currSnappedPosition.heading << "\n";
                             
                             switch (turnDir) {
                                 case NavigationTracker::Forward:
@@ -88,7 +88,7 @@ namespace navgraph{
                                 break;
                                     
                                 default:
-                                    _currSnappedPosition.instruction = "go forward";
+                                    _currSnappedPosition.instruction = " ";
                                     break;
                             }
                         }
@@ -148,7 +148,7 @@ namespace navgraph{
                 for (locore::Particle p : particles){
                     // width, height, score, sign 0/1, pred dist, est. distance, det yaw, pred yaw,
                     cv::Point2i pt = _mapManager->uv2pixels(p.getPositionPoint());
-                    myfile << std::to_string(pt.y) << ", " << std::to_string(pt.x) << ", " << std::to_string(p.getScore()) << ", " << std::to_string(p.getCameraYaw()) << ", " << std::to_string(p.getMotionYaw()) << ", " << _locSystem->signDetected <<
+                    myfile << std::to_string(pt.y) << ", " << std::to_string(pt.x) << ", " << std::to_string(p.getScore()) << ", " << std::to_string(p.getCameraYaw()) << ", " << std::to_string(p.getCourse()) << ", " << _locSystem->signDetected <<
                        _locSystem->getDistanceToSign() << ", " << std::to_string(p.bestEstimatedDistance) << ", " <<
                     std::to_string(p.bestDetYaw) << ", " << std::to_string(p.bestPredYaw) << "\n";
                     

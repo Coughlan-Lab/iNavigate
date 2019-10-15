@@ -58,6 +58,9 @@ namespace navgraph{
             Node srcNode;
             Node destNode;
             std::string instruction;
+            float refAngle;
+            float heading;
+            float headingDiff;
         };
         
         NavGraph() { ; }

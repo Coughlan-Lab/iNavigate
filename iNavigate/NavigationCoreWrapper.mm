@@ -87,7 +87,7 @@
         else nodeType = "transfer";
         
         std::cerr << "Node Label: " << ans << " | Distance: " << dist << "\n";
-        NSDictionary *dict = @{ @"outputImage" : MatToUIImage(navsys->getNavigationGraph()), @"distance" : [NSNumber numberWithFloat:(dist)],  @"nodeLabel" :[NSString stringWithUTF8String:ans.c_str()], @"nodeType" :[NSString stringWithUTF8String:nodeType.c_str()], @"navInstruction" :[NSString stringWithUTF8String:snappedPosition->instruction.c_str()]};
+        NSDictionary *dict = @{ @"outputImage" : MatToUIImage(navsys->getNavigationGraph()), @"distance" : [NSNumber numberWithFloat:(dist)],  @"nodeLabel" :[NSString stringWithUTF8String:ans.c_str()], @"nodeType" :[NSString stringWithUTF8String:nodeType.c_str()], @"navInstruction" :[NSString stringWithUTF8String:snappedPosition->instruction.c_str()], @"heading": [NSNumber numberWithFloat:(snappedPosition->heading)], @"refAngle": [NSNumber numberWithFloat:(snappedPosition->refAngle)]};
         return dict;
     }
     else{

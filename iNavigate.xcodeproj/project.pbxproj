@@ -14,6 +14,8 @@
 		3F1F89D5225FE70A00483EF4 /* DetectionParams.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F1F89B4225FE70A00483EF4 /* DetectionParams.cpp */; };
 		3F5F53B522580B3F00D40A04 /* svm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5F53B422580B3F00D40A04 /* svm.cpp */; };
 		3F5F53F322580CD100D40A04 /* res in Resources */ = {isa = PBXBuildFile; fileRef = 3F5F53F122580CB400D40A04 /* res */; };
+		3FA233482345360900E3BA0D /* AudioFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA233472345360900E3BA0D /* AudioFeedback.swift */; };
+		3FA2334A234545E000E3BA0D /* arrow.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 3FA23349234545E000E3BA0D /* arrow.jpg */; };
 		3FC2BB0C226FC5DE00A1701B /* FloorChangeDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FC2BB0B226FC5DE00A1701B /* FloorChangeDetector.swift */; };
 		3FCD2A082253EA800048B140 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FCD2A072253EA800048B140 /* AppDelegate.swift */; };
 		3FCD2A0C2253EA800048B140 /* Scene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FCD2A0B2253EA800048B140 /* Scene.swift */; };
@@ -78,6 +80,8 @@
 		3F1F89B4225FE70A00483EF4 /* DetectionParams.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DetectionParams.cpp; sourceTree = "<group>"; };
 		3F5F53B422580B3F00D40A04 /* svm.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = svm.cpp; sourceTree = "<group>"; };
 		3F5F53F122580CB400D40A04 /* res */ = {isa = PBXFileReference; lastKnownFileType = folder; path = res; sourceTree = "<group>"; };
+		3FA233472345360900E3BA0D /* AudioFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioFeedback.swift; sourceTree = "<group>"; };
+		3FA23349234545E000E3BA0D /* arrow.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = arrow.jpg; sourceTree = "<group>"; };
 		3FC2BB0B226FC5DE00A1701B /* FloorChangeDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloorChangeDetector.swift; sourceTree = "<group>"; };
 		3FCD2A042253EA800048B140 /* iNavigate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iNavigate.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3FCD2A072253EA800048B140 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -263,6 +267,7 @@
 		3FCD29FB2253EA800048B140 = {
 			isa = PBXGroup;
 			children = (
+				3FA23349234545E000E3BA0D /* arrow.jpg */,
 				3F5F53B422580B3F00D40A04 /* svm.cpp */,
 				3FCD2A062253EA800048B140 /* iNavigate */,
 				3FCD2A052253EA800048B140 /* Products */,
@@ -291,6 +296,7 @@
 				3FCD2A0B2253EA800048B140 /* Scene.swift */,
 				3FC2BB0B226FC5DE00A1701B /* FloorChangeDetector.swift */,
 				3FCD2A0D2253EA800048B140 /* ViewController.swift */,
+				3FA233472345360900E3BA0D /* AudioFeedback.swift */,
 				3FCD2A0F2253EA800048B140 /* Main.storyboard */,
 				3FCD2A122253EA820048B140 /* Assets.xcassets */,
 				3FCD2A142253EA820048B140 /* LaunchScreen.storyboard */,
@@ -420,6 +426,7 @@
 				3F5F53F322580CD100D40A04 /* res in Resources */,
 				3FCD2A162253EA820048B140 /* LaunchScreen.storyboard in Resources */,
 				3FCD2A132253EA820048B140 /* Assets.xcassets in Resources */,
+				3FA2334A234545E000E3BA0D /* arrow.jpg in Resources */,
 				3FCD2A112253EA800048B140 /* Main.storyboard in Resources */,
 				3F1F89CF225FE70A00483EF4 /* LICENSE in Resources */,
 			);
@@ -448,6 +455,7 @@
 			files = (
 				3FC2BB0C226FC5DE00A1701B /* FloorChangeDetector.swift in Sources */,
 				3F1F89D3225FE70A00483EF4 /* MedianFlowTracker.cpp in Sources */,
+				3FA233482345360900E3BA0D /* AudioFeedback.swift in Sources */,
 				3F5F53B522580B3F00D40A04 /* svm.cpp in Sources */,
 				3F1F89D5225FE70A00483EF4 /* DetectionParams.cpp in Sources */,
 				3FCD2A40225407170048B140 /* DestinationSelectionControllerViewController.swift in Sources */,
