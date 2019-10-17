@@ -45,20 +45,22 @@ namespace navgraph{
             std::vector<float> dist;
         };
         
+        // this structure contains information about where the user is on the graph. It maps a peak location in UV coord. to
+        // UV location on the graph.
         struct SnappedPosition{
             cv::Point2f uvPos;
             cv::Point2f realuvPos;
-            int srcNodeId;
+            int srcNodeId; // IDs of the nodes of the edge the user has been snapped on
             int destNodeId;
-            float dist2Src;
+            float dist2Src; // distance to nodes on the graph
             float dist2Dest;
             float distance;
             double deltaYaw;
             Node closestNode;
-            Node srcNode;
-            Node destNode;
+            Node srcNode; // the node at the source of the edge the user is on
+            Node destNode; // the node at the end of the edge
             std::string instruction;
-            float refAngle;
+            float refAngle; // this angle represents the orientation of the edge from srcNode to destNode
             float heading;
             float headingDiff;
         };

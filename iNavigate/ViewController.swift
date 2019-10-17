@@ -241,9 +241,9 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
                     var head_rad = angle * (Double.pi/180.0)
                     userHeadingLabel.text = "\(angle)"
                     headingImage.transform = CGAffineTransform(rotationAngle: CGFloat(-head_rad));
-//                    angle = res["refAngle"] as! Double
-//                    head_rad = angle * (Double.pi/180.0)
-//                    refAngleImage.transform = CGAffineTransform(rotationAngle: CGFloat(-head_rad));
+                    angle = res["refAngle"] as! Double
+                    head_rad = angle * (Double.pi/180.0)
+                    refAngleImage.transform = CGAffineTransform(rotationAngle: CGFloat(-head_rad));
                 }
                 
 //            }

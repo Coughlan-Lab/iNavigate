@@ -73,8 +73,8 @@
     cv::resize(image, image_vga, cv::Size(image.cols/3,image.rows/3), 0, 0, cv::INTER_NEAREST);
     cv::cvtColor(image_vga, image_vga_gray, cv::COLOR_RGB2GRAY);
     locore::VIOMeasurements vioData(tStatus, timestamp, x, y, z, rx, ry, rz, 0, 0, image_vga_gray);
-    float userHeading = navsys->step(vioData, deltaFloors);
-    std::cerr << ">> User Heading: " << userHeading << "\n";
+    navgraph::NavigationSystem::navigation_t navData = navsys->step(vioData, deltaFloors);
+    std::cerr << ">> User Heading: " << navData.course << "\n";
 //    if (snappedPosition){
 //        std::string ans = snappedPosition->closestNode.label;
 //        float dist = snappedPosition->distance;
@@ -89,7 +89,7 @@
 //
 //        std::cerr << "Node Label: " << ans << " | Distance: " << dist << "\n";
 //        NSDictionary *dict = @{ @"outputImage" : MatToUIImage(navsys->getNavigationGraph()), @"distance" : [NSNumber numberWithFloat:(dist)],  @"nodeLabel" :[NSString stringWithUTF8String:ans.c_str()], @"nodeType" :[NSString stringWithUTF8String:nodeType.c_str()], @"navInstruction" :[NSString stringWithUTF8String:snappedPosition->instruction.c_str()], @"heading": [NSNumber numberWithFloat:(snappedPosition->heading)], @"refAngle": [NSNumber numberWithFloat:(snappedPosition->refAngle)]};
-    NSDictionary *dict = @{ @"outputImage" : MatToUIImage(navsys->getNavigationGraph()), @"heading": [NSNumber numberWithFloat:(userHeading)]};
+    NSDictionary *dict = @{ @"outputImage" : MatToUIImage(navsys->getNavigationGraph()), @"heading": [NSNumber numberWithFloat:(navData.course)], @"refAngle": [NSNumber numberWithFloat:(navData.refAngle)]};
         return dict;
 //    }
 //    else{

@@ -22,6 +22,11 @@ namespace navgraph{
         
         int destinationId;
         
+        struct navigation_t {
+            float course;
+            float refAngle;
+        };
+        
         NavigationSystem(std::string mapFolder, int floor, bool exploreMode){
             _mapManager = std::make_shared<maps::MapManager>();
             _mapManager->init(mapFolder, floor);
@@ -31,6 +36,7 @@ namespace navgraph{
             destinationId = -1;
             distanceMoved = 0;
             heading = 1000;
+            refAngle = 1000;
             first = true;
         }
         
@@ -44,15 +50,13 @@ namespace navgraph{
         
         void initLocalizationSystem(std::string resFolder, int numParticles, locore::InitMode initMode, double posU, double posV, float initMotionYaw, float initYawNoise){
             _locSystem = std::make_unique<locore::LocalizationSystem>(resFolder, numParticles, initMode, _mapManager->currentFloor, posU, posV, initMotionYaw, initYawNoise, _mapManager);
-            
-            //std::shared_ptr<locore::LocalizationSystem>( new locore::LocalizationSystem(resFolder, numParticles, initMode, startFloor, posU, posV, initMotionYaw, initYawNoise, _mapManager));
-            
         }
         
         inline void setCameraHeight(float cameraHeight) { _locSystem->setCameraHeight(cameraHeight); }
         inline void setInitialCourse(float yaw) { heading = yaw; }
         
-        float step(const locore::VIOMeasurements& vioData, int deltaFloors){
+        navigation_t step(const locore::VIOMeasurements& vioData, int deltaFloors){
+            navigation_t navData;
             updateCurrentFloor(deltaFloors);
             std::cerr << "User destination ID: " << destinationId << "\n";
             _navigationImage = _locSystem->step(vioData);
@@ -61,6 +65,8 @@ namespace navgraph{
             if (destinationId >= 0 && peak.valid){
                 _currSnappedPosition = _navGraph->snapUV2Graph(peak.uvCoord, 0, _mapManager->currentFloor, true);
                 if (_currSnappedPosition.srcNodeId >= 0 && _currSnappedPosition.destNodeId >= 0){
+                    std::cerr << "orientation of the edge: " << _currSnappedPosition.refAngle << "\n";
+                    refAngle = _currSnappedPosition.refAngle;
                     _path = _navGraph->getPathFromCurrentLocation(_currSnappedPosition, destinationId);
                     std::cerr << "Path: " ;
                     for (auto it = _path.begin(); it != _path.end(); ++it)
@@ -71,7 +77,9 @@ namespace navgraph{
                 }
             }
             computeUserCourse(peak);
-            return heading;
+            navData.course = heading;
+            navData.refAngle = refAngle;
+            return navData;
         }
         
         bool peakIsGood(cv::Point2f peak){
@@ -175,6 +183,7 @@ namespace navgraph{
         locore::PeakDetector::peak_t prevPeak;
         float distanceMoved;
         float heading;
+        float refAngle;
     };
     
 } /* namespace navgraph */
