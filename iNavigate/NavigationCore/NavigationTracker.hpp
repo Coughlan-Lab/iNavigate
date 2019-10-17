@@ -26,48 +26,53 @@ namespace navgraph {
         NavigationTracker(){ first = true;  distanceMoved = 0;}
         ~NavigationTracker(){;}
         
-        TurnDirection update(NavGraph::SnappedPosition& pos, int firstNodeId, int nextNodeId){
+        //TurnDirection update(cv::Point2f peak, NavGraph::SnappedPosition& pos, int firstNodeId, int nextNodeId){
+        float update(cv::Point2f peak, NavGraph::SnappedPosition& pos, int firstNodeId, int nextNodeId){
             if (first){
                 prevPosition = pos;
+                prevPeak = peak;
                 first = false;
                 return None;
             }
             else{
                 
-                float t = cv::norm(pos.uvPos - prevPosition.uvPos);
+                //float t = cv::norm(pos.uvPos - prevPosition.uvPos);
+                float t = cv::norm(peak - prevPeak);
                 distanceMoved += t;
                 //!  WARNING: Possible confusion with reference System
-                if (distanceMoved > 0.1){
+                if (distanceMoved > 0.5){
                     distanceMoved = 0;
-                        heading = atan2(pos.realuvPos.x - prevPosition.realuvPos.x, pos.realuvPos.y - prevPosition.realuvPos.y)*180/CV_PI;
-                    
+                    heading = atan2(peak.x - prevPeak.x, peak.y - prevPeak.y)*180/CV_PI;
+                    prevPeak = peak;
     //                else if ((abs(t) < 0.1) && (abs(t) >0)){
     //                    heading += pos.deltaYaw*180/CV_PI;
     //                }
                     heading = fmod(heading, 360);
                    
                     // first make sure the user is walking in the right direction
-                    TurnDirection turn;
-                    if (pos.srcNodeId == firstNodeId)
-                        turn = _getTurnDirection(pos.destNode, firstNodeId, pos);
-                    else
-                        turn = _getTurnDirection(pos.srcNode, firstNodeId, pos);
+//                    TurnDirection turn;
+//                    if (pos.srcNodeId == firstNodeId)
+//                        turn = _getTurnDirection(pos.destNode, firstNodeId, pos);
+//                    else
+//                        turn = _getTurnDirection(pos.srcNode, firstNodeId, pos);
                     
                     
                     prevPosition = pos;
     //                if (turn == Forward){
     //                    std::cerr << "Looking good! \n";
     //                }
-                    return turn;
+//                    return turn;
+                    return heading;
                 }
                 else
-                    return None;
+                    return 1e10;
             }
         }
         
         
     private:
         NavGraph::SnappedPosition prevPosition;
+        cv::Point2f prevPeak;
         float heading;
         bool first;
         float distanceMoved;

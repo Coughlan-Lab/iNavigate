@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void) setDestinationID: (int) destId;
 - (NSArray*) getNodeUVPosition : (int)nodeId;
 - (void) setCameraHeight : (float) height;
-
+- (void) setInitialCourse : (float) yaw;
 - (UIImage*) getCVDetectorOutputFrame;
 - (void) dumpParticles;
 

@@ -32,6 +32,7 @@ public extension UIImage {
 
 class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDelegate{
     
+    @IBOutlet weak var userHeadingLabel: UILabel!
     @IBOutlet weak var sceneView: ARSCNView!
     
     var audioFeedback : AudioFeedback = AudioFeedback()
@@ -146,6 +147,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
         
         locSysInit = true
         navigationCore.setCameraHeight(Float(userHeight)!)
+        navigationCore.setInitialCourse(Float(yaw))
     }
     
     
@@ -159,12 +161,12 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
             res["distance"] = -1
             res["nodeLabel"] = ""
             //audioFeedback.announce(string: "please start walking", delay:1)
-            if (compassAccuracy <= 95){
+//            if (compassAccuracy <= 95){
               initLocCore(frame : frame)
-            }
-            else{
-                audioFeedback.announce(string: "insufficient heading accuracy, please calibrate compass", delay:3.0)
-            }
+//            }
+//            else{
+//                audioFeedback.announce(string: "insufficient heading accuracy, please calibrate compass", delay:3.0)
+//            }
             return res;
         }
         else if (locSysInit) && (frame.timestamp-lastProcessedFrameTime) > 0.1 {
@@ -217,33 +219,34 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
             
             //check system status and phone pitch and play bkg sound
             //sendPhonePitchFeedback(cameraPitch: frame.camera.eulerAngles.x)
-            if (exploreMode){
-                if (res["nodeLabel"] as! String != ""){
-                    if (res["nodeType"] as! String  == "destination"){
-                        let dist = res["distance"] as! Float
-                        
-                        if (dist < 1.0 && dist >= 0){
-                            print(dist)
-                            audioFeedback.announce(string: res["nodeLabel"] as! String, delay:1)
-                        }
-                    }
-                }
-            }
-            else{
-                if res["navInstruction"] != nil{
-                    audioFeedback.announce(string: res["navInstruction"] as! String, delay:1)
-                }
+//            if (exploreMode){
+//                if (res["nodeLabel"] as! String != ""){
+//                    if (res["nodeType"] as! String  == "destination"){
+//                        let dist = res["distance"] as! Float
+//
+//                        if (dist < 1.0 && dist >= 0){
+//                            print(dist)
+//                            audioFeedback.announce(string: res["nodeLabel"] as! String, delay:1)
+//                        }
+//                    }
+//                }
+//            }
+//            else{
+//                if res["navInstruction"] != nil{
+//                    audioFeedback.announce(string: res["navInstruction"] as! String, delay:1)
+//                }
                 if res["heading"] != nil{
                     // Note: UIImage rotates clockwise (i.e. 90 degrees points down in a unit circle)
                     var angle = res["heading"] as! Double
                     var head_rad = angle * (Double.pi/180.0)
+                    userHeadingLabel.text = "\(angle)"
                     headingImage.transform = CGAffineTransform(rotationAngle: CGFloat(-head_rad));
-                    angle = res["refAngle"] as! Double
-                    head_rad = angle * (Double.pi/180.0)
-                    refAngleImage.transform = CGAffineTransform(rotationAngle: CGFloat(-head_rad));
+//                    angle = res["refAngle"] as! Double
+//                    head_rad = angle * (Double.pi/180.0)
+//                    refAngleImage.transform = CGAffineTransform(rotationAngle: CGFloat(-head_rad));
                 }
                 
-            }
+//            }
 //            if (locSysInit){
 //                sendLocalizationConfidenceFeedback(hardPeak: localizationCore.isPeakHard())
 //                announceROI(roiLabel: localizationCore.getROILabel())
@@ -295,14 +298,11 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
         }
     }
     
-    
-    
     func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
         self.compassHeading = newHeading.trueHeading
         self.compassAccuracy = newHeading.headingAccuracy
     }
-    
-    
+        
     func startQrCodeDetection() {
         // Create a Barcode Detection Request
         let request = VNDetectBarcodesRequest(completionHandler: self.requestHandler)

@@ -29,6 +29,9 @@ namespace navgraph{
             std::string graphJSONFile = mapFolder + "/navgraph.json";
             _navGraph = std::make_unique<NavGraph>(graphJSONFile, _mapManager);
             destinationId = -1;
+            distanceMoved = 0;
+            heading = 1000;
+            first = true;
         }
         
         std::vector<float> getNodeUVPosition(int nodeID){
@@ -47,64 +50,59 @@ namespace navgraph{
         }
         
         inline void setCameraHeight(float cameraHeight) { _locSystem->setCameraHeight(cameraHeight); }
+        inline void setInitialCourse(float yaw) { heading = yaw; }
         
-        NavGraph::SnappedPosition* step(const locore::VIOMeasurements& vioData, int deltaFloors){
+        float step(const locore::VIOMeasurements& vioData, int deltaFloors){
             updateCurrentFloor(deltaFloors);
-            
+            std::cerr << "User destination ID: " << destinationId << "\n";
             _navigationImage = _locSystem->step(vioData);
-            cv::Point2f peak = _locSystem->getRobustPeakUV();
-            
-            //if ((destinationId >= 0) && (peak.x > -1e6 && peak.y > -1e6)){
-            if (peak.x > -1e6 && peak.y > -1e6){
-                _currSnappedPosition = _navGraph->snapUV2Graph(peak,  _locSystem->getDeltaYawFromVIO()*180/CV_PI, _mapManager->currentFloor, true);
-                
+           
+            locore::PeakDetector::peak_t peak = _locSystem->getPeak();
+            if (destinationId >= 0 && peak.valid){
+                _currSnappedPosition = _navGraph->snapUV2Graph(peak.uvCoord, 0, _mapManager->currentFloor, true);
                 if (_currSnappedPosition.srcNodeId >= 0 && _currSnappedPosition.destNodeId >= 0){
-                    if (destinationId >=0){
                     _path = _navGraph->getPathFromCurrentLocation(_currSnappedPosition, destinationId);
-                        if (_path.size() > 1){
-                            NavigationTracker::TurnDirection turnDir = _navTrack.update(_currSnappedPosition, _path[0], _path[1]);
-                            
-//                            std::cerr << "\n heading: " << _currSnappedPosition.heading << ", refAngle: " << _currSnappedPosition.refAngle << "\n";
-//                            std::cerr << "[][][] Heading diff: " << _currSnappedPosition.refAngle - _currSnappedPosition.heading << "\n";
-                            
-                            switch (turnDir) {
-                                case NavigationTracker::Forward:
-                                    _currSnappedPosition.instruction = "Go Forward";
-                                    break;
-                                case NavigationTracker::TurnAround:
-                                    _currSnappedPosition.instruction = "Please turn around";
-                                    break;
-                                case NavigationTracker::Left:
-                                _currSnappedPosition.instruction = "turn left";
-                                break;
-                                case NavigationTracker::EasyLeft:
-                                    _currSnappedPosition.instruction = "make an easy left";
-                                break;
-                                case NavigationTracker::Right:
-                                    _currSnappedPosition.instruction = "turn right";
-                                break;
-                                case NavigationTracker::EasyRight:
-                                    _currSnappedPosition.instruction = "make an easy right";
-                                break;
-                                    
-                                default:
-                                    _currSnappedPosition.instruction = " ";
-                                    break;
-                            }
-                        }
-                        
-                        drawNavigationGraph();
-                    }
-                    return &_currSnappedPosition;
+                    std::cerr << "Path: " ;
+                    for (auto it = _path.begin(); it != _path.end(); ++it)
+                        std::cerr << (*it);
+                    std::cerr << "\n";
+                    
+                    drawNavigationGraph();
+                }
+            }
+            computeUserCourse(peak);
+            return heading;
+        }
+        
+        bool peakIsGood(cv::Point2f peak){
+            return (peak.x > -1e6 || peak.y > -1e6);
+        }
+        
+        void computeUserCourse(locore::PeakDetector::peak_t peak){
+            if (peak.valid){
+                std::cerr << "got peak" << "\n";
+                if (first){
+                    prevPeak = peak;
+                    first = false;
                 }
                 else{
-                    return nullptr;
+                    float t = cv::norm(peak.uvCoord - prevPeak.uvCoord);
+                    distanceMoved += t;
+                    std::cerr << "distance moved " <<  distanceMoved << "\n";
+                    //!  WARNING: Possible confusion with reference System
+                    if (distanceMoved > 0.5){
+                        std::cerr << "walked enough" << "\n";
+                        distanceMoved = 0;
+                        heading = atan2(peak.uvCoord.x - prevPeak.uvCoord.x, peak.uvCoord.y - prevPeak.uvCoord.y)*180/CV_PI;
+                        prevPeak = peak;
+                        heading = fmod(heading, 360);
+    //                        drawNavigationGraph();
+                    }
                 }
             }
-            else{
-                return nullptr;
-            }
         }
+        
+            
         
         void drawNavigationGraph(){
 //            std::vector<int> path = _navGraph->getPathFromCurrentLocation(_currSnappedPosition, destinationId);
@@ -173,7 +171,10 @@ namespace navgraph{
         cv::Mat _navigationImage;
         std::vector<int> _path;
         NavigationTracker _navTrack;
-    
+        bool first;
+        locore::PeakDetector::peak_t prevPeak;
+        float distanceMoved;
+        float heading;
     };
     
 } /* namespace navgraph */
