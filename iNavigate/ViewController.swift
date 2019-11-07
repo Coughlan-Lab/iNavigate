@@ -37,7 +37,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
     @IBOutlet weak var userHeadingLabel: UILabel!
     @IBOutlet weak var sceneView: ARSCNView!
     
-    var audioFeedback : AudioFeedback = AudioFeedback()
+    var speechFeedback : SpeechFeedback = SpeechFeedback()
     
     // ** the navigation system (wrapper)
     let navigationCore : NavigationCoreWrapper = NavigationCoreWrapper()
@@ -75,6 +75,10 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
     var frameCounter : UInt64 = 0
     var lastProcessedFrameTime: TimeInterval = TimeInterval()
     let numParticles = 100000
+    
+    var environment = AVAudioEnvironmentNode()
+    let engine = AVAudioEngine()
+    var isSpatialSoundPlaying : Bool = false
     
     // set user height (retrieve last value from memory)
     var userHeight:String {
@@ -121,15 +125,49 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
         sceneView.session.run(configuration)
         sceneView.session.delegate = self
         
+        // Initializing the spatial sound
+        initSpatializedSound()
+        
 //        setupBarometer()
         startQrCodeDetection()
         locationManager.headingOrientation = .portrait
         locationManager.delegate = self;
-        audioFeedback.announce(message: "Initializing Tracker", delay:0)
+        speechFeedback.pushMessage(message: message_t.init(text: "Initializing tracker"))
         navigationCore.initNavigationSystem(locationURL.relativePath, currentFloor: Int32(startFloor), exploreMode: exploreMode)
         navigationCore.setDestinationID(Int32(destID))
     }
     
+    
+    /// Spatial Sound Initialization
+   func playSound(file:String, withExtension ext:String = "mp3", atPosition position:AVAudio3DPoint) -> AVAudioPlayerNode {
+           let node = AVAudioPlayerNode()
+           node.position = position
+           node.reverbBlend = 0.0001
+           node.renderingAlgorithm = .HRTF
+
+           let url = Bundle.main.url(forResource: file, withExtension: ext)!
+           let file = try! AVAudioFile(forReading: url)
+           let buffer = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: AVAudioFrameCount(file.length))
+           try! file.read(into: buffer!)
+           engine.attach(node)
+           engine.connect(node, to: environment, format: buffer?.format)
+           node.scheduleBuffer(buffer!, at: nil, options: .loops, completionHandler: nil)
+
+           return node
+       }
+    
+    
+    func initSpatializedSound(){
+        environment.listenerPosition = AVAudio3DPoint(x: 0, y: 0, z: 0)
+        engine.attach(environment)
+        engine.connect(environment, to: engine.mainMixerNode, format: nil)
+        engine.prepare()
+        do {
+            try engine.start()
+        } catch let e as NSError {
+            print("Couldn't start engine", e)
+        }
+    }
     
     func initLocCore(frame: ARFrame){
         locationManager.stopUpdatingHeading()
@@ -220,7 +258,8 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
             self.cvImage.image = res["cvDetectorImage"] as? UIImage
             // }
                        
-            dispatchInstruction(data: res)
+//            dispatchInstruction(data: res)
+            dispatchSonifiedInstruction(data: res)
              if res["heading"] != nil{
                     // Note: UIImage rotates clockwise (i.e. 90 degrees points down in a unit circle)
                     var angle = res["heading"] as! Double
@@ -250,42 +289,76 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
         }
     }
     
+    
+    func dispatchSonifiedInstruction(data : Dictionary<String, Any>){
+            if data["validNavData"] != nil{
+                if data["validNavData"] as! Bool == true{
+                    if !isSpatialSoundPlaying{
+                        playSound(file: "fireplace", atPosition: AVAudio3DPoint(x: 0, y: 0, z: 1)).play()
+                        isSpatialSoundPlaying = true
+                    }
+                    var throughDoor = data["destThroughDoor"] as! Bool
+                    let nodeType : NodeType = NodeType(rawValue: data["nodeType"] as! Int)!
+                    let nodeU = data["nodePositionU"] as! Float
+                    let nodeV = data["nodePositionV"] as! Float
+                    let course = data["heading"] as! Float
+                    let refAngle = data["refAngle"] as! Float
+                    let distToNode = data["distanceToApproachingNode"] as! Float
+                    let userU = data["userPositionU"] as! Float
+                    let userV = data["userPositionV"] as! Float
+                    var angleToNode = atan2(userU - nodeU, userV - nodeV)*180/(.pi);
+                    angleToNode = fmod(angleToNode, 360);
+                    if (angleToNode < 0){
+                        angleToNode += 360;
+                    }
+                    var diff = (course-angleToNode) * .pi / 180
+                    var diffAngle = atan2(sin(diff), cos(diff)) * 180 / .pi;
+                    diffAngle = fmod(angleToNode, 360);
+                    if (diffAngle < 0){
+                        diffAngle += 360;
+                    }
+                    environment.listenerAngularOrientation = AVAudioMake3DAngularOrientation(Float(diffAngle) , 0, 0)
+                }
+            }
+        }
+    
+    
     func dispatchInstruction(data : Dictionary<String, Any>){
         if data["validNavData"] != nil{
             if data["validNavData"] as! Bool == true{
-                var throughDoor = data["destThroughDoor"] as! Bool
+                let throughDoor = data["destThroughDoor"] as! Bool
                 let nodeType : NodeType = NodeType(rawValue: data["nodeType"] as! Int)!
 //                if nodeType == NodeType.Control{
                     let direction : TurnDirection = TurnDirection(rawValue: data["instructions"] as! Int)!
                     switch direction {
                     case TurnDirection.EasyLeft:
-                        audioFeedback.announce(message: "make an easy left", delay: 2)
+                        speechFeedback.pushMessage(message: message_t.init(text: "make an easy left", highPriority: true))
                     case TurnDirection.Left:
-                        audioFeedback.announce(message: "make a left", delay: 2)
+                        speechFeedback.pushMessage(message: message_t.init(text: "make a left", highPriority: true))
                     case TurnDirection.EasyRight:
-                        audioFeedback.announce(message: "make an easy right", delay: 2)
+                        speechFeedback.pushMessage(message: message_t.init(text: "make an easy right", highPriority: true))
                     case TurnDirection.Right:
-                        audioFeedback.announce(message: "make a right", delay: 2)
+                        speechFeedback.pushMessage(message: message_t.init(text: "make a right", highPriority: true))
                     case TurnDirection.TurnAround:
-                        audioFeedback.announce(message: "please turn around", delay: 2)
+                        speechFeedback.pushMessage(message: message_t.init(text: "turn around", highPriority: true))
                     case TurnDirection.Forward:
-                        audioFeedback.announce(message: "please go straight", delay: 2)
+                        speechFeedback.pushMessage(message: message_t.init(text: "go straight", highPriority: true))
                     case TurnDirection.Arrived:
-                        var label = data["nodeLabel"] as! String
-                        audioFeedback.announce(message: "you have arrived at " + label, delay: 2)
+                        let label = data["nodeLabel"] as! String
+                        speechFeedback.pushMessage(message: message_t.init(text: "you have arrived at " + label, highPriority: true))
                     case TurnDirection.LeftToDest:
                         if throughDoor{
-                            audioFeedback.announce(message: "your destination is through a door on the left", delay: 2)
+                            speechFeedback.pushMessage(message: message_t.init(text: "your destination is through a door on the left", highPriority: true))
                         }
                         else{
-                            audioFeedback.announce(message: "your destination is on the left", delay: 2)
+                            speechFeedback.pushMessage(message: message_t.init(text: "your destination is on the left", highPriority: true))
                         }
                     case TurnDirection.RightToDest:
                     if throughDoor{
-                        audioFeedback.announce(message: "your destination is through a door on the right", delay: 2)
+                        speechFeedback.pushMessage(message: message_t.init(text: "your destination is through a door on the right", highPriority: true))
                     }
                     else{
-                        audioFeedback.announce(message: "your destination is on the right", delay: 2)
+                        speechFeedback.pushMessage(message: message_t.init(text: "your destination is on the right", highPriority: true))
                     }
                     default:
                         break;
@@ -304,7 +377,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
             if !trackerInitialized{
                 trackerInitialized = true
                 status = "Tracker ready! Camera height \(userHeight) inches"
-                audioFeedback.announce(message: status, delay: 1)
+                speechFeedback.pushMessage(message: message_t.init(text: status))
                 status = ""
             }
         case .notAvailable:
@@ -327,10 +400,10 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
         }
         
         if (status != ""){
-            audioFeedback.announce(message: status, delay: 2)
+            speechFeedback.pushMessage(message: message_t.init(text: status))
         }
         else if(!trackerInitialized){
-            audioFeedback.announce(message: "Initializing Tracker", delay:1.0)
+            speechFeedback.pushMessage(message: message_t.init(text: "Initializing tracker", highPriority: true))
         }
     }
     

@@ -71,7 +71,7 @@
 }
 
 - (NSDictionary*) step : (NSString*) trackerStatus timestamp:(double)timestamp x:(double) x y:(double) y z:(double) z  rx:(double) rx ry:(double) ry rz:(double) rz deltaFloors:(int)deltaFloors frame:(UIImage*) frame{
-    
+//    userUVPos
     cv::Mat image, image_vga,image_vga_gray;
     UIImageToMat(frame, image);
     std::string tStatus([trackerStatus cStringUsingEncoding:NSUTF8StringEncoding]);
@@ -83,7 +83,9 @@
     NSDictionary *dict = @{ @"outputImage" : MatToUIImage(navsys->getNavigationGraph()), @"heading": [NSNumber numberWithFloat:(navData.course)],
         @"refAngle": [NSNumber numberWithFloat:(navData.refAngle)], @"instructions": [NSNumber numberWithInt:(navData.instruction)],
         @"distanceToApproachingNode" : [NSNumber numberWithFloat:(navData.distanceToApproachingNode)], @"validNavData":[NSNumber numberWithBool:(navData.valid)],
-        @"nodeType":[NSNumber numberWithInt:(navData.approachingNodeType)], @"nodeLabel":[NSString stringWithUTF8String:(navData.nodeLabel.c_str())], @"angleError":[NSNumber numberWithFloat:(navData.angleError)], @"destThroughDoor":[NSNumber numberWithBool:(navData.destThroughDoor)]};
+        @"nodeType":[NSNumber numberWithInt:(navData.approachingNodeType)], @"nodeLabel":[NSString stringWithUTF8String:(navData.nodeLabel.c_str())], @"angleError":[NSNumber numberWithFloat:(navData.angleError)], @"destThroughDoor":[NSNumber numberWithBool:(navData.destThroughDoor)], @"nodePositionU":[NSNumber numberWithFloat:(navData.nodeUVPos[0])], @"nodePositionV":[NSNumber numberWithFloat:(navData.nodeUVPos[1])],
+            @"userPositionU":[NSNumber numberWithFloat:(navData.userUVPos[0])], @"userPositionV":[NSNumber numberWithFloat:(navData.userUVPos[1])]
+};
     
 //
 //    float course;
