@@ -32,6 +32,8 @@ public extension UIImage {
 
 class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDelegate{
     
+    @IBOutlet weak var angleDiffLabel: UILabel!
+    @IBOutlet weak var routeHeadingLabel: UILabel!
     @IBOutlet weak var userHeadingLabel: UILabel!
     @IBOutlet weak var sceneView: ARSCNView!
     
@@ -47,6 +49,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
     // ** user selected location (set by previous activity)
     var locationURL : URL = Bundle.main.resourceURL!.appendingPathComponent("res/maps")
     
+    @IBOutlet weak var errorAngleImage: UIImageView!
     @IBOutlet weak var refAngleImage: UIImageView!
     @IBOutlet weak var headingImage: UIImageView!
     @IBOutlet weak var cvImage: UIImageView!
@@ -122,7 +125,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
         startQrCodeDetection()
         locationManager.headingOrientation = .portrait
         locationManager.delegate = self;
-        audioFeedback.announce(string: "Initializing Tracker", delay:0)
+        audioFeedback.announce(message: "Initializing Tracker", delay:0)
         navigationCore.initNavigationSystem(locationURL.relativePath, currentFloor: Int32(startFloor), exploreMode: exploreMode)
         navigationCore.setDestinationID(Int32(destID))
     }
@@ -138,7 +141,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
 
         if startID > 0{
             let pos = navigationCore.getNodeUVPosition(Int32(startID))
-            navigationCore.initializeLocalizationSystem(resURL.relativePath, numParticles: Int32(numParticles), posU: pos[0] as! Double, posV: pos[1] as! Double, initYaw: Double(yaw), initYawNoise: 2 * compassAccuracy * .pi / 180)
+            navigationCore.initializeLocalizationSystemLocation(resURL.relativePath, numParticles: Int32(numParticles), posU: pos[0] as! Double, posV: pos[1] as! Double, initYaw: Double(yaw), initYawNoise: 2 * compassAccuracy * .pi / 180)
         }
         else{
             //navigationCore.initializeLocalizationSystemUnknownLocation(resURL.relativePath, numParticles: Int32(numParticles), initYaw: Double(yaw), initYawNoise: 2 * compassAccuracy * .pi / 180)
@@ -216,26 +219,9 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
             self.navImage.image = res["outputImage"] as! UIImage
             self.cvImage.image = res["cvDetectorImage"] as? UIImage
             // }
-            
-            //check system status and phone pitch and play bkg sound
-            //sendPhonePitchFeedback(cameraPitch: frame.camera.eulerAngles.x)
-//            if (exploreMode){
-//                if (res["nodeLabel"] as! String != ""){
-//                    if (res["nodeType"] as! String  == "destination"){
-//                        let dist = res["distance"] as! Float
-//
-//                        if (dist < 1.0 && dist >= 0){
-//                            print(dist)
-//                            audioFeedback.announce(string: res["nodeLabel"] as! String, delay:1)
-//                        }
-//                    }
-//                }
-//            }
-//            else{
-//                if res["navInstruction"] != nil{
-//                    audioFeedback.announce(string: res["navInstruction"] as! String, delay:1)
-//                }
-                if res["heading"] != nil{
+                       
+            dispatchInstruction(data: res)
+             if res["heading"] != nil{
                     // Note: UIImage rotates clockwise (i.e. 90 degrees points down in a unit circle)
                     var angle = res["heading"] as! Double
                     var head_rad = angle * (Double.pi/180.0)
@@ -243,7 +229,12 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
                     headingImage.transform = CGAffineTransform(rotationAngle: CGFloat(-head_rad));
                     angle = res["refAngle"] as! Double
                     head_rad = angle * (Double.pi/180.0)
+                    routeHeadingLabel.text = "\(angle)"
                     refAngleImage.transform = CGAffineTransform(rotationAngle: CGFloat(-head_rad));
+                    angle = res["angleError"] as! Double
+                    angleDiffLabel.text = "\(angle)"
+                    head_rad = angle * (Double.pi/180.0)
+                    errorAngleImage.transform = CGAffineTransform(rotationAngle: CGFloat(head_rad));
                 }
                 
 //            }
@@ -259,6 +250,51 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
         }
     }
     
+    func dispatchInstruction(data : Dictionary<String, Any>){
+        if data["validNavData"] != nil{
+            if data["validNavData"] as! Bool == true{
+                var throughDoor = data["destThroughDoor"] as! Bool
+                let nodeType : NodeType = NodeType(rawValue: data["nodeType"] as! Int)!
+//                if nodeType == NodeType.Control{
+                    let direction : TurnDirection = TurnDirection(rawValue: data["instructions"] as! Int)!
+                    switch direction {
+                    case TurnDirection.EasyLeft:
+                        audioFeedback.announce(message: "make an easy left", delay: 2)
+                    case TurnDirection.Left:
+                        audioFeedback.announce(message: "make a left", delay: 2)
+                    case TurnDirection.EasyRight:
+                        audioFeedback.announce(message: "make an easy right", delay: 2)
+                    case TurnDirection.Right:
+                        audioFeedback.announce(message: "make a right", delay: 2)
+                    case TurnDirection.TurnAround:
+                        audioFeedback.announce(message: "please turn around", delay: 2)
+                    case TurnDirection.Forward:
+                        audioFeedback.announce(message: "please go straight", delay: 2)
+                    case TurnDirection.Arrived:
+                        var label = data["nodeLabel"] as! String
+                        audioFeedback.announce(message: "you have arrived at " + label, delay: 2)
+                    case TurnDirection.LeftToDest:
+                        if throughDoor{
+                            audioFeedback.announce(message: "your destination is through a door on the left", delay: 2)
+                        }
+                        else{
+                            audioFeedback.announce(message: "your destination is on the left", delay: 2)
+                        }
+                    case TurnDirection.RightToDest:
+                    if throughDoor{
+                        audioFeedback.announce(message: "your destination is through a door on the right", delay: 2)
+                    }
+                    else{
+                        audioFeedback.announce(message: "your destination is on the right", delay: 2)
+                    }
+                    default:
+                        break;
+                    }
+//                }
+            }
+        }
+    }
+    
     
     func trackerStatusFeedback(frame: ARFrame){
         
@@ -268,7 +304,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
             if !trackerInitialized{
                 trackerInitialized = true
                 status = "Tracker ready! Camera height \(userHeight) inches"
-                audioFeedback.announce(string: status, delay: 1)
+                audioFeedback.announce(message: status, delay: 1)
                 status = ""
             }
         case .notAvailable:
@@ -291,10 +327,10 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
         }
         
         if (status != ""){
-            audioFeedback.announce(string: status, delay: 2)
+            audioFeedback.announce(message: status, delay: 2)
         }
         else if(!trackerInitialized){
-            audioFeedback.announce(string: "Initializing Tracker", delay:1.0)
+            audioFeedback.announce(message: "Initializing Tracker", delay:1.0)
         }
     }
     

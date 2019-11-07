@@ -24,12 +24,11 @@ namespace navgraph{
     class NavGraph {
         
     public:
-        enum NodeType { Control = 0, Destination = 1, Link = 2 };
+        enum NodeType { Control = 0, Destination = 1, Link = 2, Undef = -1 };
         
         struct Edge{
-            float length; // length of the edge in pixels in u,v coordinates
+            float length; // length of the edge in u,v coordinates
             float angleDeg; // orientation of the edge from source to destination
-            //cv::Point3f lineCoeffs_cab;
         };
         
         struct Node{
@@ -56,7 +55,7 @@ namespace navgraph{
             float dist2Dest;
             float distance;
             double deltaYaw;
-            Node closestNode;
+//            Node closestNode;
             Node srcNode; // the node at the source of the edge the user is on
             Node destNode; // the node at the end of the edge
             std::string instruction;
@@ -115,8 +114,6 @@ namespace navgraph{
         }
         
         
-        
-        
         // note: uvpos.y is the ascissa, .x the ordinate
         SnappedPosition snapUV2Graph(cv::Point2f uvpos, float deltaYaw, int floor, bool checkWalls = false){
             double minDist = INF;
@@ -147,17 +144,12 @@ namespace navgraph{
                                 spos.destNode = _nodes[spos.destNodeId];
                                 spos.dist2Src = cv::norm(pt-n.second.positionUV);
                                 spos.dist2Dest = cv::norm(pt-_nodes[e.first].positionUV);
+                                spos.refAngle = -1e6; //need to compute this based on what is the next node in the path
                                 
-                                if (spos.dist2Src < spos.dist2Dest){
-                                    spos.closestNode = n.second;
-                                    //spos.distance = spos.dist2Src;
+                                if (spos.dist2Src < spos.dist2Dest)
                                     spos.distance = cv::norm(uvpos-n.second.positionUV);
-                                }
-                                else{
-                                    spos.closestNode = _nodes[e.first];
-                                    //spos.distance = spos.dist2Dest;
+                                else
                                     spos.distance = cv::norm(uvpos -_nodes[e.first].positionUV);
-                                }
                             }
                         }
                     }
@@ -208,9 +200,11 @@ namespace navgraph{
             return map;
         }
         
+        
         inline cv::Point2f toUVOrigin(cv::Point2f uv){ //sets origin in lower left corner
             return cv::Point2f(uv.x, _mapManager->getMapSizePixels().height - uv.y);
         }
+        
         
         cv::Scalar getNodeColor(NodeType type){
             switch (type){
@@ -318,7 +312,6 @@ namespace navgraph{
                 node.comments = it->value["comments"].GetString();
                 
                 const auto& pos = it->value["position"].GetArray();
-                //cv::Point2f tmp = _mapManager->pixels2uv(cv::Point2i(pos[1].GetFloat(), pos[0].GetFloat()));
                 node.positionUV = _mapManager->pixels2uv(cv::Point2i(pos[1].GetFloat(), pos[0].GetFloat()));
                 
                 float* wi = _weights.ptr<float>(nodeId);
@@ -345,8 +338,6 @@ namespace navgraph{
             // will hold the shortest
             // distance from src to i
             
-            
-            
             std::vector<bool> sptSet (v, false);
             
             // Parent array to store shortest path tree
@@ -355,8 +346,7 @@ namespace navgraph{
             dist[src] = 0;
             
             // Find shortest path for all vertices
-            for (int count = 0; count < v - 1; count++)
-            {
+            for (int count = 0; count < v - 1; count++){
                 int u = _minDistance(dist, sptSet);
                 sptSet[u] = true;
                 
@@ -388,13 +378,12 @@ namespace navgraph{
         void _getPath(const std::vector<int>& parent, int j, std::vector<int> &path){
             if (parent[j] == - 1){
                 path.push_back(j);
-                //                printf("%d ", j);
                 return;
             }
             _getPath(parent, parent[j], path);
             path.push_back(j);
-            //            printf("%d ", j);
         }
+        
         
         void _computePaths(){
             int v = _weights.cols;

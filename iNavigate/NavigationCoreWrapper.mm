@@ -25,12 +25,17 @@
 @implementation NavigationCoreWrapper
 
 - (void) initNavigationSystem:(NSString *)mapFolder currentFloor:(int)currentFloor exploreMode:(bool)exploreMode{
-    navsys = new navgraph::NavigationSystem(std::string([mapFolder cStringUsingEncoding:NSUTF8StringEncoding]), currentFloor, exploreMode);
+    navsys = new navgraph::NavigationSystem(std::string([mapFolder cStringUsingEncoding:NSUTF8StringEncoding]), currentFloor, exploreMode, 2.);
     logFolderCreated = false;
 }
 
 - (void) initializeLocalizationSystem:(NSString *)resPath numParticles:(int) numParticles posU:(double) posU posV:(double) posV initYaw:(double) initYaw initYawNoise:(double) initYawNoise{
     navsys->initLocalizationSystem(std::string([resPath cStringUsingEncoding:NSUTF8StringEncoding]), numParticles, locore::InitMode::AREA_WITH_YAW, posU, posV, initYaw, initYawNoise);
+
+}
+
+- (void) initializeLocalizationSystemLocation:(NSString *)resPath numParticles:(int) numParticles posU:(double) posU posV:(double) posV initYaw:(double) initYaw initYawNoise:(double) initYawNoise{
+    navsys->initLocalizationSystem(std::string([resPath cStringUsingEncoding:NSUTF8StringEncoding]), numParticles, locore::InitMode::LOCATION, posU, posV, initYaw, initYawNoise);
 
 }
     
@@ -75,6 +80,20 @@
     locore::VIOMeasurements vioData(tStatus, timestamp, x, y, z, rx, ry, rz, 0, 0, image_vga_gray);
     navgraph::NavigationSystem::navigation_t navData = navsys->step(vioData, deltaFloors);
     std::cerr << ">> User Heading: " << navData.course << "\n";
+    NSDictionary *dict = @{ @"outputImage" : MatToUIImage(navsys->getNavigationGraph()), @"heading": [NSNumber numberWithFloat:(navData.course)],
+        @"refAngle": [NSNumber numberWithFloat:(navData.refAngle)], @"instructions": [NSNumber numberWithInt:(navData.instruction)],
+        @"distanceToApproachingNode" : [NSNumber numberWithFloat:(navData.distanceToApproachingNode)], @"validNavData":[NSNumber numberWithBool:(navData.valid)],
+        @"nodeType":[NSNumber numberWithInt:(navData.approachingNodeType)], @"nodeLabel":[NSString stringWithUTF8String:(navData.nodeLabel.c_str())], @"angleError":[NSNumber numberWithFloat:(navData.angleError)], @"destThroughDoor":[NSNumber numberWithBool:(navData.destThroughDoor)]};
+    
+//
+//    float course;
+//    float refAngle;
+//    TurnDirection instruction;
+//    NavGraph::NodeType approachingNodeType;
+//    float distanceToApproachingNode;
+//    std::string comments;
+//    std::string nodeLabel;
+    
 //    if (snappedPosition){
 //        std::string ans = snappedPosition->closestNode.label;
 //        float dist = snappedPosition->distance;
@@ -89,7 +108,6 @@
 //
 //        std::cerr << "Node Label: " << ans << " | Distance: " << dist << "\n";
 //        NSDictionary *dict = @{ @"outputImage" : MatToUIImage(navsys->getNavigationGraph()), @"distance" : [NSNumber numberWithFloat:(dist)],  @"nodeLabel" :[NSString stringWithUTF8String:ans.c_str()], @"nodeType" :[NSString stringWithUTF8String:nodeType.c_str()], @"navInstruction" :[NSString stringWithUTF8String:snappedPosition->instruction.c_str()], @"heading": [NSNumber numberWithFloat:(snappedPosition->heading)], @"refAngle": [NSNumber numberWithFloat:(snappedPosition->refAngle)]};
-    NSDictionary *dict = @{ @"outputImage" : MatToUIImage(navsys->getNavigationGraph()), @"heading": [NSNumber numberWithFloat:(navData.course)], @"refAngle": [NSNumber numberWithFloat:(navData.refAngle)]};
         return dict;
 //    }
 //    else{

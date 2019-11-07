@@ -8,13 +8,24 @@
 
 import Foundation
 
-class AudioFeedback{
+class AudioFeedback: AVSpeechSynthesizer{
     var lastPOIAnnouncedTime : Date
+    var lastAnnouncedTime : Date
+    var lastSoundTime : Date
     var lastAnnouncement : String
     var player: AVAudioPlayer?
     var synthesizer : AVSpeechSynthesizer
+    var messageQueue : [message_t] = []
     
-    init(){
+    struct message_t {
+        var timestamp: Date
+        var message: String
+        var highPriority: Bool
+    }
+    
+    override init(){
+        self.lastAnnouncedTime = Date()
+        self.lastSoundTime = Date()
         self.lastPOIAnnouncedTime = Date()
         synthesizer = AVSpeechSynthesizer()
         lastAnnouncement = ""
@@ -33,48 +44,38 @@ class AudioFeedback{
         }
     }
     
+    
+    func isSpeaking() -> Bool{
+        return synthesizer.isSpeaking
+    }
+    
     func stopUtterance(){
         if (synthesizer.isSpeaking){
-            synthesizer.stopSpeaking(at: AVSpeechBoundary.immediate)
+            synthesizer.stopSpeaking(at: AVSpeechBoundary.word)
         }
     }
     
-    func announce(string: String, delay: Double){
-        //if string != " "{
-        if abs(lastPOIAnnouncedTime.timeIntervalSinceNow) > delay{ //|| lastAnnouncement != string{
-            lastAnnouncement = string
-            let utterance = AVSpeechUtterance(string: string)
-            let psynthesizer = AVSpeechSynthesizer()
-            utterance.rate = 0.68
-            
+    func announce(message: String, delay: Double){
+        if abs(lastAnnouncedTime.timeIntervalSinceNow) > delay || lastAnnouncement != message{
             stopUtterance()
+            lastAnnouncement = message
+            let utterance = AVSpeechUtterance(string: message)
+            let psynthesizer = AVSpeechSynthesizer()
+            utterance.rate = 0.6
             psynthesizer.speak(utterance)
-            lastPOIAnnouncedTime = Date();
-            
-            //  }
+            lastAnnouncedTime = Date();
         }
     }
     
     func announceNow(string: String){
         let utterance = AVSpeechUtterance(string: string)
-        
-        utterance.rate = 0.62
-        
-        //utterance.voice = AVSpeechSynthesisVoice.
-        // if repeating same message, wait for previous utterance to finish
-        if (lastAnnouncement == string){
+        utterance.rate = 0.6
+        print(string)
+        if (!synthesizer.isSpeaking){
             synthesizer.speak(utterance)
+            lastAnnouncement = string
+            lastAnnouncedTime = Date();
         }
-            // if it is a new message, interrupt previous message, if any
-        else{
-            if (synthesizer.isSpeaking){
-                synthesizer.stopSpeaking(at: AVSpeechBoundary.immediate)
-            }
-            print(string)
-            synthesizer.speak(utterance)
-            //lastPOIAnnouncedTime = Date();
-        }
-        lastAnnouncement = string
     }
     
     func playStaticSound() {
