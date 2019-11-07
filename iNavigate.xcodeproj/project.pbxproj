@@ -7,13 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3F1F89CF225FE70A00483EF4 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 3F1F8989225FE70A00483EF4 /* LICENSE */; };
-		3F1F89D0225FE70A00483EF4 /* version.h.in in Resources */ = {isa = PBXBuildFile; fileRef = 3F1F8996225FE70A00483EF4 /* version.h.in */; };
-		3F1F89D3225FE70A00483EF4 /* MedianFlowTracker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F1F89B2225FE70A00483EF4 /* MedianFlowTracker.cpp */; };
-		3F1F89D4225FE70A00483EF4 /* ObjDetector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F1F89B3225FE70A00483EF4 /* ObjDetector.cpp */; };
-		3F1F89D5225FE70A00483EF4 /* DetectionParams.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F1F89B4225FE70A00483EF4 /* DetectionParams.cpp */; };
 		3F5F53B522580B3F00D40A04 /* svm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5F53B422580B3F00D40A04 /* svm.cpp */; };
 		3F5F53F322580CD100D40A04 /* res in Resources */ = {isa = PBXBuildFile; fileRef = 3F5F53F122580CB400D40A04 /* res */; };
+		3F7929282374A4C20090F2FA /* MedianFlowTracker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F7929242374A4500090F2FA /* MedianFlowTracker.cpp */; };
+		3F7929292374A4C20090F2FA /* ObjDetector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F7929252374A4500090F2FA /* ObjDetector.cpp */; };
+		3F79292A2374A4C20090F2FA /* DetectionParams.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F7929262374A4500090F2FA /* DetectionParams.cpp */; };
 		3FA233482345360900E3BA0D /* AudioFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA233472345360900E3BA0D /* AudioFeedback.swift */; };
 		3FA2334A234545E000E3BA0D /* arrow.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 3FA23349234545E000E3BA0D /* arrow.jpg */; };
 		3FC2BB0C226FC5DE00A1701B /* FloorChangeDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FC2BB0B226FC5DE00A1701B /* FloorChangeDetector.swift */; };
@@ -49,37 +47,42 @@
 		3F07CD2122C57AED00CD3652 /* NavGraph.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NavGraph.hpp; sourceTree = "<group>"; };
 		3F07CD2222C57AED00CD3652 /* NavigationSystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NavigationSystem.hpp; sourceTree = "<group>"; };
 		3F07CD2322C57AED00CD3652 /* NavigationTracker.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NavigationTracker.hpp; sourceTree = "<group>"; };
-		3F1F8989225FE70A00483EF4 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
-		3F1F898C225FE70A00483EF4 /* MapManager.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MapManager.hpp; sourceTree = "<group>"; };
-		3F1F898D225FE70A00483EF4 /* AnnotatedMap.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = AnnotatedMap.hpp; sourceTree = "<group>"; };
-		3F1F898E225FE70A00483EF4 /* MapFeature.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MapFeature.hpp; sourceTree = "<group>"; };
-		3F1F8990225FE70A00483EF4 /* FloorChangeDetector.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = FloorChangeDetector.hpp; sourceTree = "<group>"; };
-		3F1F8992225FE70A00483EF4 /* ParticleFilter.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ParticleFilter.hpp; sourceTree = "<group>"; };
-		3F1F8993225FE70A00483EF4 /* VIOMeasurements.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = VIOMeasurements.hpp; sourceTree = "<group>"; };
-		3F1F8994225FE70A00483EF4 /* LocalizationSystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LocalizationSystem.hpp; sourceTree = "<group>"; };
-		3F1F8995225FE70A00483EF4 /* Particle.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Particle.hpp; sourceTree = "<group>"; };
-		3F1F8996225FE70A00483EF4 /* version.h.in */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = version.h.in; sourceTree = "<group>"; };
-		3F1F8998225FE70A00483EF4 /* MatUtils.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MatUtils.hpp; sourceTree = "<group>"; };
-		3F1F8999225FE70A00483EF4 /* ParseUtils.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ParseUtils.hpp; sourceTree = "<group>"; };
-		3F1F899B225FE70A00483EF4 /* KnownLocationInitPolicy.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = KnownLocationInitPolicy.hpp; sourceTree = "<group>"; };
-		3F1F899C225FE70A00483EF4 /* AllKnownInitPolicy.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = AllKnownInitPolicy.hpp; sourceTree = "<group>"; };
-		3F1F899D225FE70A00483EF4 /* InitPolicy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InitPolicy.h; sourceTree = "<group>"; };
-		3F1F899E225FE70A00483EF4 /* UniformInitPolicy.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = UniformInitPolicy.hpp; sourceTree = "<group>"; };
-		3F1F899F225FE70A00483EF4 /* UniformWithYawInitPolicy.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = UniformWithYawInitPolicy.hpp; sourceTree = "<group>"; };
-		3F1F89A1225FE70A00483EF4 /* Visualizer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Visualizer.hpp; sourceTree = "<group>"; };
-		3F1F89A3225FE70A00483EF4 /* CVObservation.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CVObservation.hpp; sourceTree = "<group>"; };
-		3F1F89A4225FE70A00483EF4 /* ArucoMarkerDetector.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ArucoMarkerDetector.hpp; sourceTree = "<group>"; };
-		3F1F89A5225FE70A00483EF4 /* MedianFlowTracker.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MedianFlowTracker.hpp; sourceTree = "<group>"; };
-		3F1F89A6225FE70A00483EF4 /* ObjDetector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjDetector.h; sourceTree = "<group>"; };
-		3F1F89A7225FE70A00483EF4 /* CVObservationsManager.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CVObservationsManager.hpp; sourceTree = "<group>"; };
-		3F1F89A8225FE70A00483EF4 /* DetectionParams.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DetectionParams.h; sourceTree = "<group>"; };
-		3F1F89A9225FE70A00483EF4 /* CVDetector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVDetector.h; sourceTree = "<group>"; };
-		3F1F89AB225FE70A00483EF4 /* VIOLoggerParser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = VIOLoggerParser.hpp; sourceTree = "<group>"; };
-		3F1F89B2225FE70A00483EF4 /* MedianFlowTracker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MedianFlowTracker.cpp; sourceTree = "<group>"; };
-		3F1F89B3225FE70A00483EF4 /* ObjDetector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ObjDetector.cpp; sourceTree = "<group>"; };
-		3F1F89B4225FE70A00483EF4 /* DetectionParams.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DetectionParams.cpp; sourceTree = "<group>"; };
 		3F5F53B422580B3F00D40A04 /* svm.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = svm.cpp; sourceTree = "<group>"; };
 		3F5F53F122580CB400D40A04 /* res */ = {isa = PBXFileReference; lastKnownFileType = folder; path = res; sourceTree = "<group>"; };
+		3F7928F72374A4500090F2FA /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		3F7928FA2374A4500090F2FA /* MapManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MapManager.hpp; sourceTree = "<group>"; };
+		3F7928FB2374A4500090F2FA /* AnnotatedMap.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = AnnotatedMap.hpp; sourceTree = "<group>"; };
+		3F7928FC2374A4500090F2FA /* MapFeature.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MapFeature.hpp; sourceTree = "<group>"; };
+		3F7928FE2374A4500090F2FA /* FloorChangeDetector.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = FloorChangeDetector.hpp; sourceTree = "<group>"; };
+		3F7929002374A4500090F2FA /* ParticleFilter.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ParticleFilter.hpp; sourceTree = "<group>"; };
+		3F7929012374A4500090F2FA /* VIOMeasurements.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = VIOMeasurements.hpp; sourceTree = "<group>"; };
+		3F7929022374A4500090F2FA /* LocalizationSystem.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = LocalizationSystem.hpp; sourceTree = "<group>"; };
+		3F7929032374A4500090F2FA /* PeakDetector.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PeakDetector.hpp; sourceTree = "<group>"; };
+		3F7929042374A4500090F2FA /* Particle.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Particle.hpp; sourceTree = "<group>"; };
+		3F7929052374A4500090F2FA /* version.h.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = version.h.in; sourceTree = "<group>"; };
+		3F7929072374A4500090F2FA /* MatUtils.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MatUtils.hpp; sourceTree = "<group>"; };
+		3F7929082374A4500090F2FA /* ParseUtils.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ParseUtils.hpp; sourceTree = "<group>"; };
+		3F79290A2374A4500090F2FA /* KnownLocationInitPolicy.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = KnownLocationInitPolicy.hpp; sourceTree = "<group>"; };
+		3F79290B2374A4500090F2FA /* AllKnownInitPolicy.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = AllKnownInitPolicy.hpp; sourceTree = "<group>"; };
+		3F79290C2374A4500090F2FA /* InitPolicy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InitPolicy.h; sourceTree = "<group>"; };
+		3F79290D2374A4500090F2FA /* UniformInitPolicy.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = UniformInitPolicy.hpp; sourceTree = "<group>"; };
+		3F79290E2374A4500090F2FA /* UniformWithYawInitPolicy.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = UniformWithYawInitPolicy.hpp; sourceTree = "<group>"; };
+		3F7929102374A4500090F2FA /* Visualizer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Visualizer.hpp; sourceTree = "<group>"; };
+		3F7929122374A4500090F2FA /* CVObservation.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CVObservation.hpp; sourceTree = "<group>"; };
+		3F7929132374A4500090F2FA /* ArucoMarkerDetector.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ArucoMarkerDetector.hpp; sourceTree = "<group>"; };
+		3F7929142374A4500090F2FA /* MedianFlowTracker.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MedianFlowTracker.hpp; sourceTree = "<group>"; };
+		3F7929152374A4500090F2FA /* ObjDetector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjDetector.h; sourceTree = "<group>"; };
+		3F7929162374A4500090F2FA /* CVObservationsManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CVObservationsManager.hpp; sourceTree = "<group>"; };
+		3F7929172374A4500090F2FA /* DetectionParams.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DetectionParams.h; sourceTree = "<group>"; };
+		3F7929182374A4500090F2FA /* CVDetector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CVDetector.h; sourceTree = "<group>"; };
+		3F79291A2374A4500090F2FA /* VIOLoggerParser.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = VIOLoggerParser.hpp; sourceTree = "<group>"; };
+		3F79291C2374A4500090F2FA /* svm.def */ = {isa = PBXFileReference; lastKnownFileType = text; path = svm.def; sourceTree = "<group>"; };
+		3F79291D2374A4500090F2FA /* svm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = svm.h; sourceTree = "<group>"; };
+		3F79291E2374A4500090F2FA /* svm.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = svm.cpp; sourceTree = "<group>"; };
+		3F7929242374A4500090F2FA /* MedianFlowTracker.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MedianFlowTracker.cpp; sourceTree = "<group>"; };
+		3F7929252374A4500090F2FA /* ObjDetector.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ObjDetector.cpp; sourceTree = "<group>"; };
+		3F7929262374A4500090F2FA /* DetectionParams.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DetectionParams.cpp; sourceTree = "<group>"; };
+		3F7929272374A4500090F2FA /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		3FA233472345360900E3BA0D /* AudioFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioFeedback.swift; sourceTree = "<group>"; };
 		3FA23349234545E000E3BA0D /* arrow.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = arrow.jpg; sourceTree = "<group>"; };
 		3FC2BB0B226FC5DE00A1701B /* FloorChangeDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloorChangeDetector.swift; sourceTree = "<group>"; };
@@ -99,7 +102,6 @@
 		3FCD2A45225412500048B140 /* NavigationCoreWrapper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = NavigationCoreWrapper.mm; sourceTree = "<group>"; };
 		3FCD2A47225412760048B140 /* NavigationCoreWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NavigationCoreWrapper.h; sourceTree = "<group>"; };
 		3FCD2A48225412A20048B140 /* iNavigate-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "iNavigate-Bridging-Header.h"; sourceTree = "<group>"; };
-		3FCFBC9F2280F8EC0007F567 /* PeakDetector.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PeakDetector.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -138,128 +140,139 @@
 			path = NavigationCore;
 			sourceTree = "<group>";
 		};
-		3F1F896C225FE70A00483EF4 /* LocalizationCore */ = {
+		3F7928D72374A4500090F2FA /* LocalizationCore */ = {
 			isa = PBXGroup;
 			children = (
-				3F1F8989225FE70A00483EF4 /* LICENSE */,
-				3F1F898A225FE70A00483EF4 /* include */,
-				3F1F89B0225FE70A00483EF4 /* src */,
+				3F7928F72374A4500090F2FA /* LICENSE */,
+				3F7928F82374A4500090F2FA /* include */,
+				3F79291B2374A4500090F2FA /* libsvm */,
+				3F79291F2374A4500090F2FA /* src */,
 			);
-			name = LocalizationCore;
-			path = ../../iLocalize/iLocalize/LocalizationCore;
+			path = LocalizationCore;
 			sourceTree = "<group>";
 		};
-		3F1F898A225FE70A00483EF4 /* include */ = {
+		3F7928F82374A4500090F2FA /* include */ = {
 			isa = PBXGroup;
 			children = (
-				3F1F898B225FE70A00483EF4 /* Maps */,
-				3F1F898F225FE70A00483EF4 /* Sensors */,
-				3F1F8991225FE70A00483EF4 /* Core */,
-				3F1F8996225FE70A00483EF4 /* version.h.in */,
-				3F1F8997225FE70A00483EF4 /* Utils */,
-				3F1F899A225FE70A00483EF4 /* InitPolicies */,
-				3F1F89A0225FE70A00483EF4 /* LogTools */,
-				3F1F89A2225FE70A00483EF4 /* CV */,
-				3F1F89AA225FE70A00483EF4 /* TestUtils */,
+				3F7928F92374A4500090F2FA /* Maps */,
+				3F7928FD2374A4500090F2FA /* Sensors */,
+				3F7928FF2374A4500090F2FA /* Core */,
+				3F7929052374A4500090F2FA /* version.h.in */,
+				3F7929062374A4500090F2FA /* Utils */,
+				3F7929092374A4500090F2FA /* InitPolicies */,
+				3F79290F2374A4500090F2FA /* LogTools */,
+				3F7929112374A4500090F2FA /* CV */,
+				3F7929192374A4500090F2FA /* TestUtils */,
 			);
 			path = include;
 			sourceTree = "<group>";
 		};
-		3F1F898B225FE70A00483EF4 /* Maps */ = {
+		3F7928F92374A4500090F2FA /* Maps */ = {
 			isa = PBXGroup;
 			children = (
-				3F1F898C225FE70A00483EF4 /* MapManager.hpp */,
-				3F1F898D225FE70A00483EF4 /* AnnotatedMap.hpp */,
-				3F1F898E225FE70A00483EF4 /* MapFeature.hpp */,
+				3F7928FA2374A4500090F2FA /* MapManager.hpp */,
+				3F7928FB2374A4500090F2FA /* AnnotatedMap.hpp */,
+				3F7928FC2374A4500090F2FA /* MapFeature.hpp */,
 			);
 			path = Maps;
 			sourceTree = "<group>";
 		};
-		3F1F898F225FE70A00483EF4 /* Sensors */ = {
+		3F7928FD2374A4500090F2FA /* Sensors */ = {
 			isa = PBXGroup;
 			children = (
-				3F1F8990225FE70A00483EF4 /* FloorChangeDetector.hpp */,
+				3F7928FE2374A4500090F2FA /* FloorChangeDetector.hpp */,
 			);
 			path = Sensors;
 			sourceTree = "<group>";
 		};
-		3F1F8991225FE70A00483EF4 /* Core */ = {
+		3F7928FF2374A4500090F2FA /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				3F1F8992225FE70A00483EF4 /* ParticleFilter.hpp */,
-				3F1F8993225FE70A00483EF4 /* VIOMeasurements.hpp */,
-				3F1F8994225FE70A00483EF4 /* LocalizationSystem.hpp */,
-				3F1F8995225FE70A00483EF4 /* Particle.hpp */,
-				3FCFBC9F2280F8EC0007F567 /* PeakDetector.hpp */,
+				3F7929002374A4500090F2FA /* ParticleFilter.hpp */,
+				3F7929012374A4500090F2FA /* VIOMeasurements.hpp */,
+				3F7929022374A4500090F2FA /* LocalizationSystem.hpp */,
+				3F7929032374A4500090F2FA /* PeakDetector.hpp */,
+				3F7929042374A4500090F2FA /* Particle.hpp */,
 			);
 			path = Core;
 			sourceTree = "<group>";
 		};
-		3F1F8997225FE70A00483EF4 /* Utils */ = {
+		3F7929062374A4500090F2FA /* Utils */ = {
 			isa = PBXGroup;
 			children = (
-				3F1F8998225FE70A00483EF4 /* MatUtils.hpp */,
-				3F1F8999225FE70A00483EF4 /* ParseUtils.hpp */,
+				3F7929072374A4500090F2FA /* MatUtils.hpp */,
+				3F7929082374A4500090F2FA /* ParseUtils.hpp */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
 		};
-		3F1F899A225FE70A00483EF4 /* InitPolicies */ = {
+		3F7929092374A4500090F2FA /* InitPolicies */ = {
 			isa = PBXGroup;
 			children = (
-				3F1F899B225FE70A00483EF4 /* KnownLocationInitPolicy.hpp */,
-				3F1F899C225FE70A00483EF4 /* AllKnownInitPolicy.hpp */,
-				3F1F899D225FE70A00483EF4 /* InitPolicy.h */,
-				3F1F899E225FE70A00483EF4 /* UniformInitPolicy.hpp */,
-				3F1F899F225FE70A00483EF4 /* UniformWithYawInitPolicy.hpp */,
+				3F79290A2374A4500090F2FA /* KnownLocationInitPolicy.hpp */,
+				3F79290B2374A4500090F2FA /* AllKnownInitPolicy.hpp */,
+				3F79290C2374A4500090F2FA /* InitPolicy.h */,
+				3F79290D2374A4500090F2FA /* UniformInitPolicy.hpp */,
+				3F79290E2374A4500090F2FA /* UniformWithYawInitPolicy.hpp */,
 			);
 			path = InitPolicies;
 			sourceTree = "<group>";
 		};
-		3F1F89A0225FE70A00483EF4 /* LogTools */ = {
+		3F79290F2374A4500090F2FA /* LogTools */ = {
 			isa = PBXGroup;
 			children = (
-				3F1F89A1225FE70A00483EF4 /* Visualizer.hpp */,
+				3F7929102374A4500090F2FA /* Visualizer.hpp */,
 			);
 			path = LogTools;
 			sourceTree = "<group>";
 		};
-		3F1F89A2225FE70A00483EF4 /* CV */ = {
+		3F7929112374A4500090F2FA /* CV */ = {
 			isa = PBXGroup;
 			children = (
-				3F1F89A3225FE70A00483EF4 /* CVObservation.hpp */,
-				3F1F89A4225FE70A00483EF4 /* ArucoMarkerDetector.hpp */,
-				3F1F89A5225FE70A00483EF4 /* MedianFlowTracker.hpp */,
-				3F1F89A6225FE70A00483EF4 /* ObjDetector.h */,
-				3F1F89A7225FE70A00483EF4 /* CVObservationsManager.hpp */,
-				3F1F89A8225FE70A00483EF4 /* DetectionParams.h */,
-				3F1F89A9225FE70A00483EF4 /* CVDetector.h */,
+				3F7929122374A4500090F2FA /* CVObservation.hpp */,
+				3F7929132374A4500090F2FA /* ArucoMarkerDetector.hpp */,
+				3F7929142374A4500090F2FA /* MedianFlowTracker.hpp */,
+				3F7929152374A4500090F2FA /* ObjDetector.h */,
+				3F7929162374A4500090F2FA /* CVObservationsManager.hpp */,
+				3F7929172374A4500090F2FA /* DetectionParams.h */,
+				3F7929182374A4500090F2FA /* CVDetector.h */,
 			);
 			path = CV;
 			sourceTree = "<group>";
 		};
-		3F1F89AA225FE70A00483EF4 /* TestUtils */ = {
+		3F7929192374A4500090F2FA /* TestUtils */ = {
 			isa = PBXGroup;
 			children = (
-				3F1F89AB225FE70A00483EF4 /* VIOLoggerParser.hpp */,
+				3F79291A2374A4500090F2FA /* VIOLoggerParser.hpp */,
 			);
 			path = TestUtils;
 			sourceTree = "<group>";
 		};
-		3F1F89B0225FE70A00483EF4 /* src */ = {
+		3F79291B2374A4500090F2FA /* libsvm */ = {
 			isa = PBXGroup;
 			children = (
-				3F1F89B1225FE70A00483EF4 /* CV */,
+				3F79291C2374A4500090F2FA /* svm.def */,
+				3F79291D2374A4500090F2FA /* svm.h */,
+				3F79291E2374A4500090F2FA /* svm.cpp */,
+			);
+			path = libsvm;
+			sourceTree = "<group>";
+		};
+		3F79291F2374A4500090F2FA /* src */ = {
+			isa = PBXGroup;
+			children = (
+				3F7929232374A4500090F2FA /* CV */,
+				3F7929272374A4500090F2FA /* main.cpp */,
 			);
 			path = src;
 			sourceTree = "<group>";
 		};
-		3F1F89B1225FE70A00483EF4 /* CV */ = {
+		3F7929232374A4500090F2FA /* CV */ = {
 			isa = PBXGroup;
 			children = (
-				3F1F89B2225FE70A00483EF4 /* MedianFlowTracker.cpp */,
-				3F1F89B3225FE70A00483EF4 /* ObjDetector.cpp */,
-				3F1F89B4225FE70A00483EF4 /* DetectionParams.cpp */,
+				3F7929242374A4500090F2FA /* MedianFlowTracker.cpp */,
+				3F7929252374A4500090F2FA /* ObjDetector.cpp */,
+				3F7929262374A4500090F2FA /* DetectionParams.cpp */,
 			);
 			path = CV;
 			sourceTree = "<group>";
@@ -288,8 +301,8 @@
 		3FCD2A062253EA800048B140 /* iNavigate */ = {
 			isa = PBXGroup;
 			children = (
+				3F7928D72374A4500090F2FA /* LocalizationCore */,
 				3F07CD2022C57AED00CD3652 /* NavigationCore */,
-				3F1F896C225FE70A00483EF4 /* LocalizationCore */,
 				3F5F53F122580CB400D40A04 /* res */,
 				3FCD2A072253EA800048B140 /* AppDelegate.swift */,
 				3FCD2A092253EA800048B140 /* Scene.sks */,
@@ -422,13 +435,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3F1F89D0225FE70A00483EF4 /* version.h.in in Resources */,
 				3F5F53F322580CD100D40A04 /* res in Resources */,
 				3FCD2A162253EA820048B140 /* LaunchScreen.storyboard in Resources */,
 				3FCD2A132253EA820048B140 /* Assets.xcassets in Resources */,
 				3FA2334A234545E000E3BA0D /* arrow.jpg in Resources */,
 				3FCD2A112253EA800048B140 /* Main.storyboard in Resources */,
-				3F1F89CF225FE70A00483EF4 /* LICENSE in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -453,15 +464,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3F7929282374A4C20090F2FA /* MedianFlowTracker.cpp in Sources */,
+				3F7929292374A4C20090F2FA /* ObjDetector.cpp in Sources */,
+				3F79292A2374A4C20090F2FA /* DetectionParams.cpp in Sources */,
 				3FC2BB0C226FC5DE00A1701B /* FloorChangeDetector.swift in Sources */,
-				3F1F89D3225FE70A00483EF4 /* MedianFlowTracker.cpp in Sources */,
 				3FA233482345360900E3BA0D /* AudioFeedback.swift in Sources */,
 				3F5F53B522580B3F00D40A04 /* svm.cpp in Sources */,
-				3F1F89D5225FE70A00483EF4 /* DetectionParams.cpp in Sources */,
 				3FCD2A40225407170048B140 /* DestinationSelectionControllerViewController.swift in Sources */,
 				3FCD2A0E2253EA800048B140 /* ViewController.swift in Sources */,
 				3FCD2A0C2253EA800048B140 /* Scene.swift in Sources */,
-				3F1F89D4225FE70A00483EF4 /* ObjDetector.cpp in Sources */,
 				3FCD2A082253EA800048B140 /* AppDelegate.swift in Sources */,
 				3FCD2A46225412500048B140 /* NavigationCoreWrapper.mm in Sources */,
 			);
