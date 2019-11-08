@@ -74,7 +74,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
     
     var frameCounter : UInt64 = 0
     var lastProcessedFrameTime: TimeInterval = TimeInterval()
-    let numParticles = 100000
+    let numParticles = 30000
     
     var environment = AVAudioEnvironmentNode()
     let engine = AVAudioEngine()
@@ -259,21 +259,28 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
             // }
                        
 //            dispatchInstruction(data: res)
-            dispatchSonifiedInstruction(data: res)
+            //dispatchSonifiedInstruction(data: res)
              if res["heading"] != nil{
                     // Note: UIImage rotates clockwise (i.e. 90 degrees points down in a unit circle)
                     var angle = res["heading"] as! Double
+                if angle <= 360{
+                    headingImage.isHidden = false
                     var head_rad = angle * (Double.pi/180.0)
                     userHeadingLabel.text = "\(angle)"
                     headingImage.transform = CGAffineTransform(rotationAngle: CGFloat(-head_rad));
-                    angle = res["refAngle"] as! Double
-                    head_rad = angle * (Double.pi/180.0)
-                    routeHeadingLabel.text = "\(angle)"
-                    refAngleImage.transform = CGAffineTransform(rotationAngle: CGFloat(-head_rad));
-                    angle = res["angleError"] as! Double
-                    angleDiffLabel.text = "\(angle)"
-                    head_rad = angle * (Double.pi/180.0)
-                    errorAngleImage.transform = CGAffineTransform(rotationAngle: CGFloat(head_rad));
+                }
+                else{
+                    headingImage.isHidden = true
+                }
+//                    angle = res["refAngle"] as! Double
+                    var vioYaw = frame.camera.eulerAngles[1]
+//                    head_rad = angle * (Double.pi/180.0)
+                    routeHeadingLabel.text = "\(vioYaw)"
+                    refAngleImage.transform = CGAffineTransform(rotationAngle: CGFloat(-vioYaw));
+//                    angle = res["angleError"] as! Double
+//                    angleDiffLabel.text = "\(angle)"
+//                    head_rad = angle * (Double.pi/180.0)
+//                    errorAngleImage.transform = CGAffineTransform(rotationAngle: CGFloat(head_rad));
                 }
                 
 //            }
@@ -294,7 +301,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
             if data["validNavData"] != nil{
                 if data["validNavData"] as! Bool == true{
                     if !isSpatialSoundPlaying{
-                        playSound(file: "fireplace", atPosition: AVAudio3DPoint(x: 0, y: 0, z: 1)).play()
+                        playSound(file: "fireplace", atPosition: AVAudio3DPoint(x: 0, y: 0, z: -2)).play()
                         isSpatialSoundPlaying = true
                     }
                     var throughDoor = data["destThroughDoor"] as! Bool
@@ -306,17 +313,22 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
                     let distToNode = data["distanceToApproachingNode"] as! Float
                     let userU = data["userPositionU"] as! Float
                     let userV = data["userPositionV"] as! Float
-                    var angleToNode = atan2(userU - nodeU, userV - nodeV)*180/(.pi);
+                    var angleToNode = atan2(userV - nodeV, userU - nodeU)*180/(.pi);
                     angleToNode = fmod(angleToNode, 360);
                     if (angleToNode < 0){
                         angleToNode += 360;
                     }
-                    var diff = (course-angleToNode) * .pi / 180
-                    var diffAngle = atan2(sin(diff), cos(diff)) * 180 / .pi;
-                    diffAngle = fmod(angleToNode, 360);
-                    if (diffAngle < 0){
-                        diffAngle += 360;
-                    }
+                    var diffAngle = (course-angleToNode)
+//                    var diffAngle = atan2(sin(diff), cos(diff)) * 180 / .pi
+//                    diffAngle = fmod(angleToNode, 360)
+//                    if (diffAngle < 0){
+//                        diffAngle += 360
+//                    }
+ 
+                    angleDiffLabel.text = "\(diffAngle)"
+                    let head_rad = diffAngle  * (.pi/180.0)
+                    errorAngleImage.transform = CGAffineTransform(rotationAngle: CGFloat(head_rad));
+                    
                     environment.listenerAngularOrientation = AVAudioMake3DAngularOrientation(Float(diffAngle) , 0, 0)
                 }
             }

@@ -28,7 +28,7 @@ class LocalizationSystem{
             signDetected = false;
             _init(numParticles, startFloor, posMt, initMotionYaw, initYawNoise); 
             _floorChangeDetector = sensors::FloorChangeDetector(startFloor);
-            yawMap = std::vector<std::vector<double>>(_mapManager->getMapSizePixels().width * _mapManager->getMapSizePixels().height);
+            
             yawMapTimeStamp = high_resolution_clock::now();
         }
     
@@ -111,27 +111,27 @@ class LocalizationSystem{
 
         float getDeltaYawFromVIO() { return _vioData.getDeltaYaw(); }
     
-//        double getYawAtPeak(){
-//            double yaw = 1e6;
-//            PeakDetector::peak_t peak = getPeak();
-//            if (peak.valid){
-//                computeYawMap();
-//                int ind = peak.pxCoord.x*_mapManager->getMapSizePixels().height+peak.pxCoord.y;
-//                std::vector<double> yaws = yawMap[ind];
-//                int cnt = 0;
-//                double v[2] = {0, 0};
-//                for (double y : yaws){
-//                    cnt++;
-//                    v[0] += cos(y);
-//                    v[1] += sin(y);
-//                    
-//                }
-//                v[0] /= cnt;
-//                v[1] /= cnt;
-//                yaw = atan2(v[1], v[0]);
-//            }
-//            return yaw;
-//        }
+        double getYawAtPeak(){
+            double yaw = 1e6;
+            PeakDetector::peak_t peak = getPeak();
+            if (peak.valid){
+                std::vector<std::vector<double>> yawMap = computeYawMap();
+                int ind = peak.pxCoord.x*_mapManager->getMapSizePixels().height+peak.pxCoord.y;
+                std::vector<double> yaws = yawMap[ind];
+                int cnt = 0;
+                double v[2] = {0, 0};
+                for (double y : yaws){
+                    cnt++;
+                    v[0] += cos(y);
+                    v[1] += sin(y);
+                    
+                }
+                v[0] /= cnt;
+                v[1] /= cnt;
+                yaw = atan2(v[1], v[0]);
+            }
+            return yaw;
+        }
     
     private:
     
@@ -142,7 +142,6 @@ class LocalizationSystem{
         VIOMeasurements _vioData;
         sensors::FloorChangeDetector _floorChangeDetector;
         
-        std::vector<std::vector<double>> yawMap; // ind(x, y), [yaw1, yaw2...]
         std::string _resFolder;
         cv::Mat _currFrame;
         cv::Mat _cvDetectorOutputFrame;
@@ -165,12 +164,17 @@ class LocalizationSystem{
     
         InitMode _initMode;
     
-        void computeYawMap(){
+        std::vector<std::vector<double>> computeYawMap(){
+            std::vector<std::vector<double>> yawMap;
+            yawMap = std::vector<std::vector<double>>(_mapManager->getMapSizePixels().width * _mapManager->getMapSizePixels().height);
             for (const Particle& p : _partFilter->getParticles()){
-                cv::Point2i ppos = _mapManager->uv2pixels(p.getPositionPoint());
-                int ind = ppos.x*_mapManager->getMapSizePixels().height+ppos.y;
-                yawMap[ind].push_back(p.cameraYaw);
+                if (p.valid){
+                    cv::Point2i ppos = _mapManager->uv2pixels(p.getPositionPoint());
+                    int ind = ppos.x*_mapManager->getMapSizePixels().height+ppos.y;
+                    yawMap[ind].push_back(p.cameraYaw);
+                }
             }
+            return yawMap;
         }
     
         void _init(int numParticles, int floor, cv::Point2d posMt, float initMotionYaw, float initYawNoise){

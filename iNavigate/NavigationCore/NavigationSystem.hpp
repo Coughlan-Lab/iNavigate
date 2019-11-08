@@ -80,12 +80,14 @@ namespace navgraph{
             navData.nodeLabel = "";
             navData.valid = false;
             updateCurrentFloor(deltaFloors);
-            
+            _course = 1e6;
             
             // run the localization and get an estimated location for the user
             // if peak.valid == false it means that we do not have a localization estimate
             _navigationImage = _locSystem->step(vioData);
+            
             locore::PeakDetector::peak_t peak = _locSystem->getPeak();
+            computeUserCourse(peak, vioData);
             
             if (destinationId >= 0 && peak.valid){
                 // project the peak to the navigation graph
@@ -115,7 +117,7 @@ namespace navgraph{
                         navData.nodeUVPos[1] = _navGraph->getNode(_path[1]).positionUV.y;
                     }
                     _prevCourse = _course;
-                    computeUserCourse(peak, vioData);
+                    
                     float courseDiff = atan2(sin((_prevCourse-_course)*CV_PI/180), cos((_prevCourse-_course)*CV_PI/180));
                     
                     float diffAngle = atan2(sin((_refAngle-_course)*CV_PI/180), cos((_refAngle-_course)*CV_PI/180));
@@ -171,36 +173,38 @@ namespace navgraph{
         }
         
         void computeUserCourse(locore::PeakDetector::peak_t peak, const locore::VIOMeasurements& vioData){
+//            _course = fmod(_course + _locSystem->getDeltaYawFromVIO()*180/CV_PI, 360);
+//            if (_course < 0)
+//                _course += 360;
             if (peak.valid){
-                std::cerr << "got peak" << "\n";
-                if (_firstCourseEstimate){
-                    _prevPeak = peak;
-                    _firstCourseEstimate = false;
-//                    _course = fmod(_locSystem->getYawAtPeak()*180/CV_PI, 360);
-//                    if (_course < 0)
-//                        _course += 360;
-                }
-                else{
-                    float t = cv::norm(peak.uvCoord - _prevPeak.uvCoord);
-                    _distanceMoved += t;
-                    if (_distanceMoved >= _motionThreshold){
-                        _distanceMoved = 0;
-                        _course = atan2(peak.uvCoord.x - _prevPeak.uvCoord.x, peak.uvCoord.y - _prevPeak.uvCoord.y)*180/CV_PI;
-                        _prevPeak = peak;
-                        _course = fmod(_course, 360);
-                        if (_course < 0)
-                            _course += 360;
+//                std::cerr << "got peak" << "\n";
+//                if (_firstCourseEstimate){
+//                    _prevPeak = peak;
+//                    _firstCourseEstimate = false;
+////                    _course = fmod(_locSystem->getYawAtPeak()*180/CV_PI, 360);
+////                    if (_course < 0)
+////                        _course += 360;
+//                }
+//                else{
+//                    float t = cv::norm(peak.uvCoord - _prevPeak.uvCoord);
+//                    _distanceMoved += t;
+//                    if (_distanceMoved >= _motionThreshold){
+//                        _distanceMoved = 0;
+//                        _course = atan2(peak.uvCoord.x - _prevPeak.uvCoord.x, peak.uvCoord.y - _prevPeak.uvCoord.y)*180/CV_PI;
+//                        _prevPeak = peak;
+//                        _course = fmod(_course, 360);
+//                        if (_course < 0)
+//                            _course += 360;
+//                    }
+//                    else{
+//                        ;
+                        _course = fmod(_locSystem->getYawAtPeak()*180/CV_PI, 360);
+//                        _course = fmod(_locSystem->getParticles()[0].cameraYaw*180/CV_PI, 360);
+                       if (_course < 0)
+                               _course += 360;
                     }
-                    else{
-//                        _course = fmod(_locSystem->getYawAtPeak()*180/CV_PI, 360);
-//                                           if (_course < 0)
-//                                               _course += 360;
-                        _course = fmod(_course + _locSystem->getDeltaYawFromVIO()*180/CV_PI, 360);
-                        if (_course < 0)
-                        _course += 360;
-                    }
-                }
-            }
+//                }
+//            }
         }
         
        

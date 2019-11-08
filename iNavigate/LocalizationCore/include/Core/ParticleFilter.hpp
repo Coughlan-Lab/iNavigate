@@ -31,7 +31,7 @@ namespace locore{
         
     public:
         struct PFParameters{
-            PFParameters() { motionYawNoise = 0.01; positionNoiseMajor = 1.1; positionNoiseMinor = .0;
+            PFParameters() { motionYawNoise = 0.; positionNoiseMajor = 1.1; positionNoiseMinor = .0;
                 cameraYawNoise = 0.01; resamplingMotionthreshold = 0.5; minSignScore = 0.1;
                 signYawDifferenceThreshold = -.2; signDetectionScoringCoeff = 0.01;
                 cameraHeight = 1.2; globalScaleCorrectionMin = 1.;
@@ -145,6 +145,9 @@ namespace locore{
         std::unique_ptr<locore::PeakDetector> _peakDetector;
         logtools::Visualizer _visualizer;
         std::default_random_engine _generator;
+        std::multimap<maps::FeatureType, maps::MapFeature> features;
+        std::multimap<maps::FeatureType, maps::MapFeature>::iterator exitSignsFeatureList;
+        
         int _currentFloor;
         double  _fx; //camera focal length
         
@@ -181,9 +184,7 @@ namespace locore{
         
 
         void _scoreDistanceToExitSign(const locore::VIOMeasurements& vioData, const compvis::CVObservation& det){
-            
-            std::multimap<maps::FeatureType, maps::MapFeature> features = _mapManager->getLandmarksList();
-            auto itr_start = features.find(maps::FeatureType::EXIT_SIGN);
+           
             std::vector<double> yawScores;
             
             //estimate sign distance
@@ -203,7 +204,7 @@ namespace locore{
                     
                     yawScores.clear();
                     // loop over exit signs
-                    for (auto itr = itr_start; itr != features.end(); itr++){
+                    for (auto itr = exitSignsFeatureList; itr != features.end(); itr++){
                         double y = itr->second.height - pfParameters.cameraHeight;
                         double z = y / tan(gamma+delta);
                         this->estimatedDistanceToSign = z;
@@ -257,7 +258,6 @@ namespace locore{
             
             for(auto particle = _particles.begin(); particle != _particles.end(); ++particle ){
                 if (particle->valid){
-//                    particle->course += distMotionYaw(_generator);
                     
                     // refactor into a matrix-vector mult.
                     cv::Vec2d rotatedDeltaPosition = cv::Vec2d(vioData.getDeltaX() * cos(particle->course + pfParameters.arkitAngleCorrection) + vioData.getDeltaZ() * sin(particle->course + pfParameters.arkitAngleCorrection),
@@ -283,7 +283,7 @@ namespace locore{
                     particle->position[1] += rotatedDeltaPosition[0] * particle->globalScaleCorrectionFactor + noise[0];
                     particle->position[0] += rotatedDeltaPosition[1] * particle->globalScaleCorrectionFactor + noise[1];
                     
-                    particle->cameraYaw += vioData.getDeltaYaw() + distCameraYaw(_generator);
+                    particle->cameraYaw += vioData.getDeltaYaw();// + distCameraYaw(_generator);
                     cv::Point2i endPoint = _mapManager->uv2pixelsVec(particle->position);
                     
                     if (_mapManager->isPathCrossingWalls(startPoint, endPoint)){
@@ -321,12 +321,14 @@ namespace locore{
                     break;
             }
             _currentFloor = _mapManager->currentFloor;
+            this->features = _mapManager->getLandmarksList();
+            exitSignsFeatureList = features.find(maps::FeatureType::EXIT_SIGN);
         }
         
         void _resampleParticles(){
             std::vector<double> scores;
             std::vector<Particle> tmpParticles;
-            
+            tmpParticles.reserve(_particles.size());
             for(Particle& particle : _particles){
                 scores.push_back(particle.score);
             }
@@ -342,10 +344,9 @@ namespace locore{
                 cnt++;
             }
             _particles.clear();
+            _particles.shrink_to_fit();
             _particles = tmpParticles;
         }
-        
-        
     };
     
 } // ::locore
