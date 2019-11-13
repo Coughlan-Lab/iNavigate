@@ -79,13 +79,13 @@
     cv::cvtColor(image_vga, image_vga_gray, cv::COLOR_RGB2GRAY);
     locore::VIOMeasurements vioData(tStatus, timestamp, x, y, z, rx, ry, rz, 0, 0, image_vga_gray);
     navgraph::NavigationSystem::navigation_t navData = navsys->step(vioData, deltaFloors);
-    std::cerr << ">> User Heading: " << navData.course << "\n";
+//    std::cerr << ">> User Heading: " << navData.course << "\n";
     NSDictionary *dict = @{ @"outputImage" : MatToUIImage(navsys->getNavigationGraph()), @"heading": [NSNumber numberWithFloat:(navData.course)],
         @"refAngle": [NSNumber numberWithFloat:(navData.refAngle)], @"instructions": [NSNumber numberWithInt:(navData.instruction)],
         @"distanceToApproachingNode" : [NSNumber numberWithFloat:(navData.distanceToApproachingNode)], @"validNavData":[NSNumber numberWithBool:(navData.valid)],
         @"nodeType":[NSNumber numberWithInt:(navData.approachingNodeType)], @"nodeLabel":[NSString stringWithUTF8String:(navData.nodeLabel.c_str())], @"angleError":[NSNumber numberWithFloat:(navData.angleError)], @"destThroughDoor":[NSNumber numberWithBool:(navData.destThroughDoor)], @"nodePositionU":[NSNumber numberWithFloat:(navData.nodeUVPos[0])], @"nodePositionV":[NSNumber numberWithFloat:(navData.nodeUVPos[1])],
             @"userPositionU":[NSNumber numberWithFloat:(navData.userUVPos[0])], @"userPositionV":[NSNumber numberWithFloat:(navData.userUVPos[1])]
-};
+    };
     
 //
 //    float course;
@@ -110,18 +110,29 @@
 //
 //        std::cerr << "Node Label: " << ans << " | Distance: " << dist << "\n";
 //        NSDictionary *dict = @{ @"outputImage" : MatToUIImage(navsys->getNavigationGraph()), @"distance" : [NSNumber numberWithFloat:(dist)],  @"nodeLabel" :[NSString stringWithUTF8String:ans.c_str()], @"nodeType" :[NSString stringWithUTF8String:nodeType.c_str()], @"navInstruction" :[NSString stringWithUTF8String:snappedPosition->instruction.c_str()], @"heading": [NSNumber numberWithFloat:(snappedPosition->heading)], @"refAngle": [NSNumber numberWithFloat:(snappedPosition->refAngle)]};
-        return dict;
+//        return dict;
 //    }
 //    else{
 //        std::string ans = "";
 //        float dist = -1;
 //       // std::cerr << "Node Label: " << ans << " | Distance: " << dist << "\n";
 //        NSDictionary *dict = @{ @"outputImage" : MatToUIImage(navsys->getNavigationGraph()), @"distance" : [NSNumber numberWithFloat:(dist)],  @"nodeLabel" :[NSString stringWithUTF8String:ans.c_str()]};
-//        return dict;
+        return dict;
 //        }
 //    cv::Mat kde = navsys->step(vioData, deltaFloors);
 //    return MatToUIImage(navsys->getNavigationGraph());
 }
+
+-(NSArray*) getYawHistogram{
+    std::vector<int> hist = navsys->getYawHistogram(); 
+    id yawHist = [NSMutableArray new];
+    std::for_each(hist.begin(), hist.end(), ^(int cnt) {
+        id count = [NSNumber numberWithInt:(cnt)];
+        [yawHist addObject:count];
+    });
+    return yawHist;
+}
+
 
 - (NSDictionary*) step : (NSString*) trackerStatus timestamp:(double)timestamp camera:(ARCamera*) camera deltaFloors:(int)deltaFloors frame:(UIImage*) frame{
     double x = camera.transform.columns[3].x;

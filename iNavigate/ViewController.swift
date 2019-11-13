@@ -37,6 +37,9 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
     @IBOutlet weak var userHeadingLabel: UILabel!
     @IBOutlet weak var sceneView: ARSCNView!
     
+    @IBOutlet weak var basicBarChart: BasicBarChart!
+    private let numEntry = 360
+    
     var speechFeedback : SpeechFeedback = SpeechFeedback()
     
     // ** the navigation system (wrapper)
@@ -111,6 +114,14 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
         self.dumpParticles = sender.isOn
     }
     
+    func generateEmptyDataEntries() -> [DataEntry] {
+        var result: [DataEntry] = []
+        Array(0..<numEntry).forEach {_ in
+            result.append(DataEntry(color: UIColor.clear, height: 0, textValue: "0", title: ""))
+        }
+        return result
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -126,15 +137,32 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
         sceneView.session.delegate = self
         
         // Initializing the spatial sound
-        initSpatializedSound()
+//        initSpatializedSound()
         
 //        setupBarometer()
         startQrCodeDetection()
         locationManager.headingOrientation = .portrait
         locationManager.delegate = self;
-        speechFeedback.pushMessage(message: message_t.init(text: "Initializing tracker"))
+        
+        speechFeedback.pushMessage(message: message_t.init(text: "Initializing tracker", highPriority: true))
         navigationCore.initNavigationSystem(locationURL.relativePath, currentFloor: Int32(startFloor), exploreMode: exploreMode)
         navigationCore.setDestinationID(Int32(destID))
+        
+//        let dataEntries = generateEmptyDataEntries()
+        
+        
+    }
+    
+    func generateRandomDataEntries() -> [DataEntry] {
+        let colors = [#colorLiteral(red: 0.4666666687, green: 0.7647058964, blue: 0.2666666806, alpha: 1), #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1), #colorLiteral(red: 0.501960814, green: 0.501960814, blue: 0.501960814, alpha: 1), #colorLiteral(red: 0.9607843161, green: 0.7058823705, blue: 0.200000003, alpha: 1), #colorLiteral(red: 0.9372549057, green: 0.3490196168, blue: 0.1921568662, alpha: 1), #colorLiteral(red: 0.8078431487, green: 0.02745098062, blue: 0.3333333433, alpha: 1), #colorLiteral(red: 0.3647058904, green: 0.06666667014, blue: 0.9686274529, alpha: 1)]
+        var result: [DataEntry] = []
+        let yaws = navigationCore.getYawHistogram() as! [Int]
+        for i in 0..<yaws.count {
+            let value = yaws[i]
+            let height: Float = Float(value) / 100.0
+            result.append(DataEntry(color: colors[i % colors.count], height: height, textValue: "\(value)", title: "\(i)"))
+        }
+        return result
     }
     
     
@@ -213,7 +241,9 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
         else if (locSysInit) && (frame.timestamp-lastProcessedFrameTime) > 0.1 {
             let deltaFloors = floorChangeDetector.getFloorsDelta()
             let trackerState = "\(frame.camera.trackingState)"
+            print(">>> navigationCore.step")
             var res = navigationCore.step(trackerState, timestamp: frame.timestamp, camera: frame.camera, deltaFloors: Int32(deltaFloors), frame: pixelBufferToUIImage(pixelBuffer: frame.capturedImage)) as! Dictionary<String,Any>
+            print("<<< navigationCore.step")
             res["cvDetectorImage"] = navigationCore.getCVDetectorOutputFrame()
 //            cvImage.image = navigationCore.getCVDetectorOutputFrame();
 
@@ -253,16 +283,21 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
             
             // feed frame to localization core
             //  if (frameCounter % 10 == 0){
+            print(">>> processARKitFrame")
             let res : Dictionary<String, Any> = self.processARKitFrame(frame : frame)
+            print("<<< processARKitFrame")
             self.navImage.image = res["outputImage"] as! UIImage
             self.cvImage.image = res["cvDetectorImage"] as? UIImage
             // }
                        
-//            dispatchInstruction(data: res)
-            //dispatchSonifiedInstruction(data: res)
+            dispatchInstruction(data: res)
+//            dispatchSonifiedInstruction(data: res)
              if res["heading"] != nil{
-                    // Note: UIImage rotates clockwise (i.e. 90 degrees points down in a unit circle)
-                    var angle = res["heading"] as! Double
+//                let dataEntries = self.generateRandomDataEntries()
+//                basicBarChart.updateDataEntries(dataEntries: dataEntries, animated: false)
+                // Note: UIImage rotates clockwise (i.e. 90 degrees points down in a unit circle)
+                var angle = res["heading"] as! Double
+                
                 if angle <= 360{
                     headingImage.isHidden = false
                     var head_rad = angle * (Double.pi/180.0)
@@ -272,15 +307,15 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
                 else{
                     headingImage.isHidden = true
                 }
-//                    angle = res["refAngle"] as! Double
-                    var vioYaw = frame.camera.eulerAngles[1]
-//                    head_rad = angle * (Double.pi/180.0)
-                    routeHeadingLabel.text = "\(vioYaw)"
-                    refAngleImage.transform = CGAffineTransform(rotationAngle: CGFloat(-vioYaw));
-//                    angle = res["angleError"] as! Double
-//                    angleDiffLabel.text = "\(angle)"
-//                    head_rad = angle * (Double.pi/180.0)
-//                    errorAngleImage.transform = CGAffineTransform(rotationAngle: CGFloat(head_rad));
+                    angle = res["refAngle"] as! Double
+//                    var vioYaw = frame.camera.eulerAngles[1]
+                    var head_rad = angle * (Double.pi/180.0)
+                    routeHeadingLabel.text = "\(angle)"
+                    refAngleImage.transform = CGAffineTransform(rotationAngle: CGFloat(-head_rad));
+                    angle = res["angleError"] as! Double
+                    angleDiffLabel.text = "\(angle)"
+                    head_rad = angle * (Double.pi/180.0)
+                    errorAngleImage.transform = CGAffineTransform(rotationAngle: CGFloat(-head_rad));
                 }
                 
 //            }
@@ -304,12 +339,18 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
                         playSound(file: "fireplace", atPosition: AVAudio3DPoint(x: 0, y: 0, z: -2)).play()
                         isSpatialSoundPlaying = true
                     }
-                    var throughDoor = data["destThroughDoor"] as! Bool
-                    let nodeType : NodeType = NodeType(rawValue: data["nodeType"] as! Int)!
+                    print(1)
+                    _ = data["destThroughDoor"] as! Bool
+                    print(2)
+                    let _ : NodeType = NodeType(rawValue: data["nodeType"] as! Int)!
+                    print(3)
                     let nodeU = data["nodePositionU"] as! Float
+                    print(4)
                     let nodeV = data["nodePositionV"] as! Float
+                    print(5)
                     let course = data["heading"] as! Float
-                    let refAngle = data["refAngle"] as! Float
+                    print(6)
+                    _ = data["refAngle"] as! Float
                     let distToNode = data["distanceToApproachingNode"] as! Float
                     let userU = data["userPositionU"] as! Float
                     let userV = data["userPositionV"] as! Float
@@ -325,9 +366,9 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
 //                        diffAngle += 360
 //                    }
  
-                    angleDiffLabel.text = "\(diffAngle)"
-                    let head_rad = diffAngle  * (.pi/180.0)
-                    errorAngleImage.transform = CGAffineTransform(rotationAngle: CGFloat(head_rad));
+//                    angleDiffLabel.text = "\(diffAngle)"
+//                    let head_rad = diffAngle  * (.pi/180.0)
+//                    errorAngleImage.transform = CGAffineTransform(rotationAngle: CGFloat(head_rad));
                     
                     environment.listenerAngularOrientation = AVAudioMake3DAngularOrientation(Float(diffAngle) , 0, 0)
                 }
@@ -352,7 +393,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
                     case TurnDirection.Right:
                         speechFeedback.pushMessage(message: message_t.init(text: "make a right", highPriority: true))
                     case TurnDirection.TurnAround:
-                        speechFeedback.pushMessage(message: message_t.init(text: "turn around", highPriority: true))
+                        speechFeedback.pushMessage(message: message_t.init(text: "turn around", highPriority: false))
                     case TurnDirection.Forward:
                         speechFeedback.pushMessage(message: message_t.init(text: "go straight", highPriority: true))
                     case TurnDirection.Arrived:
@@ -375,10 +416,10 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
                     default:
                         break;
                     }
-//                }
+                }
             }
         }
-    }
+//    }
     
     
     func trackerStatusFeedback(frame: ARFrame){
@@ -389,7 +430,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
             if !trackerInitialized{
                 trackerInitialized = true
                 status = "Tracker ready! Camera height \(userHeight) inches"
-                speechFeedback.pushMessage(message: message_t.init(text: status))
+                speechFeedback.pushMessage(message: message_t.init(text: status, highPriority: true))
                 status = ""
             }
         case .notAvailable:

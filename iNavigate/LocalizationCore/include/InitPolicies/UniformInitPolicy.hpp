@@ -47,8 +47,6 @@ namespace initpol {
                 if (mapManager->isWalkable(pt)){
                     particlesLeft -= 1;
                     double cameraYaw = dist_yaw(generator);
-                    cameraYaw = 0;
-                    std::cerr << "camera yaw: " << cameraYaw << "\n";
 //                    double course = cameraYaw;
                     double course = dist_yaw(generator);
                     double gscf = globalScaleCorrFactorDist(generator);

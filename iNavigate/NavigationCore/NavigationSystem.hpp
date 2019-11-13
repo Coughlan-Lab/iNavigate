@@ -84,15 +84,24 @@ namespace navgraph{
             
             // run the localization and get an estimated location for the user
             // if peak.valid == false it means that we do not have a localization estimate
+            std::cerr << ">>> calling locSystem->step" << "\n";
             _navigationImage = _locSystem->step(vioData);
+            std::cerr << "<<< coming out of locSystem->step" << "\n";
             
+            std::cerr << ">>> calling locSystem->getPeak()" << "\n";
             locore::PeakDetector::peak_t peak = _locSystem->getPeak();
+            std::cerr << "<<< coming out of locSystem->getPeak()" << "\n";
+            _prevCourse = _course;
+            std::cerr << ">>> calling computeUserCourse" << "\n";
             computeUserCourse(peak, vioData);
+            std::cerr << "<<< coming out of computeUserCourse" << "\n";
             
             if (destinationId >= 0 && peak.valid){
                 // project the peak to the navigation graph
+                 std::cerr << ">>> calling _navGraph->snapUV2Graph" << "\n";
                 _currSnappedPosition = _navGraph->snapUV2Graph(peak.uvCoord, 0, _mapManager->currentFloor, true);
-               
+                std::cerr << "<<< coming out of _navGraph->snapUV2Graph" << "\n";
+
                 if (_currSnappedPosition.srcNodeId >= 0 && _currSnappedPosition.destNodeId >= 0){
                     //need to calculate the route angle based on the path
                     _path = _navGraph->getPathFromCurrentLocation(_currSnappedPosition, destinationId);
@@ -116,10 +125,10 @@ namespace navgraph{
                         navData.nodeUVPos[0] = _navGraph->getNode(_path[1]).positionUV.x;
                         navData.nodeUVPos[1] = _navGraph->getNode(_path[1]).positionUV.y;
                     }
-                    _prevCourse = _course;
-                    
-                    float courseDiff = atan2(sin((_prevCourse-_course)*CV_PI/180), cos((_prevCourse-_course)*CV_PI/180));
-                    
+
+
+                    float courseDiff = fabs(atan2(sin((_prevCourse-_course)*CV_PI/180), cos((_prevCourse-_course)*CV_PI/180)));
+
                     float diffAngle = atan2(sin((_refAngle-_course)*CV_PI/180), cos((_refAngle-_course)*CV_PI/180));
                     if (_path[0] == destinationId && distToNextNode <= 1.){
                         _refAngle = getCurrentEdgeAngle(_path[0]);
@@ -133,13 +142,13 @@ namespace navgraph{
                     }
                     else if (!_goingBackward || courseDiff*180/CV_PI > 10)
                         navData.instruction = calculateTurn(diffAngle*180/CV_PI, 25, false);
-                    else
-                        navData.instruction = TurnAround;
+//                    else
+//                        navData.instruction = TurnAround;
                     navData.angleError = diffAngle*180/CV_PI;
                     drawNavigationGraph();
                 }
             }
-            
+//            
             navData.course = _course;
             navData.refAngle = _refAngle;
             return navData;
@@ -173,42 +182,17 @@ namespace navgraph{
         }
         
         void computeUserCourse(locore::PeakDetector::peak_t peak, const locore::VIOMeasurements& vioData){
-//            _course = fmod(_course + _locSystem->getDeltaYawFromVIO()*180/CV_PI, 360);
-//            if (_course < 0)
-//                _course += 360;
             if (peak.valid){
-//                std::cerr << "got peak" << "\n";
-//                if (_firstCourseEstimate){
-//                    _prevPeak = peak;
-//                    _firstCourseEstimate = false;
-////                    _course = fmod(_locSystem->getYawAtPeak()*180/CV_PI, 360);
-////                    if (_course < 0)
-////                        _course += 360;
-//                }
-//                else{
-//                    float t = cv::norm(peak.uvCoord - _prevPeak.uvCoord);
-//                    _distanceMoved += t;
-//                    if (_distanceMoved >= _motionThreshold){
-//                        _distanceMoved = 0;
-//                        _course = atan2(peak.uvCoord.x - _prevPeak.uvCoord.x, peak.uvCoord.y - _prevPeak.uvCoord.y)*180/CV_PI;
-//                        _prevPeak = peak;
-//                        _course = fmod(_course, 360);
-//                        if (_course < 0)
-//                            _course += 360;
-//                    }
-//                    else{
-//                        ;
-                        _course = fmod(_locSystem->getYawAtPeak()*180/CV_PI, 360);
-//                        _course = fmod(_locSystem->getParticles()[0].cameraYaw*180/CV_PI, 360);
-                       if (_course < 0)
-                               _course += 360;
-                    }
-//                }
-//            }
+                std::cerr << " >>> locSystem->getYawAtPeak() " << "\n";
+                _course = fmod(_locSystem->getYawAtPeak()*180/CV_PI, 360);
+                std::cerr << " <<< locSystem->getYawAtPeak() " << "\n";
+                if (_course < 0)
+                    _course += 360;
+                }
         }
         
+        std::vector<int> getYawHistogram() { return _locSystem->getYawHistogram(); }
        
-        
         void drawNavigationGraph(){
 //            std::vector<int> path = _navGraph->getPathFromCurrentLocation(_currSnappedPosition, destinationId);
             cv::Point2i pt = _mapManager->uv2pixels(_currSnappedPosition.uvPos);

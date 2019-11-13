@@ -30,6 +30,7 @@ class LocalizationSystem{
             _floorChangeDetector = sensors::FloorChangeDetector(startFloor);
             
             yawMapTimeStamp = high_resolution_clock::now();
+            yawHistogram = std::vector<int>(360,0);
         }
     
         ~LocalizationSystem(){;}
@@ -39,15 +40,22 @@ class LocalizationSystem{
             if (_partFilter->particlesInitialized()){
                 _vioData.update(vioData);
     //          std::cerr << "VIODATA DELTA YAW: " << _vioData.getDeltaYaw()*180/CV_PI << "\n";
+                std::cerr << ">>> _obsManagerCV.update " << "\n";
                 std::vector<compvis::CVObservation> detections = _obsManagerCV.update(_vioData);
+                std::cerr << "<<< _obsManagerCV.update " << "\n";
                 _vioData.getFrame().copyTo(_currFrame);
                 signDetected = false;
                 if (detections.size() > 0)
                     signDetected = true;
-                
+                std::cerr << ">>> _partFilter->step " << "\n";
                 _partFilter->step(_vioData, detections);
+                std::cerr << "<<< _partFilter->step " << "\n";
+                std::cerr << ">>> _partFilter->getHeatMap " << "\n";
                 cv::Mat kde = _partFilter->getHeatMap();
-                computeYawMap();
+                std::cerr << "<<< _partFilter->getHeatMap " << "\n";
+                std::cerr << ">>> LocalizationSystem::computeYawMap " << "\n";
+                //computeYawMap();
+                std::cerr << "<<< LocalizationSystem::computeYawMap " << "\n";
                 _cvDetectorOutputFrame = _obsManagerCV.img;
                 cv::cvtColor(_cvDetectorOutputFrame, _cvDetectorOutputFrame, cv::COLOR_GRAY2RGBA);
                 
@@ -94,21 +102,6 @@ class LocalizationSystem{
         double getDistanceToSign() { return _partFilter->estimatedDistanceToSign; }
         bool signDetected;
     
-//        float getUserYaw(){
-//            float yaw = 0;
-//            int cnt = 0;
-//            for (Particle p : _partFilter->getParticles()){
-//                if (p.valid){
-//                    yaw += p.getCourse();
-//                    cnt++;
-//                }
-//            }
-//            if (cnt > 0)
-//                return yaw/(cnt);
-//            else
-//                return 0;
-//        }
-
         float getDeltaYawFromVIO() { return _vioData.getDeltaYaw(); }
     
         double getYawAtPeak(){
@@ -116,22 +109,30 @@ class LocalizationSystem{
             PeakDetector::peak_t peak = getPeak();
             if (peak.valid){
                 std::vector<std::vector<double>> yawMap = computeYawMap();
+                std::cerr << "\t\t yawMap.size() = " << yawMap.size() << "\n";
                 int ind = peak.pxCoord.x*_mapManager->getMapSizePixels().height+peak.pxCoord.y;
+                std::cerr << "\t\t ind = " << ind << "\n";
+                std::cerr << "[>] yawMap[ind]" << "\n";
                 std::vector<double> yaws = yawMap[ind];
+                std::cerr << "[<] yawMap[ind]" << "\n";
                 int cnt = 0;
                 double v[2] = {0, 0};
                 for (double y : yaws){
                     cnt++;
                     v[0] += cos(y);
                     v[1] += sin(y);
-                    
                 }
-                v[0] /= cnt;
-                v[1] /= cnt;
-                yaw = atan2(v[1], v[0]);
+                if (cnt > 0){
+                    v[0] /= cnt;
+                    v[1] /= cnt;
+                    yaw = atan2(v[1], v[0]);
+                }
+                yawMap.clear();
             }
             return yaw;
         }
+        
+        inline std::vector<int> getYawHistogram(){ return yawHistogram; }
     
     private:
     
@@ -163,15 +164,27 @@ class LocalizationSystem{
         cv::Mat _distCoeffs;
     
         InitMode _initMode;
+        std::vector<int> yawHistogram;
     
         std::vector<std::vector<double>> computeYawMap(){
             std::vector<std::vector<double>> yawMap;
+           
+
+            std::fill(yawHistogram.begin(), yawHistogram.end(), 0);
+
+
+            
             yawMap = std::vector<std::vector<double>>(_mapManager->getMapSizePixels().width * _mapManager->getMapSizePixels().height);
             for (const Particle& p : _partFilter->getParticles()){
                 if (p.valid){
                     cv::Point2i ppos = _mapManager->uv2pixels(p.getPositionPoint());
                     int ind = ppos.x*_mapManager->getMapSizePixels().height+ppos.y;
                     yawMap[ind].push_back(p.cameraYaw);
+                    int yaw = trunc(p.cameraYaw* 180/CV_PI);
+                    if (yaw >= 360)
+                        yaw -= 360;
+                    yawHistogram[yaw] += 1;
+                    
                 }
             }
             return yawMap;

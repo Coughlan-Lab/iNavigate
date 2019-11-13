@@ -37,7 +37,7 @@ typedef NS_ENUM(NSInteger, NodeType) { Control = 0, Destination = 1, Link = 2, U
 - (void) setInitialCourse : (float) yaw;
 - (UIImage*) getCVDetectorOutputFrame;
 - (void) dumpParticles;
-
+- (NSArray*) getYawHistogram;
 @end
 
 
