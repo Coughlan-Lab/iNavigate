@@ -137,7 +137,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
         sceneView.session.delegate = self
         
         // Initializing the spatial sound
-//        initSpatializedSound()
+        initSpatializedSound()
         
 //        setupBarometer()
         startQrCodeDetection()
@@ -289,10 +289,10 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
             self.navImage.image = res["outputImage"] as! UIImage
             self.cvImage.image = res["cvDetectorImage"] as? UIImage
             // }
-                       
             dispatchInstruction(data: res)
-//            dispatchSonifiedInstruction(data: res)
              if res["heading"] != nil{
+                
+                dispatchSonifiedInstruction(data: res)
 //                let dataEntries = self.generateRandomDataEntries()
 //                basicBarChart.updateDataEntries(dataEntries: dataEntries, animated: false)
                 // Note: UIImage rotates clockwise (i.e. 90 degrees points down in a unit circle)
@@ -312,10 +312,10 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
                     var head_rad = angle * (Double.pi/180.0)
                     routeHeadingLabel.text = "\(angle)"
                     refAngleImage.transform = CGAffineTransform(rotationAngle: CGFloat(-head_rad));
-                    angle = res["angleError"] as! Double
-                    angleDiffLabel.text = "\(angle)"
-                    head_rad = angle * (Double.pi/180.0)
-                    errorAngleImage.transform = CGAffineTransform(rotationAngle: CGFloat(-head_rad));
+//                    angle = res["angleError"] as! Double
+//                    angleDiffLabel.text = "\(angle)"
+//                    head_rad = angle * (Double.pi/180.0)
+//                    errorAngleImage.transform = CGAffineTransform(rotationAngle: CGFloat(-head_rad));
                 }
                 
 //            }
@@ -336,7 +336,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
             if data["validNavData"] != nil{
                 if data["validNavData"] as! Bool == true{
                     if !isSpatialSoundPlaying{
-                        playSound(file: "fireplace", atPosition: AVAudio3DPoint(x: 0, y: 0, z: -2)).play()
+                        playSound(file: "drum_mono", atPosition: AVAudio3DPoint(x: 0, y: 0, z: -2)).play()
                         isSpatialSoundPlaying = true
                     }
                     print(1)
@@ -354,21 +354,21 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
                     let distToNode = data["distanceToApproachingNode"] as! Float
                     let userU = data["userPositionU"] as! Float
                     let userV = data["userPositionV"] as! Float
-                    var angleToNode = atan2(userV - nodeV, userU - nodeU)*180/(.pi);
+                    var angleToNode = atan2(nodeU - userU, nodeV - userV)*180/(.pi);
                     angleToNode = fmod(angleToNode, 360);
                     if (angleToNode < 0){
                         angleToNode += 360;
                     }
-                    var diffAngle = (course-angleToNode)
+                    var diffAngle = angleToNode - course
 //                    var diffAngle = atan2(sin(diff), cos(diff)) * 180 / .pi
-//                    diffAngle = fmod(angleToNode, 360)
+//                    diffAngle = fmod(angleToNode * 180 / .pi, 360)
 //                    if (diffAngle < 0){
 //                        diffAngle += 360
 //                    }
  
-//                    angleDiffLabel.text = "\(diffAngle)"
-//                    let head_rad = diffAngle  * (.pi/180.0)
-//                    errorAngleImage.transform = CGAffineTransform(rotationAngle: CGFloat(head_rad));
+                    angleDiffLabel.text = "\(diffAngle)"
+                    let head_rad = diffAngle  * (.pi/180.0)
+                    errorAngleImage.transform = CGAffineTransform(rotationAngle: CGFloat(head_rad));
                     
                     environment.listenerAngularOrientation = AVAudioMake3DAngularOrientation(Float(diffAngle) , 0, 0)
                 }
