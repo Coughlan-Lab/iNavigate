@@ -84,7 +84,8 @@
         @"refAngle": [NSNumber numberWithFloat:(navData.refAngle)], @"instructions": [NSNumber numberWithInt:(navData.instruction)],
         @"distanceToApproachingNode" : [NSNumber numberWithFloat:(navData.distanceToApproachingNode)], @"validNavData":[NSNumber numberWithBool:(navData.valid)],
         @"nodeType":[NSNumber numberWithInt:(navData.approachingNodeType)], @"nodeLabel":[NSString stringWithUTF8String:(navData.nodeLabel.c_str())], @"angleError":[NSNumber numberWithFloat:(navData.angleError)], @"destThroughDoor":[NSNumber numberWithBool:(navData.destThroughDoor)], @"nodePositionU":[NSNumber numberWithFloat:(navData.nodeUVPos[0])], @"nodePositionV":[NSNumber numberWithFloat:(navData.nodeUVPos[1])],
-            @"userPositionU":[NSNumber numberWithFloat:(navData.userUVPos[0])], @"userPositionV":[NSNumber numberWithFloat:(navData.userUVPos[1])]
+            @"userPositionU":[NSNumber numberWithFloat:(navData.userUVPos[0])], @"userPositionV":[NSNumber numberWithFloat:(navData.userUVPos[1])],
+            @"yawVariance":[NSNumber numberWithFloat:(navData.yawVariance)]
     };
     
 //
@@ -123,15 +124,15 @@
 //    return MatToUIImage(navsys->getNavigationGraph());
 }
 
--(NSArray*) getYawHistogram{
-    std::vector<int> hist = navsys->getYawHistogram(); 
-    id yawHist = [NSMutableArray new];
-    std::for_each(hist.begin(), hist.end(), ^(int cnt) {
-        id count = [NSNumber numberWithInt:(cnt)];
-        [yawHist addObject:count];
-    });
-    return yawHist;
-}
+//-(NSArray*) getYawHistogram{
+//    std::vector<int> hist = navsys->getYawHistogram(); 
+//    id yawHist = [NSMutableArray new];
+//    std::for_each(hist.begin(), hist.end(), ^(int cnt) {
+//        id count = [NSNumber numberWithInt:(cnt)];
+//        [yawHist addObject:count];
+//    });
+//    return yawHist;
+//}
 
 
 - (NSDictionary*) step : (NSString*) trackerStatus timestamp:(double)timestamp camera:(ARCamera*) camera deltaFloors:(int)deltaFloors frame:(UIImage*) frame{
@@ -150,9 +151,9 @@
     navsys->setCameraHeight(height);
 }
 
-- (void) setInitialCourse : (float) yaw{
-    navsys->setInitialCourse(yaw);
-}
+//- (void) setInitialCourse : (float) yaw{
+//    navsys->setInitialCourse(yaw);
+//}
 
 - (UIImage*) getCVDetectorOutputFrame {
     cv::Mat frame = navsys->getCVDetectorOutputFrame();

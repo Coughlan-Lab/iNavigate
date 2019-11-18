@@ -22,6 +22,12 @@ class LocalizationSystem{
    
     public:
     
+    struct PeakYaw_t{
+        double yaw;
+        double variance;
+        bool valid;
+    };
+    
         LocalizationSystem(std::string resFolder, int numParticles, InitMode initMode, int startFloor, double posU, double posV, float initMotionYaw, float initYawNoise, std::shared_ptr<maps::MapManager> mapManager) : _initMode(initMode), _mapManager(mapManager) {
             _resFolder = resFolder;
             cv::Point2d posMt = cv::Point2f(posU, posV);
@@ -30,7 +36,6 @@ class LocalizationSystem{
             _floorChangeDetector = sensors::FloorChangeDetector(startFloor);
             
             yawMapTimeStamp = high_resolution_clock::now();
-            yawHistogram = std::vector<int>(360,0);
         }
     
         ~LocalizationSystem(){;}
@@ -104,35 +109,57 @@ class LocalizationSystem{
     
         float getDeltaYawFromVIO() { return _vioData.getDeltaYaw(); }
     
-        double getYawAtPeak(){
-            double yaw = 1e6;
+        PeakYaw_t getYawAtPeak(double var_thr){
+            // http://inka.mssm.edu/~mezei/proj/cv/
+            PeakYaw_t yawPeak;
+            yawPeak.valid = false;
+            yawPeak.yaw = 1e6;
+            yawPeak.variance = 0;
+    
+            
             PeakDetector::peak_t peak = getPeak();
+            
             if (peak.valid){
+                double sumX = 0, sumY = 0;
                 std::vector<std::vector<double>> yawMap = computeYawMap();
                 std::cerr << "\t\t yawMap.size() = " << yawMap.size() << "\n";
-                int ind = peak.pxCoord.x*_mapManager->getMapSizePixels().height+peak.pxCoord.y;
-                std::cerr << "\t\t ind = " << ind << "\n";
-                std::cerr << "[>] yawMap[ind]" << "\n";
-                std::vector<double> yaws = yawMap[ind];
-                std::cerr << "[<] yawMap[ind]" << "\n";
-                int cnt = 0;
-                double v[2] = {0, 0};
-                for (double y : yaws){
-                    cnt++;
-                    v[0] += cos(y);
-                    v[1] += sin(y);
+                int vcnt = 0;
+                for (auto it = yawMap.begin(); it != yawMap.end(); ++it)
+                    for (auto it2 = it->begin(); it2 != it->end(); ++it2){
+                        sumX += cos(*it2);
+                        sumY += sin(*it2);
+                        vcnt++;
+                    }
+                yawPeak.variance = 1 - (sqrt(sumX*sumX + sumY*sumY))/vcnt;
+                
+     
+                if (yawPeak.variance <= var_thr){
+                    yawPeak.valid = true;
+                    int ind = peak.pxCoord.x*_mapManager->getMapSizePixels().height+peak.pxCoord.y;
+                    std::cerr << "\t\t ind = " << ind << "\n";
+                    std::cerr << "[>] yawMap[ind]" << "\n";
+                    std::vector<double> yaws = yawMap[ind];
+                    std::cerr << "[<] yawMap[ind]" << "\n";
+                    int cnt = 0;
+                    double v[2] = {0, 0};
+                    for (double y : yaws){
+                        cnt++;
+                        v[0] += cos(y);
+                        v[1] += sin(y);
+                    }
+                    if (cnt > 0){
+                        v[0] /= cnt;
+                        v[1] /= cnt;
+                        yawPeak.yaw = atan2(v[1], v[0]);
+                        yawPeak.yaw = fmod( yawPeak.yaw*180/CV_PI, 360);
+                        if (yawPeak.yaw < 0)
+                            yawPeak.yaw += 360;
+                    }
+//                    yawMap.clear();
                 }
-                if (cnt > 0){
-                    v[0] /= cnt;
-                    v[1] /= cnt;
-                    yaw = atan2(v[1], v[0]);
-                }
-                yawMap.clear();
             }
-            return yaw;
+            return yawPeak;
         }
-        
-        inline std::vector<int> getYawHistogram(){ return yawHistogram; }
     
     private:
     
@@ -164,13 +191,10 @@ class LocalizationSystem{
         cv::Mat _distCoeffs;
     
         InitMode _initMode;
-        std::vector<int> yawHistogram;
-    
+            
         std::vector<std::vector<double>> computeYawMap(){
             std::vector<std::vector<double>> yawMap;
-           
-
-            std::fill(yawHistogram.begin(), yawHistogram.end(), 0);
+            
 
 
             
@@ -183,8 +207,6 @@ class LocalizationSystem{
                     int yaw = trunc(p.cameraYaw* 180/CV_PI);
                     if (yaw >= 360)
                         yaw -= 360;
-                    yawHistogram[yaw] += 1;
-                    
                 }
             }
             return yawMap;

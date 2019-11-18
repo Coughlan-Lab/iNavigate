@@ -36,11 +36,8 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
     @IBOutlet weak var routeHeadingLabel: UILabel!
     @IBOutlet weak var userHeadingLabel: UILabel!
     @IBOutlet weak var sceneView: ARSCNView!
-    
-    @IBOutlet weak var basicBarChart: BasicBarChart!
-    private let numEntry = 360
-    
-    var speechFeedback : SpeechFeedback = SpeechFeedback()
+        
+    //var speechFeedback : SpeechFeedback = SpeechFeedback()
     
     // ** the navigation system (wrapper)
     let navigationCore : NavigationCoreWrapper = NavigationCoreWrapper()
@@ -82,6 +79,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
     var environment = AVAudioEnvironmentNode()
     let engine = AVAudioEngine()
     var isSpatialSoundPlaying : Bool = false
+    let beaconNode = AVAudioPlayerNode()
     
     // set user height (retrieve last value from memory)
     var userHeight:String {
@@ -113,15 +111,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
     @IBAction func dumpSwitchTouched(_ sender: UISwitch) {
         self.dumpParticles = sender.isOn
     }
-    
-    func generateEmptyDataEntries() -> [DataEntry] {
-        var result: [DataEntry] = []
-        Array(0..<numEntry).forEach {_ in
-            result.append(DataEntry(color: UIColor.clear, height: 0, textValue: "0", title: ""))
-        }
-        return result
-    }
-    
+      
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -143,45 +133,28 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
         startQrCodeDetection()
         locationManager.headingOrientation = .portrait
         locationManager.delegate = self;
-        
-        speechFeedback.pushMessage(message: message_t.init(text: "Initializing tracker", highPriority: true))
+        setupBeaconSound(file: "drum_mono", atPosition: AVAudio3DPoint(x: 0, y: 0, z: -2))
+        //speechFeedback.pushMessage(message: message_t.init(text: "Initializing tracker", highPriority: true))
         navigationCore.initNavigationSystem(locationURL.relativePath, currentFloor: Int32(startFloor), exploreMode: exploreMode)
-        navigationCore.setDestinationID(Int32(destID))
-        
-//        let dataEntries = generateEmptyDataEntries()
-        
-        
+        navigationCore.setDestinationID(Int32(destID))        
     }
-    
-    func generateRandomDataEntries() -> [DataEntry] {
-        let colors = [#colorLiteral(red: 0.4666666687, green: 0.7647058964, blue: 0.2666666806, alpha: 1), #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1), #colorLiteral(red: 0.501960814, green: 0.501960814, blue: 0.501960814, alpha: 1), #colorLiteral(red: 0.9607843161, green: 0.7058823705, blue: 0.200000003, alpha: 1), #colorLiteral(red: 0.9372549057, green: 0.3490196168, blue: 0.1921568662, alpha: 1), #colorLiteral(red: 0.8078431487, green: 0.02745098062, blue: 0.3333333433, alpha: 1), #colorLiteral(red: 0.3647058904, green: 0.06666667014, blue: 0.9686274529, alpha: 1)]
-        var result: [DataEntry] = []
-        let yaws = navigationCore.getYawHistogram() as! [Int]
-        for i in 0..<yaws.count {
-            let value = yaws[i]
-            let height: Float = Float(value) / 100.0
-            result.append(DataEntry(color: colors[i % colors.count], height: height, textValue: "\(value)", title: "\(i)"))
-        }
-        return result
-    }
-    
+        
     
     /// Spatial Sound Initialization
-   func playSound(file:String, withExtension ext:String = "mp3", atPosition position:AVAudio3DPoint) -> AVAudioPlayerNode {
-           let node = AVAudioPlayerNode()
-           node.position = position
-           node.reverbBlend = 0.0001
-           node.renderingAlgorithm = .HRTF
+   func setupBeaconSound(file:String, withExtension ext:String = "mp3", atPosition position:AVAudio3DPoint) {
+           
+           beaconNode.position = position
+           beaconNode.reverbBlend = 0.0001
+           beaconNode.renderingAlgorithm = .HRTF
 
            let url = Bundle.main.url(forResource: file, withExtension: ext)!
            let file = try! AVAudioFile(forReading: url)
            let buffer = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: AVAudioFrameCount(file.length))
            try! file.read(into: buffer!)
-           engine.attach(node)
-           engine.connect(node, to: environment, format: buffer?.format)
-           node.scheduleBuffer(buffer!, at: nil, options: .loops, completionHandler: nil)
+           engine.attach(beaconNode)
+           engine.connect(beaconNode, to: environment, format: buffer?.format)
+           beaconNode.scheduleBuffer(buffer!, at: nil, options: .loops, completionHandler: nil)
 
-           return node
        }
     
     
@@ -216,7 +189,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
         
         locSysInit = true
         navigationCore.setCameraHeight(Float(userHeight)!)
-        navigationCore.setInitialCourse(Float(yaw))
+//        navigationCore.setInitialCourse(Float(yaw))
     }
     
     
@@ -293,8 +266,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
              if res["heading"] != nil{
                 
                 dispatchSonifiedInstruction(data: res)
-//                let dataEntries = self.generateRandomDataEntries()
-//                basicBarChart.updateDataEntries(dataEntries: dataEntries, animated: false)
+
                 // Note: UIImage rotates clockwise (i.e. 90 degrees points down in a unit circle)
                 var angle = res["heading"] as! Double
                 
@@ -308,21 +280,13 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
                     headingImage.isHidden = true
                 }
                     angle = res["refAngle"] as! Double
+                    let yawVariance = res["yawVariance"] as! Double
 //                    var vioYaw = frame.camera.eulerAngles[1]
                     var head_rad = angle * (Double.pi/180.0)
-                    routeHeadingLabel.text = "\(angle)"
+                    routeHeadingLabel.text = "\(yawVariance)"
                     refAngleImage.transform = CGAffineTransform(rotationAngle: CGFloat(-head_rad));
-//                    angle = res["angleError"] as! Double
-//                    angleDiffLabel.text = "\(angle)"
-//                    head_rad = angle * (Double.pi/180.0)
-//                    errorAngleImage.transform = CGAffineTransform(rotationAngle: CGFloat(-head_rad));
+
                 }
-                
-//            }
-//            if (locSysInit){
-//                sendLocalizationConfidenceFeedback(hardPeak: localizationCore.isPeakHard())
-//                announceROI(roiLabel: localizationCore.getROILabel())
-//            }
         }
         
         //check if needs to update camera height
@@ -336,7 +300,8 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
             if data["validNavData"] != nil{
                 if data["validNavData"] as! Bool == true{
                     if !isSpatialSoundPlaying{
-                        playSound(file: "drum_mono", atPosition: AVAudio3DPoint(x: 0, y: 0, z: -2)).play()
+//                        engine.attach(beaconNode)
+                        beaconNode.play()
                         isSpatialSoundPlaying = true
                     }
                     print(1)
@@ -360,17 +325,19 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
                         angleToNode += 360;
                     }
                     var diffAngle = angleToNode - course
-//                    var diffAngle = atan2(sin(diff), cos(diff)) * 180 / .pi
-//                    diffAngle = fmod(angleToNode * 180 / .pi, 360)
-//                    if (diffAngle < 0){
-//                        diffAngle += 360
-//                    }
  
-                    angleDiffLabel.text = "\(diffAngle)"
+                    angleDiffLabel.text = "Ciao"
                     let head_rad = diffAngle  * (.pi/180.0)
                     errorAngleImage.transform = CGAffineTransform(rotationAngle: CGFloat(head_rad));
                     
                     environment.listenerAngularOrientation = AVAudioMake3DAngularOrientation(Float(diffAngle) , 0, 0)
+                }
+                else{
+                    if isSpatialSoundPlaying{
+                        beaconNode.pause()
+//                        engine.detach(beaconNode)
+                        isSpatialSoundPlaying = false
+                    }
                 }
             }
         }
@@ -382,40 +349,40 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
                 let throughDoor = data["destThroughDoor"] as! Bool
                 let nodeType : NodeType = NodeType(rawValue: data["nodeType"] as! Int)!
 //                if nodeType == NodeType.Control{
-                    let direction : TurnDirection = TurnDirection(rawValue: data["instructions"] as! Int)!
-                    switch direction {
-                    case TurnDirection.EasyLeft:
-                        speechFeedback.pushMessage(message: message_t.init(text: "make an easy left", highPriority: true))
-                    case TurnDirection.Left:
-                        speechFeedback.pushMessage(message: message_t.init(text: "make a left", highPriority: true))
-                    case TurnDirection.EasyRight:
-                        speechFeedback.pushMessage(message: message_t.init(text: "make an easy right", highPriority: true))
-                    case TurnDirection.Right:
-                        speechFeedback.pushMessage(message: message_t.init(text: "make a right", highPriority: true))
-                    case TurnDirection.TurnAround:
-                        speechFeedback.pushMessage(message: message_t.init(text: "turn around", highPriority: false))
-                    case TurnDirection.Forward:
-                        speechFeedback.pushMessage(message: message_t.init(text: "go straight", highPriority: true))
-                    case TurnDirection.Arrived:
-                        let label = data["nodeLabel"] as! String
-                        speechFeedback.pushMessage(message: message_t.init(text: "you have arrived at " + label, highPriority: true))
-                    case TurnDirection.LeftToDest:
-                        if throughDoor{
-                            speechFeedback.pushMessage(message: message_t.init(text: "your destination is through a door on the left", highPriority: true))
-                        }
-                        else{
-                            speechFeedback.pushMessage(message: message_t.init(text: "your destination is on the left", highPriority: true))
-                        }
-                    case TurnDirection.RightToDest:
-                    if throughDoor{
-                        speechFeedback.pushMessage(message: message_t.init(text: "your destination is through a door on the right", highPriority: true))
-                    }
-                    else{
-                        speechFeedback.pushMessage(message: message_t.init(text: "your destination is on the right", highPriority: true))
-                    }
-                    default:
-                        break;
-                    }
+//                    let direction : TurnDirection = TurnDirection(rawValue: data["instructions"] as! Int)!
+//                    switch direction {
+//                    case TurnDirection.EasyLeft:
+//                        speechFeedback.pushMessage(message: message_t.init(text: "make an easy left", highPriority: true))
+//                    case TurnDirection.Left:
+//                        speechFeedback.pushMessage(message: message_t.init(text: "make a left", highPriority: true))
+//                    case TurnDirection.EasyRight:
+//                        speechFeedback.pushMessage(message: message_t.init(text: "make an easy right", highPriority: true))
+//                    case TurnDirection.Right:
+//                        speechFeedback.pushMessage(message: message_t.init(text: "make a right", highPriority: true))
+//                    case TurnDirection.TurnAround:
+//                        speechFeedback.pushMessage(message: message_t.init(text: "turn around", highPriority: false))
+//                    case TurnDirection.Forward:
+//                        speechFeedback.pushMessage(message: message_t.init(text: "go straight", highPriority: true))
+//                    case TurnDirection.Arrived:
+//                        let label = data["nodeLabel"] as! String
+//                        speechFeedback.pushMessage(message: message_t.init(text: "you have arrived at " + label, highPriority: true))
+//                    case TurnDirection.LeftToDest:
+//                        if throughDoor{
+//                            speechFeedback.pushMessage(message: message_t.init(text: "your destination is through a door on the left", highPriority: true))
+//                        }
+//                        else{
+//                            speechFeedback.pushMessage(message: message_t.init(text: "your destination is on the left", highPriority: true))
+//                        }
+//                    case TurnDirection.RightToDest:
+//                    if throughDoor{
+//                        speechFeedback.pushMessage(message: message_t.init(text: "your destination is through a door on the right", highPriority: true))
+//                    }
+//                    else{
+//                        speechFeedback.pushMessage(message: message_t.init(text: "your destination is on the right", highPriority: true))
+//                    }
+//                    default:
+//                        break;
+//                    }
                 }
             }
         }
@@ -430,7 +397,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
             if !trackerInitialized{
                 trackerInitialized = true
                 status = "Tracker ready! Camera height \(userHeight) inches"
-                speechFeedback.pushMessage(message: message_t.init(text: status, highPriority: true))
+                //speechFeedback.pushMessage(message: message_t.init(text: status, highPriority: true))
                 status = ""
             }
         case .notAvailable:
@@ -453,10 +420,10 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
         }
         
         if (status != ""){
-            speechFeedback.pushMessage(message: message_t.init(text: status))
+            //speechFeedback.pushMessage(message: message_t.init(text: status))
         }
         else if(!trackerInitialized){
-            speechFeedback.pushMessage(message: message_t.init(text: "Initializing tracker", highPriority: true))
+            //speechFeedback.pushMessage(message: message_t.init(text: "Initializing tracker", highPriority: true))
         }
     }
     

@@ -197,28 +197,19 @@
                                 <color key="textColor" systemColor="systemRedColor" red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hWV-lL-Uht" customClass="BasicBarChart" customModule="iNavigate" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="330" width="375" height="128"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
-                            </view>
                         </subviews>
                         <constraints>
                             <constraint firstItem="hha-o6-M6b" firstAttribute="centerX" secondItem="U0K-SW-4ec" secondAttribute="centerX" id="0jw-Od-Rlr"/>
-                            <constraint firstItem="hWV-lL-Uht" firstAttribute="centerX" secondItem="U0K-SW-4ec" secondAttribute="centerX" id="29q-58-CuD"/>
                             <constraint firstItem="90G-QG-Zwd" firstAttribute="centerX" secondItem="U0K-SW-4ec" secondAttribute="centerX" id="2IF-U6-IZ8"/>
-                            <constraint firstItem="hWV-lL-Uht" firstAttribute="top" secondItem="8kC-7S-bQx" secondAttribute="bottom" constant="87" id="3wV-lH-Jbk"/>
                             <constraint firstItem="mUx-KW-5tw" firstAttribute="top" secondItem="fQZ-KI-GVf" secondAttribute="top" id="4HY-7J-z8J"/>
                             <constraint firstItem="5FV-Uo-u6l" firstAttribute="top" secondItem="hha-o6-M6b" secondAttribute="bottom" constant="8" id="65T-We-JTv"/>
-                            <constraint firstItem="hWV-lL-Uht" firstAttribute="trailing" secondItem="fQZ-KI-GVf" secondAttribute="trailing" id="8Z6-R6-arh"/>
                             <constraint firstItem="fQZ-KI-GVf" firstAttribute="trailing" secondItem="r13-CF-pSZ" secondAttribute="trailing" id="9iy-OS-Vm4"/>
                             <constraint firstItem="r13-CF-pSZ" firstAttribute="top" secondItem="fQZ-KI-GVf" secondAttribute="top" id="Cor-1Z-QEX"/>
                             <constraint firstItem="Wbc-uh-525" firstAttribute="top" secondItem="pcc-ts-t0N" secondAttribute="bottom" constant="50" id="Lea-qX-kIT"/>
                             <constraint firstItem="fQZ-KI-GVf" firstAttribute="bottom" secondItem="mUx-KW-5tw" secondAttribute="bottom" constant="615" id="NnU-ts-rn9"/>
-                            <constraint firstItem="hWV-lL-Uht" firstAttribute="leading" secondItem="fQZ-KI-GVf" secondAttribute="leading" id="PA6-oJ-TZV"/>
                             <constraint firstItem="Wbc-uh-525" firstAttribute="centerX" secondItem="U0K-SW-4ec" secondAttribute="centerX" id="RVx-bh-blX"/>
                             <constraint firstItem="8kC-7S-bQx" firstAttribute="top" secondItem="Wbc-uh-525" secondAttribute="bottom" constant="8" id="Ua1-0T-yfk"/>
                             <constraint firstItem="90G-QG-Zwd" firstAttribute="top" secondItem="pcc-ts-t0N" secondAttribute="bottom" constant="8" id="VAf-wi-SUi"/>
-                            <constraint firstItem="g7O-IU-v0g" firstAttribute="top" secondItem="hWV-lL-Uht" secondAttribute="bottom" constant="8" id="WDc-UP-lJC"/>
                             <constraint firstItem="hha-o6-M6b" firstAttribute="top" secondItem="8kC-7S-bQx" secondAttribute="bottom" constant="46" id="WjA-Bi-LFx"/>
                             <constraint firstItem="fQZ-KI-GVf" firstAttribute="bottom" secondItem="g7O-IU-v0g" secondAttribute="bottom" constant="5" id="X50-Hf-cbU"/>
                             <constraint firstItem="5FV-Uo-u6l" firstAttribute="centerX" secondItem="U0K-SW-4ec" secondAttribute="centerX" id="aUf-19-REq"/>
@@ -240,7 +231,6 @@
                     <navigationItem key="navigationItem" id="qiK-IX-b4S"/>
                     <connections>
                         <outlet property="angleDiffLabel" destination="5FV-Uo-u6l" id="yRn-QP-jnQ"/>
-                        <outlet property="basicBarChart" destination="hWV-lL-Uht" id="cKs-Aq-Xwn"/>
                         <outlet property="cvImage" destination="r13-CF-pSZ" id="r4b-5g-eQs"/>
                         <outlet property="errorAngleImage" destination="hha-o6-M6b" id="yTW-5i-VzY"/>
                         <outlet property="headingImage" destination="pcc-ts-t0N" id="9iU-6d-qaA"/>

@@ -47,7 +47,7 @@ class SpeechSynthThread: Thread, AVSpeechSynthesizerDelegate{
         var deltaT : Double
         while run{
 
-            if (!messageQueue.isEmpty) && !isPlaying{
+            if (messageQueue.count>0) && !isPlaying{
                 //pop head of queue
                 message = messageQueue.dequeue()!
                 deltaT = abs(message.timestamp.timeIntervalSinceNow)
