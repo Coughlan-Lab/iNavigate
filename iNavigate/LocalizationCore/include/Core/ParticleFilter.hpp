@@ -196,6 +196,8 @@ namespace locore{
 //            double z = y / tan(gamma+delta);
 //            this->estimatedDistanceToSign = z;
             int columnDetection = det.getROICenter().x;
+            
+            
             auto start = high_resolution_clock::now();
             nanoseconds deltaT = nanoseconds(0);
             for(auto particle = _particles.begin(); particle != _particles.end(); ++particle ){
@@ -209,19 +211,32 @@ namespace locore{
                         double z = y / tan(gamma+delta);
                         this->estimatedDistanceToSign = z;
                         float dist = cv::norm(particle->getPositionVector() - itr->second.getPositionVector());
+                        
+//                        double score = pfParameters.minSignScore;
                         double score = pfParameters.minSignScore;
                         if (_mapManager->isSignVisibleFrom(startPoint, itr->second.id)){
+                            
                             //cv::Point2i signPos = _mapManager->uv2pixels(itr->second.position);
                             // check that particle orientation is compatible with sign orientation
                             double yaw_diff = itr->second.normal.dot( cv::Vec2d( cos( particle->cameraYaw ),
                                                                                 sin( particle->cameraYaw ) ) );
+//                            std::cerr << "yaw diff: " << yaw_diff << "\n";
                             if (yaw_diff < pfParameters.signYawDifferenceThreshold){
                                 
                                 // warning: x and y are swapped
                                 double thetaPred = atan2(itr->second.position.x - particle->getPositionX(), itr->second.position.y - particle->getPositionY());
                                 double thetaDetection = particle->getCameraYaw() + (det.getImageSize().width/2 - columnDetection) * _app;
-                                
-                                double x = sin((thetaPred - thetaDetection)/2);
+//                                std::cerr << "Theta Predicted: " << thetaPred << "\n";
+//                                std::cerr << "Theta Detection: " << thetaDetection << "\n";
+//                                std::cerr << "z (pred).: " << z << "\n";
+//                                std::cerr << "dist (measured).: " << dist << "\n";
+                                double distScore = (z/dist - 0.7) <= (1.3 - 0.7) ? 1. : pfParameters.minSignScore;
+                                double x = pow(sin((thetaPred - thetaDetection)/2),2);
+                                double azimuthScore = x < 0.03 ? 1. : pfParameters.minSignScore;
+//                                std::cerr << "azimuthScore: " << azimuthScore << "\n";
+                                score = distScore * azimuthScore;
+//                                if (score < 1)
+//                                    score = pfParameters.minSignScore;
                                 double distErrorFraction = abs(z - dist) / z;
                                 score = pfParameters.signDetectionScoringCoeff/(pfParameters.signDetectionScoringCoeff+x*x);
                                 score *= 1. / (1. + 2. * distErrorFraction);
@@ -283,7 +298,7 @@ namespace locore{
                     particle->position[1] += rotatedDeltaPosition[0] * particle->globalScaleCorrectionFactor + noise[0];
                     particle->position[0] += rotatedDeltaPosition[1] * particle->globalScaleCorrectionFactor + noise[1];
                     
-                    particle->cameraYaw += vioData.getDeltaYaw();// + distCameraYaw(_generator);
+                    particle->cameraYaw += vioData.getDeltaYaw() + distCameraYaw(_generator);
                     cv::Point2i endPoint = _mapManager->uv2pixelsVec(particle->position);
                     
                     if (_mapManager->isPathCrossingWalls(startPoint, endPoint)){
@@ -333,15 +348,20 @@ namespace locore{
                 scores.push_back(particle.score);
             }
             std::discrete_distribution<int> distribution(scores.begin(), scores.end());
-            int cnt = 0;
+            int cnt = 0, attempts = 0;
             
             // todo: preallocate list of particles
             while (cnt < _numParticles){
                 int p = distribution(_generator);
-                _particles[p].score = 1;
-                _particles[p].valid = true;
-                tmpParticles.push_back(_particles[p]);
-                cnt++;
+                    if (_particles[p].valid){
+                    _particles[p].score = 1;
+                    _particles[p].valid = true;
+                    tmpParticles.push_back(_particles[p]);
+                    cnt++;
+                }
+                attempts++;
+                if (attempts > _numParticles)
+                    break;
             }
             _particles.clear();
             _particles.shrink_to_fit();

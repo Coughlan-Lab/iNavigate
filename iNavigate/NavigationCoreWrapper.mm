@@ -71,7 +71,7 @@
 }
 
 - (NSDictionary*) step : (NSString*) trackerStatus timestamp:(double)timestamp x:(double) x y:(double) y z:(double) z  rx:(double) rx ry:(double) ry rz:(double) rz deltaFloors:(int)deltaFloors frame:(UIImage*) frame{
-//    userUVPos
+
     cv::Mat image, image_vga,image_vga_gray;
     UIImageToMat(frame, image);
     std::string tStatus([trackerStatus cStringUsingEncoding:NSUTF8StringEncoding]);
@@ -79,49 +79,28 @@
     cv::cvtColor(image_vga, image_vga_gray, cv::COLOR_RGB2GRAY);
     locore::VIOMeasurements vioData(tStatus, timestamp, x, y, z, rx, ry, rz, 0, 0, image_vga_gray);
     navgraph::NavigationSystem::navigation_t navData = navsys->step(vioData, deltaFloors);
-//    std::cerr << ">> User Heading: " << navData.course << "\n";
-    NSDictionary *dict = @{ @"outputImage" : MatToUIImage(navsys->getNavigationGraph()), @"heading": [NSNumber numberWithFloat:(navData.course)],
-        @"refAngle": [NSNumber numberWithFloat:(navData.refAngle)], @"instructions": [NSNumber numberWithInt:(navData.instruction)],
-        @"distanceToApproachingNode" : [NSNumber numberWithFloat:(navData.distanceToApproachingNode)], @"validNavData":[NSNumber numberWithBool:(navData.valid)],
-        @"nodeType":[NSNumber numberWithInt:(navData.approachingNodeType)], @"nodeLabel":[NSString stringWithUTF8String:(navData.nodeLabel.c_str())], @"angleError":[NSNumber numberWithFloat:(navData.angleError)], @"destThroughDoor":[NSNumber numberWithBool:(navData.destThroughDoor)], @"nodePositionU":[NSNumber numberWithFloat:(navData.nodeUVPos[0])], @"nodePositionV":[NSNumber numberWithFloat:(navData.nodeUVPos[1])],
-            @"userPositionU":[NSNumber numberWithFloat:(navData.userUVPos[0])], @"userPositionV":[NSNumber numberWithFloat:(navData.userUVPos[1])],
-            @"yawVariance":[NSNumber numberWithFloat:(navData.yawVariance)]
-    };
+
+    NSDictionary *dict = @{ @"outputImage" : MatToUIImage(navsys->getNavigationGraph()),
+                            @"heading": [NSNumber numberWithFloat:(navData.course)],
+                            @"refAngle": [NSNumber numberWithFloat:(navData.refAngle)],
+                            @"instructions": [NSNumber numberWithInt:(navData.instruction)],
+                            @"distanceToApproachingNode" : [NSNumber numberWithFloat:(navData.distanceToApproachingNode)],
+                            @"validNavData":[NSNumber numberWithBool:(navData.valid)],
+                            @"nodeType":[NSNumber numberWithInt:(navData.approachingNodeType)],
+                            @"nodeLabel":[NSString stringWithUTF8String:(navData.nodeLabel.c_str())],
+                            @"angleError":[NSNumber numberWithFloat:(navData.angleError)],
+                            @"destThroughDoor":[NSNumber numberWithBool:(navData.destThroughDoor)],
+                            @"nodePositionU":[NSNumber numberWithFloat:(navData.nodeUVPos[0])],
+                            @"nodePositionV":[NSNumber numberWithFloat:(navData.nodeUVPos[1])],
+                            @"userPositionU":[NSNumber numberWithFloat:(navData.userUVPos[0])],
+                            @"userPositionV":[NSNumber numberWithFloat:(navData.userUVPos[1])],
+                            @"turnNodePositionU":[NSNumber numberWithFloat:(navData.turnNodeUVPos[0])],
+                            @"turnNodePositionV":[NSNumber numberWithFloat:(navData.turnNodeUVPos[1])],
+                            @"yawVariance":[NSNumber numberWithFloat:(navData.yawVariance)],
+                            @"validTurnNode":[NSNumber numberWithBool:(navData.validTurnNode)]
+                        };
     
-//
-//    float course;
-//    float refAngle;
-//    TurnDirection instruction;
-//    NavGraph::NodeType approachingNodeType;
-//    float distanceToApproachingNode;
-//    std::string comments;
-//    std::string nodeLabel;
-    
-//    if (snappedPosition){
-//        std::string ans = snappedPosition->closestNode.label;
-//        float dist = snappedPosition->distance;
-//        std::string nodeType;
-//        if (snappedPosition->closestNode.type == navgraph::NavGraph::NodeType::Control){
-//            nodeType = "control";
-//        }
-//        else if (snappedPosition->closestNode.type == navgraph::NavGraph::NodeType::Destination){
-//            nodeType = "destination";
-//        }
-//        else nodeType = "transfer";
-//
-//        std::cerr << "Node Label: " << ans << " | Distance: " << dist << "\n";
-//        NSDictionary *dict = @{ @"outputImage" : MatToUIImage(navsys->getNavigationGraph()), @"distance" : [NSNumber numberWithFloat:(dist)],  @"nodeLabel" :[NSString stringWithUTF8String:ans.c_str()], @"nodeType" :[NSString stringWithUTF8String:nodeType.c_str()], @"navInstruction" :[NSString stringWithUTF8String:snappedPosition->instruction.c_str()], @"heading": [NSNumber numberWithFloat:(snappedPosition->heading)], @"refAngle": [NSNumber numberWithFloat:(snappedPosition->refAngle)]};
-//        return dict;
-//    }
-//    else{
-//        std::string ans = "";
-//        float dist = -1;
-//       // std::cerr << "Node Label: " << ans << " | Distance: " << dist << "\n";
-//        NSDictionary *dict = @{ @"outputImage" : MatToUIImage(navsys->getNavigationGraph()), @"distance" : [NSNumber numberWithFloat:(dist)],  @"nodeLabel" :[NSString stringWithUTF8String:ans.c_str()]};
         return dict;
-//        }
-//    cv::Mat kde = navsys->step(vioData, deltaFloors);
-//    return MatToUIImage(navsys->getNavigationGraph());
 }
 
 //-(NSArray*) getYawHistogram{

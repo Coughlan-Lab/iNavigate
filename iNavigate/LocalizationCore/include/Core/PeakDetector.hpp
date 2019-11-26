@@ -51,7 +51,8 @@ public:
 //        std::cout << "Entropy: " << entropy << "\n";
         
         if (entropy < 7.){
-            _findNpeaks(peaksMap, _mask.rows, _mask.cols * _mask.channels(), 1, 50, 25, .0001);
+            _findNpeaks(peaksMap, _mask.rows, _mask.cols * _mask.channels(), 1, 50, 25, .001);
+//            _findNpeaks(peaksMap, _mask.rows, _mask.cols * _mask.channels(), 1, 50, 25, .0001);
             //_filterPeaks(2.5);
         }
         
@@ -175,7 +176,6 @@ private:
                 //std::cout << rit->first << " => " << rit->second << '\n';
                 matutils::ind2sub(size, 2, rit->second, sub);
                 _peaksLocation.push_back(cv::Point2i(sub[0], sub[1]));
-                
             }
             else if (rit->first > threshold){
                 //check spatial distance from new peak

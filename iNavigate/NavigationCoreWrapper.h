@@ -16,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NavigationCoreWrapper : NSObject
 
-typedef NS_ENUM(NSInteger,TurnDirection) { Forward = 0, TurnAround = -1, Left = 1, Right = 2, EasyLeft = 3, EasyRight = 4, None = -2, Arrived = 100, LeftToDest = 101, RightToDest = 102 };
+typedef NS_ENUM(NSInteger,TurnDirection) { Forward = 0, TurnAround = -1, Left = 1, Right = 2, EasyLeft = 3, EasyRight = 4, None = -2, Arrived = 100, LeftToDest = 101, RightToDest = 102, ForwardToDest = 103 };
 typedef NS_ENUM(NSInteger, NodeType) { Control = 0, Destination = 1, Link = 2, Undef = -1 };
 
 - (void) initNavigationSystem : (NSString*) mapFolder currentFloor:(int)currentFloor exploreMode:(bool)exploreMode;

@@ -8,17 +8,24 @@
 
 import Foundation
 
+public enum sound_t{
+    case ARRIVED
+    case PROGRESS
+}
+
 public struct message_t {
     var timestamp: Date
     var text: String
     var highPriority: Bool
     var discardable: Bool
+    var isSound: Bool
     
-    init(text: String, discardable: Bool = true, highPriority: Bool = false){
+    init(text: String, isSound: Bool = false, discardable: Bool = true, highPriority: Bool = false){
         self.timestamp = Date()
         self.text = text
         self.highPriority = highPriority
         self.discardable = discardable
+        self.isSound = isSound
     }
 }
 
@@ -29,10 +36,12 @@ class SpeechSynthThread: Thread, AVSpeechSynthesizerDelegate{
     let staleThreshold : Double = 2 //secs
     var utteranceRate : Float = 0.62
     var lastSpeechTime = Date()
+    var lastSoundTime = Date()
     var lastMessageSpoken : String = ""
     var lastPushedMessageText: String = ""
     var lastPushTime = Date()
     var isPlaying : Bool
+    var audioPlayer: AVAudioPlayer?
     
     override init(){
         isPlaying = false
@@ -58,6 +67,23 @@ class SpeechSynthThread: Thread, AVSpeechSynthesizerDelegate{
                 }
             }
     //    }
+        }
+    }
+    
+    func playAudio(url:URL, fileType: AVFileType){
+        let currTime = Date()
+        if (currTime.timeIntervalSince(lastSoundTime) > 0.5){
+            do {
+                try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+                try AVAudioSession.sharedInstance().setActive(true)
+                
+                audioPlayer = try AVAudioPlayer(contentsOf: url, fileTypeHint: fileType.rawValue)
+                audioPlayer?.play()
+
+            } catch let error {
+                print(error.localizedDescription)
+            }
+            lastSoundTime = Date()
         }
     }
     
@@ -112,7 +138,7 @@ class SpeechSynthThread: Thread, AVSpeechSynthesizerDelegate{
     
 }
 
-class SpeechFeedback: NSObject{
+class AudioFeedback: NSObject{
     
     private var speechThread : SpeechSynthThread
 

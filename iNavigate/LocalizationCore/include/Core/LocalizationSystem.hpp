@@ -26,6 +26,7 @@ class LocalizationSystem{
         double yaw;
         double variance;
         bool valid;
+        PeakYaw_t() : yaw(0), variance(0), valid(false){};
     };
     
         LocalizationSystem(std::string resFolder, int numParticles, InitMode initMode, int startFloor, double posU, double posV, float initMotionYaw, float initYawNoise, std::shared_ptr<maps::MapManager> mapManager) : _initMode(initMode), _mapManager(mapManager) {
@@ -45,29 +46,29 @@ class LocalizationSystem{
             if (_partFilter->particlesInitialized()){
                 _vioData.update(vioData);
     //          std::cerr << "VIODATA DELTA YAW: " << _vioData.getDeltaYaw()*180/CV_PI << "\n";
-                std::cerr << ">>> _obsManagerCV.update " << "\n";
+//                std::cerr << ">>> _obsManagerCV.update " << "\n";
                 std::vector<compvis::CVObservation> detections = _obsManagerCV.update(_vioData);
-                std::cerr << "<<< _obsManagerCV.update " << "\n";
+//                std::cerr << "<<< _obsManagerCV.update " << "\n";
                 _vioData.getFrame().copyTo(_currFrame);
                 signDetected = false;
                 if (detections.size() > 0)
                     signDetected = true;
-                std::cerr << ">>> _partFilter->step " << "\n";
+//                std::cerr << ">>> _partFilter->step " << "\n";
                 _partFilter->step(_vioData, detections);
-                std::cerr << "<<< _partFilter->step " << "\n";
-                std::cerr << ">>> _partFilter->getHeatMap " << "\n";
+//                std::cerr << "<<< _partFilter->step " << "\n";
+//                std::cerr << ">>> _partFilter->getHeatMap " << "\n";
                 cv::Mat kde = _partFilter->getHeatMap();
-                std::cerr << "<<< _partFilter->getHeatMap " << "\n";
-                std::cerr << ">>> LocalizationSystem::computeYawMap " << "\n";
+//                std::cerr << "<<< _partFilter->getHeatMap " << "\n";
+//                std::cerr << ">>> LocalizationSystem::computeYawMap " << "\n";
                 //computeYawMap();
-                std::cerr << "<<< LocalizationSystem::computeYawMap " << "\n";
+//                std::cerr << "<<< LocalizationSystem::computeYawMap " << "\n";
                 _cvDetectorOutputFrame = _obsManagerCV.img;
                 cv::cvtColor(_cvDetectorOutputFrame, _cvDetectorOutputFrame, cv::COLOR_GRAY2RGBA);
                 
                 for (auto it = detections.begin(); it!=detections.end(); ++it){
                     cv::rectangle(_cvDetectorOutputFrame, it->getROI(), cv::Scalar(255,0,0,255), 5);
                     cv::circle(_cvDetectorOutputFrame, it->getROICenter(), 3, cv::Scalar(0,255,0,255));
-                    cv::putText(_cvDetectorOutputFrame, std::to_string(_partFilter->estimatedDistanceToSign),  it->getROICenter(), cv::FONT_HERSHEY_SIMPLEX, 1.25, cv::Scalar(255,0,0,255) );
+                    cv::putText(_cvDetectorOutputFrame, std::to_string(_partFilter->estimatedDistanceToSign),  it->getROICenter(), cv::FONT_HERSHEY_SIMPLEX, 1.6, cv::Scalar(255,0,0,255) );
                 }
 //              cv::Mat markers;
 //              markers = _mapManager->getWallsImageRGB().clone();
@@ -122,7 +123,7 @@ class LocalizationSystem{
             if (peak.valid){
                 double sumX = 0, sumY = 0;
                 std::vector<std::vector<double>> yawMap = computeYawMap();
-                std::cerr << "\t\t yawMap.size() = " << yawMap.size() << "\n";
+//                std::cerr << "\t\t yawMap.size() = " << yawMap.size() << "\n";
                 int vcnt = 0;
                 for (auto it = yawMap.begin(); it != yawMap.end(); ++it)
                     for (auto it2 = it->begin(); it2 != it->end(); ++it2){
@@ -136,10 +137,10 @@ class LocalizationSystem{
                 if (yawPeak.variance <= var_thr){
                     yawPeak.valid = true;
                     int ind = peak.pxCoord.x*_mapManager->getMapSizePixels().height+peak.pxCoord.y;
-                    std::cerr << "\t\t ind = " << ind << "\n";
-                    std::cerr << "[>] yawMap[ind]" << "\n";
+//                    std::cerr << "\t\t ind = " << ind << "\n";
+//                    std::cerr << "[>] yawMap[ind]" << "\n";
                     std::vector<double> yaws = yawMap[ind];
-                    std::cerr << "[<] yawMap[ind]" << "\n";
+//                    std::cerr << "[<] yawMap[ind]" << "\n";
                     int cnt = 0;
                     double v[2] = {0, 0};
                     for (double y : yaws){
@@ -194,10 +195,7 @@ class LocalizationSystem{
             
         std::vector<std::vector<double>> computeYawMap(){
             std::vector<std::vector<double>> yawMap;
-            
-
-
-            
+             
             yawMap = std::vector<std::vector<double>>(_mapManager->getMapSizePixels().width * _mapManager->getMapSizePixels().height);
             for (const Particle& p : _partFilter->getParticles()){
                 if (p.valid){

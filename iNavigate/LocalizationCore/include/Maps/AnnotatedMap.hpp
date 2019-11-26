@@ -113,12 +113,21 @@ namespace maps{
             auto lmarks = _landmarks.find(maps::FeatureType::EXIT_SIGN);
             
             for(auto mf = lmarks; mf != _landmarks.end(); mf++){
+                int width = _wallsImage.cols;
+                //draw visibility
+//                for (int i =0; i < _wallsImage.rows*_wallsImage.cols; i++){
+//                     cv::Point2i pt = cv::Point2i(i/width, (i%width));
+//                    if (_visMap[i][mf->second.id]){
+//                        cv::circle(map, cv::Point(pt.y, pt.x), 1, cv::Scalar(255,0,0));
+//                    }
+//                }
                 cv::Point2d pt = cv::Point2d(mf->second.position.x, mf->second.position.y);
                 cv::Point2i px = uv2pixels(pt);
                 cv::circle(map, cv::Point(px.y,px.x)  , 3, cv::Scalar(0,150,255));
                 cv::circle(map, cv::Point(px.y,px.x)  , 1, cv::Scalar(0,150,255));
                 std::string posstr = std::to_string(mf->second.position.x) + ", " + std::to_string(mf->second.position.y);
-                cv::putText(map, posstr, cv::Point(px.y,px.x), cv::FONT_HERSHEY_PLAIN, .65, cv::Scalar(0,255,0));
+                std::string idstr = std::to_string(mf->second.id);
+                cv::putText(map, idstr, cv::Point(px.y,px.x), cv::FONT_HERSHEY_PLAIN, 1.65, cv::Scalar(0,255,0));
             }
             //cv::imshow("Features", map);
             return map;
@@ -252,7 +261,7 @@ namespace maps{
                     
                     else if(keyValPair.first == _PARSER_NORMAL_TAG){
                         std::vector<int> v = parseutils::parseCSVArray<int>(keyValPair.second);
-                        mapFeature.normal = cv::Vec2i(v[0], v[1]);
+                        mapFeature.normal = cv::Vec2i(v[0], v[1]); // 11/21/2019 trying to swap order of normal coordinates from 01 to 10
                     }
                     else if (keyValPair.first == _PARSER_HEIGHT_TAG)
                         mapFeature.height = std::stof(keyValPair.second);
@@ -262,9 +271,7 @@ namespace maps{
             return mapFeature;
         }
         
-        // TODO: implement parser to populate _landmarks
         void _parseYamlFeaturesFile(){
-            
             std::ifstream inFile(_landmarksFile, std::ifstream::in);
             std::string strLine;
             
@@ -297,10 +304,13 @@ namespace maps{
                 int width = _wallsImage.cols;
                 _visMap = std::vector<std::vector<bool>> (_wallsImage.rows*_wallsImage.cols, std::vector<bool>(numFeatures, false));
                 for (int i =0; i < _wallsImage.rows*_wallsImage.cols; i++){
-                    cv::Point2i pt = cv::Point2i((i%width), i/width);
+//                    cv::Point2i pt = cv::Point2i((i%width), i/width);
+                    cv::Point2i pt = cv::Point2i(i/width, (i%width));
                     for (auto itr = itr_start; itr != _landmarks.end(); itr++){
                         cv::Point2i signPos = uv2pixels(itr->second.position);
-                        float dist = cv::norm(cv::Vec2d(pt.x, pt.y) - itr->second.getPositionVector());
+                        cv::Point2d uvPos = pixels2uv(pt);
+                        float dist = cv::norm(cv::Vec2d(uvPos.x, uvPos.y) - itr->second.getPositionVector());
+                        //std::cerr << itr->second.id << "\n";
                         if (dist > 0.5 && dist < 15.0){
                             _visMap[i][itr->second.id] = !isPathCrossingWalls(pt, signPos);
                         }

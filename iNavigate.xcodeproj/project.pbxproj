@@ -7,10 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3F3A83B4237CC8C600C868E6 /* drum.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 3F3A83B3237CC8C600C868E6 /* drum.mp3 */; };
-		3F3A83B5237CC8CB00C868E6 /* drum.mp3 in Sources */ = {isa = PBXBuildFile; fileRef = 3F3A83B3237CC8C600C868E6 /* drum.mp3 */; };
-		3F3A83B7237CDA9A00C868E6 /* fireplace.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 3F3A83B6237CDA9A00C868E6 /* fireplace.mp3 */; };
-		3F3A83B9237DD4EC00C868E6 /* drum_mono.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 3F3A83B8237DD4EC00C868E6 /* drum_mono.mp3 */; };
 		3F535A1A2379FF3C004B510C /* Queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F535A192379FF3C004B510C /* Queue.swift */; };
 		3F535A25237A2F8C004B510C /* BasicBarChartPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F535A1C237A2F8B004B510C /* BasicBarChartPresenter.swift */; };
 		3F535A26237A2F8C004B510C /* BasicBarEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F535A1D237A2F8B004B510C /* BasicBarEntry.swift */; };
@@ -23,12 +19,17 @@
 		3F535A2D237A2F8C004B510C /* CustomSegments.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F535A24237A2F8C004B510C /* CustomSegments.swift */; };
 		3F535A2F237A2F9D004B510C /* UIBezierPathExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F535A2E237A2F9D004B510C /* UIBezierPathExtension.swift */; };
 		3F535A31237A2FAA004B510C /* ArrayExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F535A30237A2FAA004B510C /* ArrayExtension.swift */; };
+		3F5B16962385EB3000F05465 /* coinup.wav in Resources */ = {isa = PBXBuildFile; fileRef = 3F5B16912385EB3000F05465 /* coinup.wav */; };
+		3F5B16972385EB3000F05465 /* error.wav in Resources */ = {isa = PBXBuildFile; fileRef = 3F5B16922385EB3000F05465 /* error.wav */; };
+		3F5B16982385EB3000F05465 /* beep.wav in Resources */ = {isa = PBXBuildFile; fileRef = 3F5B16932385EB3000F05465 /* beep.wav */; };
+		3F5B16992385EB3000F05465 /* click_one.wav in Resources */ = {isa = PBXBuildFile; fileRef = 3F5B16942385EB3000F05465 /* click_one.wav */; };
+		3F5B169A2385EB3000F05465 /* drum_mono.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 3F5B16952385EB3000F05465 /* drum_mono.mp3 */; };
 		3F5F53B522580B3F00D40A04 /* svm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5F53B422580B3F00D40A04 /* svm.cpp */; };
 		3F5F53F322580CD100D40A04 /* res in Resources */ = {isa = PBXBuildFile; fileRef = 3F5F53F122580CB400D40A04 /* res */; };
 		3F7929282374A4C20090F2FA /* MedianFlowTracker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F7929242374A4500090F2FA /* MedianFlowTracker.cpp */; };
 		3F7929292374A4C20090F2FA /* ObjDetector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F7929252374A4500090F2FA /* ObjDetector.cpp */; };
 		3F79292A2374A4C20090F2FA /* DetectionParams.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F7929262374A4500090F2FA /* DetectionParams.cpp */; };
-		3FA233482345360900E3BA0D /* SpeechFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA233472345360900E3BA0D /* SpeechFeedback.swift */; };
+		3FA233482345360900E3BA0D /* AudioFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA233472345360900E3BA0D /* AudioFeedback.swift */; };
 		3FA2334A234545E000E3BA0D /* arrow.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 3FA23349234545E000E3BA0D /* arrow.jpg */; };
 		3FC2BB0C226FC5DE00A1701B /* FloorChangeDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FC2BB0B226FC5DE00A1701B /* FloorChangeDetector.swift */; };
 		3FCD2A082253EA800048B140 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FCD2A072253EA800048B140 /* AppDelegate.swift */; };
@@ -63,9 +64,6 @@
 		3F07CD2122C57AED00CD3652 /* NavGraph.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NavGraph.hpp; sourceTree = "<group>"; };
 		3F07CD2222C57AED00CD3652 /* NavigationSystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NavigationSystem.hpp; sourceTree = "<group>"; };
 		3F07CD2322C57AED00CD3652 /* NavigationTracker.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NavigationTracker.hpp; sourceTree = "<group>"; };
-		3F3A83B3237CC8C600C868E6 /* drum.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = drum.mp3; sourceTree = "<group>"; };
-		3F3A83B6237CDA9A00C868E6 /* fireplace.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = fireplace.mp3; sourceTree = "<group>"; };
-		3F3A83B8237DD4EC00C868E6 /* drum_mono.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = drum_mono.mp3; sourceTree = "<group>"; };
 		3F535A192379FF3C004B510C /* Queue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Queue.swift; sourceTree = "<group>"; };
 		3F535A1C237A2F8B004B510C /* BasicBarChartPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BasicBarChartPresenter.swift; sourceTree = "<group>"; };
 		3F535A1D237A2F8B004B510C /* BasicBarEntry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BasicBarEntry.swift; sourceTree = "<group>"; };
@@ -78,6 +76,11 @@
 		3F535A24237A2F8C004B510C /* CustomSegments.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomSegments.swift; sourceTree = "<group>"; };
 		3F535A2E237A2F9D004B510C /* UIBezierPathExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIBezierPathExtension.swift; sourceTree = "<group>"; };
 		3F535A30237A2FAA004B510C /* ArrayExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArrayExtension.swift; sourceTree = "<group>"; };
+		3F5B16912385EB3000F05465 /* coinup.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = coinup.wav; sourceTree = "<group>"; };
+		3F5B16922385EB3000F05465 /* error.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = error.wav; sourceTree = "<group>"; };
+		3F5B16932385EB3000F05465 /* beep.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = beep.wav; sourceTree = "<group>"; };
+		3F5B16942385EB3000F05465 /* click_one.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = click_one.wav; sourceTree = "<group>"; };
+		3F5B16952385EB3000F05465 /* drum_mono.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = drum_mono.mp3; sourceTree = "<group>"; };
 		3F5F53B422580B3F00D40A04 /* svm.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = svm.cpp; sourceTree = "<group>"; };
 		3F5F53F122580CB400D40A04 /* res */ = {isa = PBXFileReference; lastKnownFileType = folder; path = res; sourceTree = "<group>"; };
 		3F7928F72374A4500090F2FA /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
@@ -114,7 +117,7 @@
 		3F7929252374A4500090F2FA /* ObjDetector.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ObjDetector.cpp; sourceTree = "<group>"; };
 		3F7929262374A4500090F2FA /* DetectionParams.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DetectionParams.cpp; sourceTree = "<group>"; };
 		3F7929272374A4500090F2FA /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		3FA233472345360900E3BA0D /* SpeechFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechFeedback.swift; sourceTree = "<group>"; };
+		3FA233472345360900E3BA0D /* AudioFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioFeedback.swift; sourceTree = "<group>"; };
 		3FA23349234545E000E3BA0D /* arrow.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = arrow.jpg; sourceTree = "<group>"; };
 		3FC2BB0B226FC5DE00A1701B /* FloorChangeDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloorChangeDetector.swift; sourceTree = "<group>"; };
 		3FCD2A042253EA800048B140 /* iNavigate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iNavigate.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -329,9 +332,11 @@
 		3FCD29FB2253EA800048B140 = {
 			isa = PBXGroup;
 			children = (
-				3F3A83B8237DD4EC00C868E6 /* drum_mono.mp3 */,
-				3F3A83B3237CC8C600C868E6 /* drum.mp3 */,
-				3F3A83B6237CDA9A00C868E6 /* fireplace.mp3 */,
+				3F5B16932385EB3000F05465 /* beep.wav */,
+				3F5B16942385EB3000F05465 /* click_one.wav */,
+				3F5B16912385EB3000F05465 /* coinup.wav */,
+				3F5B16952385EB3000F05465 /* drum_mono.mp3 */,
+				3F5B16922385EB3000F05465 /* error.wav */,
 				3F535A192379FF3C004B510C /* Queue.swift */,
 				3FA23349234545E000E3BA0D /* arrow.jpg */,
 				3F5F53B422580B3F00D40A04 /* svm.cpp */,
@@ -363,7 +368,7 @@
 				3FCD2A0B2253EA800048B140 /* Scene.swift */,
 				3FC2BB0B226FC5DE00A1701B /* FloorChangeDetector.swift */,
 				3FCD2A0D2253EA800048B140 /* ViewController.swift */,
-				3FA233472345360900E3BA0D /* SpeechFeedback.swift */,
+				3FA233472345360900E3BA0D /* AudioFeedback.swift */,
 				3FCD2A0F2253EA800048B140 /* Main.storyboard */,
 				3FCD2A122253EA820048B140 /* Assets.xcassets */,
 				3FCD2A142253EA820048B140 /* LaunchScreen.storyboard */,
@@ -490,13 +495,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				3F5F53F322580CD100D40A04 /* res in Resources */,
-				3F3A83B4237CC8C600C868E6 /* drum.mp3 in Resources */,
 				3FCD2A162253EA820048B140 /* LaunchScreen.storyboard in Resources */,
-				3F3A83B9237DD4EC00C868E6 /* drum_mono.mp3 in Resources */,
 				3FCD2A132253EA820048B140 /* Assets.xcassets in Resources */,
-				3F3A83B7237CDA9A00C868E6 /* fireplace.mp3 in Resources */,
 				3FA2334A234545E000E3BA0D /* arrow.jpg in Resources */,
 				3FCD2A112253EA800048B140 /* Main.storyboard in Resources */,
+				3F5B16962385EB3000F05465 /* coinup.wav in Resources */,
+				3F5B16972385EB3000F05465 /* error.wav in Resources */,
+				3F5B16982385EB3000F05465 /* beep.wav in Resources */,
+				3F5B16992385EB3000F05465 /* click_one.wav in Resources */,
+				3F5B169A2385EB3000F05465 /* drum_mono.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -526,8 +533,7 @@
 				3F79292A2374A4C20090F2FA /* DetectionParams.cpp in Sources */,
 				3F535A26237A2F8C004B510C /* BasicBarEntry.swift in Sources */,
 				3FC2BB0C226FC5DE00A1701B /* FloorChangeDetector.swift in Sources */,
-				3F3A83B5237CC8CB00C868E6 /* drum.mp3 in Sources */,
-				3FA233482345360900E3BA0D /* SpeechFeedback.swift in Sources */,
+				3FA233482345360900E3BA0D /* AudioFeedback.swift in Sources */,
 				3F535A27237A2F8C004B510C /* DataEntry.swift in Sources */,
 				3F535A25237A2F8C004B510C /* BasicBarChartPresenter.swift in Sources */,
 				3F5F53B522580B3F00D40A04 /* svm.cpp in Sources */,

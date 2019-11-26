@@ -138,18 +138,20 @@ namespace navgraph{
                             if (!hit){
                                 minDist = d;
                                 spos.uvPos = pt;
-                                spos.srcNodeId = n.first;
-                                spos.destNodeId = e.first;
-                                spos.srcNode = _nodes[spos.srcNodeId];
-                                spos.destNode = _nodes[spos.destNodeId];
-                                spos.dist2Src = cv::norm(pt-n.second.positionUV);
-                                spos.dist2Dest = cv::norm(pt-_nodes[e.first].positionUV);
-                                spos.refAngle = -1e6; //need to compute this based on what the next node in the path is
-                                
-                                if (spos.dist2Src < spos.dist2Dest)
-                                    spos.distance = cv::norm(uvpos-n.second.positionUV);
-                                else
-                                    spos.distance = cv::norm(uvpos -_nodes[e.first].positionUV);
+//                                if (n.first != spos.destNodeId){
+                                    spos.srcNodeId = n.first;
+                                    spos.destNodeId = e.first;
+                                    spos.srcNode = _nodes[spos.srcNodeId];
+                                    spos.destNode = _nodes[spos.destNodeId];
+                                    spos.dist2Src = cv::norm(pt-n.second.positionUV);
+                                    spos.dist2Dest = cv::norm(pt-_nodes[e.first].positionUV);
+                                    spos.refAngle = -1e6; //need to compute this based on what the next node in the path is
+                                    
+                                    if (spos.dist2Src < spos.dist2Dest)
+                                        spos.distance = cv::norm(uvpos-n.second.positionUV);
+                                    else
+                                        spos.distance = cv::norm(uvpos -_nodes[e.first].positionUV);
+//                                }
                             }
                         }
                     }
