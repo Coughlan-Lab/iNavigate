@@ -32,8 +32,8 @@ namespace locore{
     public:
         struct PFParameters{
             PFParameters() { motionYawNoise = 0.; positionNoiseMajor = 1.1; positionNoiseMinor = .0;
-                cameraYawNoise = 0.01; resamplingMotionthreshold = 0.5; minSignScore = 0.1;
-                signYawDifferenceThreshold = -.2; signDetectionScoringCoeff = 0.01;
+                cameraYawNoise = 0.000001; resamplingMotionthreshold = 0.5; minSignScore = 0.1;
+                signYawDifferenceThreshold = -.7; signDetectionScoringCoeff = 0.01;
                 cameraHeight = 1.2; globalScaleCorrectionMin = 1.;
                 globalScaleCorrectionMax = 1.2; arkitAngleCorrection = - CV_PI/2;
             }
@@ -50,10 +50,20 @@ namespace locore{
             float globalScaleCorrectionMax;
             float globalScaleCorrectionMin;
             float arkitAngleCorrection;
+        };
+        
             
+        struct ParticlesStats{
+            ParticlesStats() { gsc_min =0.; gsc_max = 0.; gsc_mean = 0.; gsc_median = 0; }
+            float gsc_min;
+            float gsc_max;
+            float gsc_mean;
+            float gsc_median;
         };
         
         PFParameters pfParameters;
+        ParticlesStats partStats;
+        std::ostringstream particlesLog;
         
         ParticleFilter(int numParticles, InitMode initMode, std::shared_ptr<maps::MapManager> mapManager, float initMotionYaw = 0,
                        float initYawNoise = 0, float radius_mt = 2., cv::Point2d initLocMt = cv::Point2d(0,0)) : _initMode(initMode),_numParticles(numParticles){
@@ -91,32 +101,33 @@ namespace locore{
         inline cv::Mat getHeatMap(){ return _peakDetector->getHeatMap(); }
         inline bool isPeakHard(){ return _peakDetector->isPeakHard(); }
         
-        void step(VIOMeasurements vioData, const std::vector<compvis::CVObservation>& detections){
+        void step(VIOMeasurements vioData, const std::vector<compvis::CVObservation>& detections, bool logParticles){
             //auto start = high_resolution_clock::now();
-            //nanoseconds deltaT = nanoseconds(0);
+            nanoseconds deltaT = nanoseconds(0);
+            this->logParticles = logParticles;
             assert(_initializedParticles);
             _badFramesCounter = 0;
             _prevVIOData = vioData;
-            _updateParticles(vioData);
+            _updateParticles(vioData, detections);
             _totalMotion += cv::norm(cv::Vec2f(vioData.getDeltaX(), vioData.getDeltaZ()),  cv::NORM_L2);
           
             if (detections.size() > 0){
                 _scoreParticles(vioData, detections);
-//                _resampleParticles();
-            }
+////                _resampleParticles();
+           }
 
             if ( (_totalMotion >= pfParameters.resamplingMotionthreshold) ||
-                ( float(_numParticles - _nonValidParticles) / float(_numParticles) < 0.5) ){
+                 ( float(_numParticles - _nonValidParticles) / float(_numParticles) < 0.5) ){
                 _resampleParticles();
                 _totalMotion = 0;
                 _nonValidParticles = 0;
                 
             }
-
+            auto start = high_resolution_clock::now();
             _peakDetector->computePeaks(_particles);
-            //auto stop = high_resolution_clock::now();
-            //deltaT = duration_cast<nanoseconds>(stop-start);
-            //std::cerr << "particle filter time : " << deltaT.count() << "\n";
+            auto stop = high_resolution_clock::now();
+            deltaT = duration_cast<nanoseconds>(stop-start);
+            std::cerr << "computePeaks time : " << deltaT.count() << "\n";
         }
         
         cv::Mat plotParticlesYaw(cv::Mat& image, int arrowLen){
@@ -148,6 +159,7 @@ namespace locore{
         std::multimap<maps::FeatureType, maps::MapFeature> features;
         std::multimap<maps::FeatureType, maps::MapFeature>::iterator exitSignsFeatureList;
         
+        
         int _currentFloor;
         double  _fx; //camera focal length
         
@@ -158,6 +170,7 @@ namespace locore{
         InitMode _initMode;
         int _numParticles;
         bool _initializedParticles = false;
+        bool logParticles = false;
         
         VIOMeasurements _prevVIOData;
         int _badFramesCounter;
@@ -168,7 +181,6 @@ namespace locore{
                 if (det.tag() == "exit_sign")
                     _scoreDistanceToExitSign(vioData, det);
             }
-            
             // this handles the possibility of multiple bounding boxes: we take the product of the scores estimated over all the different sign detections
 //            for (Particle& p : _particles){
 //                if (p.valid){
@@ -182,72 +194,90 @@ namespace locore{
             
         }
         
+       
 
         void _scoreDistanceToExitSign(const locore::VIOMeasurements& vioData, const compvis::CVObservation& det){
-           
+
             std::vector<double> yawScores;
-            
+
             //estimate sign distance
             double gamma = vioData.getPitch();
-            //double y = pfParameters.cameraHorizDistanceToSign;
-            float centerRow = vioData.getFrame().size().height/2;
+            std::cerr << "Gamma: " << gamma << "\n";
+
+            // NOTE: image width and height are swapped
+            float centerRow = vioData.getFrame().size().width/2;
             float detRow = det.getROICenter().y;
             double delta = atan((centerRow - detRow)/_fx);
+//            std::cerr << "delta: " << delta << "\n";
 //            double z = y / tan(gamma+delta);
 //            this->estimatedDistanceToSign = z;
             int columnDetection = det.getROICenter().x;
-            
-            
+            int deltaV = det.getROI().height;
+            std::cerr << "BBox height: " << deltaV << "\n";
+            std::cerr << "BBox width: " << det.getROI().width << "\n";
+            float h0 = 0.2032; // exit sign height in meters
+//            this->estimatedDistanceToSign = (_fx/deltaV)*h0*cos(gamma);
+            this->estimatedDistanceToSign = 3;
+
+            // NOTE: image width and height are swapped (because of how ARKit handles image on the sensor)
+            double fov_h = atan(vioData.getFrame().size().height/2*_fx);
+            double fov_v = atan(vioData.getFrame().size().width/2*_fx);
+
             auto start = high_resolution_clock::now();
             nanoseconds deltaT = nanoseconds(0);
             for(auto particle = _particles.begin(); particle != _particles.end(); ++particle ){
                 if (particle->valid){
                     cv::Point2i startPoint = _mapManager->uv2pixels(particle->position);
-                    
+
                     yawScores.clear();
                     // loop over exit signs
                     for (auto itr = exitSignsFeatureList; itr != features.end(); itr++){
-                        double y = itr->second.height - pfParameters.cameraHeight;
-                        double z = y / tan(gamma+delta);
-                        this->estimatedDistanceToSign = z;
+//                        double y = itr->second.height - pfParameters.cameraHeight;
+//                        double z = y / tan(gamma+delta);
+//                        this->estimatedDistanceToSign = z;
                         float dist = cv::norm(particle->getPositionVector() - itr->second.getPositionVector());
-                        
-//                        double score = pfParameters.minSignScore;
+
                         double score = pfParameters.minSignScore;
                         if (_mapManager->isSignVisibleFrom(startPoint, itr->second.id)){
-                            
+
                             //cv::Point2i signPos = _mapManager->uv2pixels(itr->second.position);
                             // check that particle orientation is compatible with sign orientation
-                            double yaw_diff = itr->second.normal.dot( cv::Vec2d( cos( particle->cameraYaw ),
-                                                                                sin( particle->cameraYaw ) ) );
+//                            double yaw_diff = itr->second.normal.dot( cv::Vec2d( cos( particle->cameraYaw ),
+//                                                                                sin( particle->cameraYaw ) ) );
+                            double yaw_diff = itr->second.normal.dot( cv::Vec2d( cos( 3.14/2 ),
+                            sin( 3.14/2 ) ) );
 //                            std::cerr << "yaw diff: " << yaw_diff << "\n";
-                            if (yaw_diff < pfParameters.signYawDifferenceThreshold){
-                                
+//                            if (yaw_diff < pfParameters.signYawDifferenceThreshold){
+                            if (yaw_diff < 0){
+
                                 // warning: x and y are swapped
                                 double thetaPred = atan2(itr->second.position.x - particle->getPositionX(), itr->second.position.y - particle->getPositionY());
                                 double thetaDetection = particle->getCameraYaw() + (det.getImageSize().width/2 - columnDetection) * _app;
-//                                std::cerr << "Theta Predicted: " << thetaPred << "\n";
-//                                std::cerr << "Theta Detection: " << thetaDetection << "\n";
-//                                std::cerr << "z (pred).: " << z << "\n";
-//                                std::cerr << "dist (measured).: " << dist << "\n";
-                                double distScore = (z/dist - 0.7) <= (1.3 - 0.7) ? 1. : pfParameters.minSignScore;
+//                                double distScore = (this->estimatedDistanceToSign/dist - 0.7) <= (1.3 - 0.7) ? 1. : pfParameters.minSignScore;
                                 double x = pow(sin((thetaPred - thetaDetection)/2),2);
-                                double azimuthScore = x < 0.03 ? 1. : pfParameters.minSignScore;
-//                                std::cerr << "azimuthScore: " << azimuthScore << "\n";
-                                score = distScore * azimuthScore;
-//                                if (score < 1)
-//                                    score = pfParameters.minSignScore;
-                                double distErrorFraction = abs(z - dist) / z;
+//                                double azimuthScore = x < 0.03 ? 1. : pfParameters.minSignScore;
+
+                                //does the sign fall within the horizontal and vertical field of view?
+                                double azimuthScore = abs(sin(thetaDetection - thetaPred)) < sin(fov_h/2) ? 1 :pfParameters.minSignScore;
+                                double betaPred = acos(itr->second.height / dist);
+                                double elevationScore = abs(sin(gamma - betaPred)) < sin(fov_v/2) ? 1 : pfParameters.minSignScore;
+
+//                                score = distScore * azimuthScore;
+//                                double distErrorFraction = abs(this->estimatedDistanceToSign - dist) / this->estimatedDistanceToSign;
+                                double distErrorFraction = abs(this->estimatedDistanceToSign - dist) / dist;
                                 score = pfParameters.signDetectionScoringCoeff/(pfParameters.signDetectionScoringCoeff+x*x);
-                                score *= 1. / (1. + 2. * distErrorFraction);
+                                score *= 1. / (1. + 1. * distErrorFraction);
+                                score *= elevationScore * azimuthScore;
+                                if (score < pfParameters.minSignScore)
+                                    score = pfParameters.minSignScore;
                             }
                         }
-                        
+
                         yawScores.push_back(score);
-                        
+
                     }
                     // get max score and assign it to the particle
-                    
+
                     particle->score = (*std::max_element(yawScores.begin(), yawScores.end()));
 //                    double score = (*std::max_element(yawScores.begin(), yawScores.end()));
 //                    auto it = particle->candidateScores.find(det.tag());
@@ -258,6 +288,7 @@ namespace locore{
 //                        tmpv.push_back(score);
 //                        particle->candidateScores.insert(std::make_pair(det.tag(), tmpv));
 //                    }
+                    
                 }
             }
             auto stop = high_resolution_clock::now();
@@ -265,15 +296,19 @@ namespace locore{
             //std::cerr << "sign scoring time : " << deltaT.count() << "\n";
         }
         
-        void _updateParticles(const VIOMeasurements& vioData){
+        
+        void _updateParticles(const VIOMeasurements& vioData, const std::vector<compvis::CVObservation>& detections){
             _nonValidParticles = 0;
             std::normal_distribution<double> distMotionYaw(0.0, pfParameters.motionYawNoise);
             std::normal_distribution<double> distCameraYaw(0.0, pfParameters.cameraYawNoise);
             //std::cerr << "*Curr yaw: " << std::to_string( (_particles[0].cameraYaw + vioData.getDeltaYaw()) * 180/3.14) << "\n";
-            
+            std::vector<float> globCorrFactors;
+            float mean_gcf = 0;
+            globCorrFactors.reserve(_numParticles);
+//            particlesLog.clear();
+            particlesLog.str(std::string());
             for(auto particle = _particles.begin(); particle != _particles.end(); ++particle ){
                 if (particle->valid){
-                    
                     // refactor into a matrix-vector mult.
                     cv::Vec2d rotatedDeltaPosition = cv::Vec2d(vioData.getDeltaX() * cos(particle->course + pfParameters.arkitAngleCorrection) + vioData.getDeltaZ() * sin(particle->course + pfParameters.arkitAngleCorrection),
                         vioData.getDeltaX() * sin(particle->course + pfParameters.arkitAngleCorrection) - vioData.getDeltaZ() * cos(particle->course + pfParameters.arkitAngleCorrection));
@@ -306,9 +341,28 @@ namespace locore{
                         _nonValidParticles++;
                         particle->score = 0;
                     }
+                    else{
+                        globCorrFactors.push_back(particle->globalScaleCorrectionFactor);
+                        mean_gcf += particle->globalScaleCorrectionFactor;
+                    }
+                    
+                    if (logParticles){
+                        cv::Point2i pt = _mapManager->uv2pixels(particle->getPositionPoint());
+                        particlesLog << std::to_string(pt.y) << ", " << std::to_string(pt.x) << ", " << std::to_string(particle->getScore()) << ", " << std::to_string(particle->getCameraYaw()) << ", " << std::to_string(particle->getCourse()) << ", " << std::to_string(detections.size() > 0) << ", " << std::to_string(particle->bestEstimatedDistance) << ", " <<
+                        std::to_string(particle->bestDetYaw) << ", " << std::to_string(particle->bestPredYaw) << "\n";
+                    }
+                    
+                    
                 }
             }
+            
+            partStats.gsc_mean = mean_gcf / (_numParticles - _nonValidParticles);
+            std::vector<float>::iterator result = std::min_element(globCorrFactors.begin(), globCorrFactors.end());
+            partStats.gsc_min = *result;
+            result = std::max_element(globCorrFactors.begin(), globCorrFactors.end());
+            partStats.gsc_max = *result;
         }
+        
         
         void _init(float initMotionYaw = 0, float initYawNoise = 0, float radius_mt = 2., cv::Point2d initLocMt = cv::Point2d(0,0)){;
             _badFramesCounter = 0;

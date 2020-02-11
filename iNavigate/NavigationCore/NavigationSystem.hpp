@@ -59,6 +59,9 @@ namespace navgraph{
             _firstCourseEstimate = true;
             _motionThreshold = motionThreshold;
             _goingBackward = false;
+            navigation_t navData = navigation_t();
+            loggingEvent = false;
+            logCounter = 0;
             
         }
         
@@ -79,28 +82,32 @@ namespace navgraph{
         inline void setCameraHeight(float cameraHeight) { _locSystem->setCameraHeight(cameraHeight); }
 
         
-        navigation_t step(const locore::VIOMeasurements& vioData, int deltaFloors){
-            navigation_t navData = navigation_t();
-
+        navigation_t step(const locore::VIOMeasurements& vioData, int deltaFloors, bool logParticles){
+            navData.valid = false;
+            navData.validTurnNode = false;
+            
             updateCurrentFloor(deltaFloors);
             
             // run the localization and get an estimated location for the user
             // if peak.valid == false it means that we do not have a localization estimate
-            _navigationImage = _locSystem->step(vioData);
+            _navigationImage = _locSystem->step(vioData, logParticles);
         
             locore::PeakDetector::peak_t peak = _locSystem->getPeak();
             _prevPeakYaw = peakYaw.yaw;
             peakYaw = computeYaw(peak, vioData);
             navData.yawVariance = peakYaw.variance;
             
-            if (destinationId >= 0 && peak.valid && peakYaw.valid){
+            if (destinationId >= 0 && peak.valid && peakYaw.valid){ //we have a destination and the peak is valid and the variance of the peak yaw is acceptable
                 navData.course = peakYaw.yaw;
-                // project the peak to the navigation graph
+                // project the peak location on the navigation graph
                 _currSnappedPosition = _navGraph->snapUV2Graph(peak.uvCoord, 0, _mapManager->currentFloor, true);
 
                 if (_currSnappedPosition.srcNodeId >= 0 && _currSnappedPosition.destNodeId >= 0){
                     //need to calculate the route angle based on the path
                     _path = _navGraph->getPathFromCurrentLocation(_currSnappedPosition, destinationId);
+                    
+                    std::cerr << "Path Len: " << _path.size() << "\n";
+                    std::cerr << "_path[0]:" << _path[0] << ", destId:" << destinationId << "\n";
                     navData.approachingNodeType = _navGraph->getNode(_path[0]).type;
                     navData.nodeLabel = _navGraph->getNode(_path[0]).label;
                     navData.comments = _navGraph->getNode(_path[0]).comments;
@@ -109,20 +116,12 @@ namespace navgraph{
                     navData.userUVPos[1] = peak.uvCoord.y;
                     navData.turnNodeUVPos[0] = -1;
                     navData.turnNodeUVPos[1] = -1;
-                    float distToNextNode = getDistanceToNextNode();
+                    float distToNextNode = getDistanceToNextNode(peak);
+                    float distToDestination = getDistanceToNode(_path[_path.size()-1], peak);
+                    std::cerr << "Dist to Dest: " << distToDestination << "\n";
                     navData.distanceToApproachingNode = distToNextNode;
                     
-                    // if we are far enough from the next node, refer to the current edge
-                    if (_path.size()>1 && (distToNextNode > 1.5 || _goingBackward)){
-                        _refAngle = getCurrentEdgeAngle(_path[0]);
-                        navData.nodeUVPos[0] = _navGraph->getNode(_path[0]).positionUV.x;
-                        navData.nodeUVPos[1] = _navGraph->getNode(_path[0]).positionUV.y;
-                    }
-                    else if (_path.size()>1 && !_goingBackward) {
-                        _refAngle = getEdgeAngle(_path[0], _path[1]);
-                        navData.nodeUVPos[0] = _navGraph->getNode(_path[1]).positionUV.x;
-                        navData.nodeUVPos[1] = _navGraph->getNode(_path[1]).positionUV.y;
-                    }
+                    setReferenceAngle(distToNextNode);
                    
                     if (_path.size()>2){ // for sonification, only sonify node before a turn
                         NavGraph::Node turnNode = getNextTurnNode();
@@ -137,24 +136,33 @@ namespace navgraph{
                     float diffAngle = atan2(sin((_refAngle-peakYaw.yaw)*CV_PI/180), cos((_refAngle-peakYaw.yaw)*CV_PI/180));
                     
                     // if the next node is the destination and we are close enough, we have arrived
-                    if (_path[0] == destinationId && distToNextNode <= 1.){
+//                    if (_path[0] == destinationId && distToNextNode <= 1.){
+//                        _refAngle = getCurrentEdgeAngle(_path[0]);
+//                        navData.nodeUVPos[0] = _navGraph->getNode(_path[0]).positionUV.x;
+//                        navData.nodeUVPos[1] = _navGraph->getNode(_path[0]).positionUV.y;
+//                        navData.instruction = Arrived;
+//                        std::cerr << "NagivationSystem::ARRIVED!!!" << "\n";
+//                    }
+                    if (_path.size() < 2 && distToDestination < 0.75){
                         _refAngle = getCurrentEdgeAngle(_path[0]);
                         navData.nodeUVPos[0] = _navGraph->getNode(_path[0]).positionUV.x;
                         navData.nodeUVPos[1] = _navGraph->getNode(_path[0]).positionUV.y;
                         navData.instruction = Arrived;
+                        std::cerr << "NagivationSystem::ARRIVED!!!" << "\n";
                     }
                     
                     //if there are only two nodes left in the path and the last node is marked as door, give heads up
-                    else if (_path.size() == 2 && !_goingBackward){
-                        navData.instruction = calculateTurn(diffAngle*180/CV_PI, 25, true);
+                    else if (_path.size() == 2 && !_goingBackward && distToNextNode <= 1.){
+                        navData.instruction = calculateTurn(diffAngle*180/CV_PI, 55, true);
                         navData.destThroughDoor = _navGraph->getNode(_path[1]).isDoor;
                     }
                     // otherwise, just calculate next instruction based on angle wrt the current graph edge
-                    else if (!_goingBackward || yawDelta > 10)
-                         navData.instruction = calculateTurn(diffAngle*180/CV_PI, 25, false);
-                    else{
-                        navData.instruction = TurnAround;
-                        std::cerr << "turn around" << "\n";
+//                    else if ((_path.size() > 2) && (!_goingBackward || yawDelta > 10))
+//                         navData.instruction = calculateTurn(diffAngle*180/CV_PI, 25, false);
+                    else if  (yawDelta > 10) {
+                           navData.instruction = calculateTurn(diffAngle*180/CV_PI, 55, false);
+//                        navData.instruction = TurnAround;
+//                        std::cerr << "turn around" << "\n";
                     }
                     navData.angleError = diffAngle*180/CV_PI;
                     drawNavigationGraph();
@@ -169,9 +177,30 @@ namespace navgraph{
         }
         
         
-        float getDistanceToNextNode(){
-            cv::Point2f pos = _currSnappedPosition.realuvPos;
-            NavGraph::Node n = _navGraph->getNode( _path[0]);
+        void setReferenceAngle(float distToNextNode){
+            // if we are far enough from the next node, refer to the current edge
+            if (_path.size()>1 && (distToNextNode > 1 || _goingBackward)){
+                _refAngle = getCurrentEdgeAngle(_path[0]);
+                navData.nodeUVPos[0] = _navGraph->getNode(_path[0]).positionUV.x;
+                navData.nodeUVPos[1] = _navGraph->getNode(_path[0]).positionUV.y;
+            }
+            // otherwise if we are less than a meter from the next node, move to the next segment of the path
+            else if (_path.size()>1 && !_goingBackward) {
+                _refAngle = getEdgeAngle(_path[0], _path[1]);
+                navData.nodeUVPos[0] = _navGraph->getNode(_path[1]).positionUV.x;
+                navData.nodeUVPos[1] = _navGraph->getNode(_path[1]).positionUV.y;
+            }
+        }
+        
+        
+        float getDistanceToNextNode(locore::PeakDetector::peak_t peak){
+            return getDistanceToNode(_path[0], peak);
+        }
+        
+        float getDistanceToNode(int nodeId, locore::PeakDetector::peak_t peak){
+//            cv::Point2f pos = _currSnappedPosition.realuvPos;
+            cv::Point2f pos = peak.uvCoord;
+            NavGraph::Node n = _navGraph->getNode(nodeId);
             cv::Point2f nodePos = n.positionUV;
             float d = cv::norm(nodePos - pos);
             return d;
@@ -241,22 +270,35 @@ namespace navgraph{
         
         void dumpParticles(std::string outFolder, unsigned long int cnt){
             
-            std::ofstream myfile;
-            std::string filename = outFolder + "/" + std::to_string(cnt) + ".txt";
-            myfile.open (filename);
-            if (myfile.is_open()){
-                const std::vector<locore::Particle> particles = _locSystem->getParticles();
-                myfile << "x, y, score, yaw, heading, detection \n";
-                for (locore::Particle p : particles){
-                    // width, height, score, sign 0/1, pred dist, est. distance, det yaw, pred yaw,
-                    cv::Point2i pt = _mapManager->uv2pixels(p.getPositionPoint());
-                    myfile << std::to_string(pt.y) << ", " << std::to_string(pt.x) << ", " << std::to_string(p.getScore()) << ", " << std::to_string(p.getCameraYaw()) << ", " << std::to_string(p.getCourse()) << ", " << _locSystem->signDetected <<
-                       _locSystem->getDistanceToSign() << ", " << std::to_string(p.bestEstimatedDistance) << ", " <<
-                    std::to_string(p.bestDetYaw) << ", " << std::to_string(p.bestPredYaw) << "\n";
-                    
+            if (loggingEvent || _locSystem->signDetected){
+                if (_locSystem->signDetected)
+                    logCounter = 5;
+                loggingEvent = true;
+                // we dump the previous log info
+                std::ofstream myfile;
+                std::string filename = outFolder + "/" + std::to_string(cnt) + ".txt";
+                myfile.open (filename);
+                std::cerr << "Logging to file";
+                if (myfile.is_open()){
+                    myfile << _locSystem->getParticlesLog();
                 }
-                myfile.close();
             }
+            // prepare new string, every time
+//            prevParticlesLog.clear();
+            prevParticlesLog.str(std::string());
+            
+            prevParticlesLog.str(_locSystem->getParticlesLog());
+            
+            if (loggingEvent && !_locSystem->signDetected){
+                logCounter--;
+                loggingEvent = (logCounter >= 0);
+            }
+                
+        }
+        
+        
+        locore::ParticleFilter::ParticlesStats getParticlesStats(){
+            return _locSystem->getParticlesStats();
         }
         
         
@@ -277,6 +319,10 @@ namespace navgraph{
         float _motionThreshold;
         bool _goingBackward;
         float _prevPeakYaw;
+        navigation_t navData;
+        std::ostringstream prevParticlesLog;
+        bool loggingEvent;
+        int logCounter;
         
         locore::PeakDetector::peak_t _prevPeak;
         locore::LocalizationSystem::PeakYaw_t peakYaw;

@@ -11,7 +11,7 @@ SVMFile: "exit_sign_model.svm"       # SVM model
 minWinSize:
     width: 36
     height: 24
-CascadeScaleFactor: 1.3    # scale factor for multiscale detection
+CascadeScaleFactor: 1.2    # scale factor for multiscale detection
 maxWinSizeFactor: 5.       #specify largest search window as a multiple of minWinSize
 
 # HOG

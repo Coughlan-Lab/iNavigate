@@ -40,9 +40,11 @@ class LocalizationSystem{
         }
     
         ~LocalizationSystem(){;}
+    
+        std::string getParticlesLog() { return _partFilter->particlesLog.str(); }
 
         // TODO: refactor this, so that the output is the estimated location
-        cv::Mat step(const VIOMeasurements& vioData){
+        cv::Mat step(const VIOMeasurements& vioData, bool logParticles){
             if (_partFilter->particlesInitialized()){
                 _vioData.update(vioData);
     //          std::cerr << "VIODATA DELTA YAW: " << _vioData.getDeltaYaw()*180/CV_PI << "\n";
@@ -54,7 +56,7 @@ class LocalizationSystem{
                 if (detections.size() > 0)
                     signDetected = true;
 //                std::cerr << ">>> _partFilter->step " << "\n";
-                _partFilter->step(_vioData, detections);
+                _partFilter->step(_vioData, detections, logParticles);
 //                std::cerr << "<<< _partFilter->step " << "\n";
 //                std::cerr << ">>> _partFilter->getHeatMap " << "\n";
                 cv::Mat kde = _partFilter->getHeatMap();
@@ -65,10 +67,15 @@ class LocalizationSystem{
                 _cvDetectorOutputFrame = _obsManagerCV.img;
                 cv::cvtColor(_cvDetectorOutputFrame, _cvDetectorOutputFrame, cv::COLOR_GRAY2RGBA);
                 
+                int cnt = 0;
                 for (auto it = detections.begin(); it!=detections.end(); ++it){
+                    cnt++;
                     cv::rectangle(_cvDetectorOutputFrame, it->getROI(), cv::Scalar(255,0,0,255), 5);
                     cv::circle(_cvDetectorOutputFrame, it->getROICenter(), 3, cv::Scalar(0,255,0,255));
-                    cv::putText(_cvDetectorOutputFrame, std::to_string(_partFilter->estimatedDistanceToSign),  it->getROICenter(), cv::FONT_HERSHEY_SIMPLEX, 1.6, cv::Scalar(255,0,0,255) );
+                    int x = _cvDetectorOutputFrame.rows - (20 * cnt);
+                    int y = floor(_cvDetectorOutputFrame.cols/2) - 10;
+                      cv::putText(_cvDetectorOutputFrame, std::to_string(_partFilter->estimatedDistanceToSign),  cv::Point(y,x), cv::FONT_HERSHEY_TRIPLEX, 1.6, cv::Scalar(255,0,0,255) );
+//                    cv::putText(_cvDetectorOutputFrame, std::to_string(_partFilter->estimatedDistanceToSign),  it->getROICenter(), cv::FONT_HERSHEY_SIMPLEX, 1.6, cv::Scalar(255,0,0,255) );
                 }
 //              cv::Mat markers;
 //              markers = _mapManager->getWallsImageRGB().clone();
@@ -162,6 +169,10 @@ class LocalizationSystem{
             return yawPeak;
         }
     
+    locore::ParticleFilter::ParticlesStats getParticlesStats(){
+        return _partFilter->partStats;
+    }
+    
     private:
     
         std::unique_ptr<locore::ParticleFilter> _partFilter;
@@ -229,15 +240,16 @@ class LocalizationSystem{
             // ***
             
             double w = 480/2;
-            //double fx = 496.76392161 * 3/4;
-            double fx = 525.33 * 3/4;
-            //double fx = 496.76 * 3/4;
+
+//            double fx = 536; // iPhone 8
+            double fx = 520; // iPhone 11 Pro
+            
             double tan_alpha = w / fx;
             double anglePerPixel = atan(tan_alpha)/w;
             
             _cameraMatrix = cv::Mat(3,3,CV_64F, cm);
             _distCoeffs = cv::Mat(1,5, CV_64F, dcoeff);
-            float radius = 1.;
+            float radius = 0.5;
             
            _obsManagerCV.attach(new compvis::ObjDetector(configFile, _resFolder));
             // _obsManagerCV.attach(new compvis::ObjDetector(configFileRestroom, _resFolder));

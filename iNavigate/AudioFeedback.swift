@@ -33,8 +33,8 @@ class SpeechSynthThread: Thread, AVSpeechSynthesizerDelegate{
     let synthesizer : AVSpeechSynthesizer = AVSpeechSynthesizer()
     var messageQueue = Queue<message_t>()
     var run: Bool = true
-    let staleThreshold : Double = 2 //secs
-    var utteranceRate : Float = 0.62
+    let staleThreshold : Double = 5 //secs
+    var utteranceRate : Float = 0.63
     var lastSpeechTime = Date()
     var lastSoundTime = Date()
     var lastMessageSpoken : String = ""
@@ -88,7 +88,7 @@ class SpeechSynthThread: Thread, AVSpeechSynthesizerDelegate{
     }
     
     func pushMessage(message: message_t){
-        print(message)
+        //print(message)
         if message.highPriority{
             if (message.text != lastPushedMessageText || (lastPushTime.timeIntervalSinceNow) > 5){
                 self.lastPushedMessageText = message.text

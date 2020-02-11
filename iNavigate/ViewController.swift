@@ -61,6 +61,12 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
     var startID : Int = -1
     var startFloor : Int = -1
     var exploreMode : Bool = false
+    var useSonifiedInterface: Bool = false
+    var useVoiceInterface : Bool = false
+    var useCenterBeacon: Bool = false
+    
+    var saveFrame : Bool = false
+    var frameCnt : UInt64 = 0
     
     var trackerInitialized : Bool = false
     var locSysInit : Bool = false
@@ -75,14 +81,18 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
     var frameCounter : UInt64 = 0
     var lastProcessedFrameTime: TimeInterval = TimeInterval()
     var lastVibrationFeedbackTime = Date()
-    let numParticles = 100000
+    let numParticles = 10000
     
     var environment = AVAudioEnvironmentNode()
     let engine = AVAudioEngine()
     var isSpatialSoundPlaying : Bool = false
+    var isCenterBeaconSoundPlaying : Bool = false
     let beaconNode = AVAudioPlayerNode()
+    let centerBeaconNode = AVAudioPlayerNode()
     
     let notificationFeedbackGenerator = UINotificationFeedbackGenerator()
+    
+    var logger : Logger = Logger()
     
     // set user height (retrieve last value from memory)
     var userHeight:String {
@@ -111,9 +121,9 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
         return $0
     }(CLLocationManager())
     
-    @IBAction func dumpSwitchTouched(_ sender: UISwitch) {
-        self.dumpParticles = sender.isOn
-    }
+//    @IBAction func dumpSwitchTouched(_ sender: UISwitch) {
+//        self.dumpParticles = sender.isOn
+//    }
     
     
     override func viewDidLoad() {
@@ -140,29 +150,50 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
         locationManager.headingOrientation = .portrait
         locationManager.delegate = self;
         setupBeaconSound(file: "drum_mono", atPosition: AVAudio3DPoint(x: 0, y: 0, z: -2))
+        setupCenterBeaconSound(file: "point-blank", withExtension: String("mp3"), atPosition: AVAudio3DPoint(x: 0, y: 0, z: -2))
         audioFeedback.pushMessage(message: message_t.init(text: "Initializing tracker", highPriority: true))
         navigationCore.initNavigationSystem(locationURL.relativePath, currentFloor: Int32(startFloor), exploreMode: exploreMode)
         navigationCore.setDestinationID(Int32(destID))
         lastVibrationFeedbackTime = Date()
+        logger.startSession(sessionID : "log")
     }
        
+    
+    @IBAction func snapshotPressed(_ sender: Any) {
+        saveFrame = true
+    }
     
     // Spatial Sound Initialization
    func setupBeaconSound(file:String, withExtension ext:String = "mp3", atPosition position:AVAudio3DPoint) {
            
-           beaconNode.position = position
-           beaconNode.reverbBlend = 0.0001
-           beaconNode.renderingAlgorithm = .HRTF
+       beaconNode.position = position
+       beaconNode.reverbBlend = 0.0001
+       beaconNode.renderingAlgorithm = .HRTF
+       beaconNode.position = AVAudio3DPoint(x: 0, y: 0, z: 0)
+       let url = Bundle.main.url(forResource: file, withExtension: ext)!
+       let file = try! AVAudioFile(forReading: url)
+       let buffer = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: AVAudioFrameCount(file.length))
+       try! file.read(into: buffer!)
+       engine.attach(beaconNode)
+       engine.connect(beaconNode, to: environment, format: buffer?.format)
+       beaconNode.scheduleBuffer(buffer!, at: nil, options: .loops, completionHandler: nil)
 
-           let url = Bundle.main.url(forResource: file, withExtension: ext)!
-           let file = try! AVAudioFile(forReading: url)
-           let buffer = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: AVAudioFrameCount(file.length))
-           try! file.read(into: buffer!)
-           engine.attach(beaconNode)
-           engine.connect(beaconNode, to: environment, format: buffer?.format)
-           beaconNode.scheduleBuffer(buffer!, at: nil, options: .loops, completionHandler: nil)
+   }
+    
+    func setupCenterBeaconSound(file:String, withExtension ext:String = "mp3", atPosition position:AVAudio3DPoint) {
+      centerBeaconNode.position = position
+      centerBeaconNode.reverbBlend = 0.0001
+      centerBeaconNode.renderingAlgorithm = .HRTF
+      centerBeaconNode.position = AVAudio3DPoint(x: 0, y: 0, z: 0)
+      let url = Bundle.main.url(forResource: file, withExtension: ext)!
+      let file = try! AVAudioFile(forReading: url)
+      let buffer = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: AVAudioFrameCount(file.length))
+      try! file.read(into: buffer!)
+      engine.attach(centerBeaconNode)
+      engine.connect(centerBeaconNode, to: environment, format: buffer?.format)
+      centerBeaconNode.scheduleBuffer(buffer!, at: nil, options: .loops, completionHandler: nil)
 
-       }
+      }
     
     
     func initSpatializedSound(){
@@ -189,7 +220,8 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
         if startID >= 0{
             let pos = navigationCore.getNodeUVPosition(Int32(startID))
 //            navigationCore.initializeLocalizationSystemUnknownLocation(resURL.relativePath, numParticles: Int32(numParticles), initYaw: Double(0), initYawNoise: 0)
-            navigationCore.initializeLocalizationSystemLocation(resURL.relativePath, numParticles: Int32(numParticles), posU: pos[0] as! Double, posV: pos[1] as! Double, initYaw: Double(yaw), initYawNoise: 2 * compassAccuracy * .pi / 180)
+//            navigationCore.initializeLocalizationSystemLocation(resURL.relativePath, numParticles: Int32(numParticles), posU: pos[0] as! Double, posV: pos[1] as! Double, initYaw: Double(yaw), initYawNoise: 2 * compassAccuracy * .pi / 180)
+            navigationCore.initializeLocalizationSystem(resURL.relativePath, numParticles: Int32(numParticles), posU: pos[0] as! Double, posV: pos[1] as! Double, initYaw: Double(0), initYawNoise: 0)
 //            navigationCore.initializeLocalizationSystem(resURL.relativePath, numParticles: Int32(numParticles), posU: pos[0] as! Double, posV: pos[1] as! Double, initYaw: Double(0), initYawNoise: 0)
         }
         else{
@@ -224,7 +256,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
         else if (locSysInit) && (frame.timestamp-lastProcessedFrameTime) > 0.1 {
             let deltaFloors = floorChangeDetector.getFloorsDelta()
             let trackerState = "\(frame.camera.trackingState)"
-            var res = navigationCore.step(trackerState, timestamp: frame.timestamp, camera: frame.camera, deltaFloors: Int32(deltaFloors), frame: pixelBufferToUIImage(pixelBuffer: frame.capturedImage)) as! Dictionary<String,Any>
+            var res = navigationCore.step(trackerState, timestamp: frame.timestamp, camera: frame.camera, deltaFloors: Int32(deltaFloors), frame: pixelBufferToUIImage(pixelBuffer: frame.capturedImage), logParticles: dumpParticles) as! Dictionary<String,Any>
             res["cvDetectorImage"] = navigationCore.getCVDetectorOutputFrame()
 
             if dumpParticles{
@@ -246,20 +278,32 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
     //MARK: ARSessionDelegate
     func session(_ session: ARSession, didUpdate frame: ARFrame){
         
+        if (saveFrame){
+            frameCnt+=1
+            saveFrame = false
+            logger.saveImage(imageToSave: frame.capturedImage, counter: frameCnt)
+        }
+        
         trackerStatusFeedback(frame: frame)
         if self.trackerInitialized{
             self.frameCounter+=1
 
             let res : Dictionary<String, Any> = self.processARKitFrame(frame : frame)
+            let pStats = navigationCore.getParticlesStats()
 
             self.navImage.image = res["outputImage"] as? UIImage
             self.cvImage.image = res["cvDetectorImage"] as? UIImage
 
-//            dispatchInstruction(data: res) // TTS feedback
+           
              
             if res["heading"] != nil{
+                if useVoiceInterface{
+                    dispatchInstruction(data: res) // TTS feedback
+                }
                 sendVibrationFeedback(data: res)
-                dispatchSonifiedInstruction(data: res, useNextTurn: false)
+                if useSonifiedInterface || useCenterBeacon{
+                    dispatchSonifiedInstruction(data: res, useNextTurn: false)
+                }
                 updateArrowsUI(data: res)
             }
                 
@@ -311,7 +355,8 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
     func dispatchSonifiedInstruction(data : Dictionary<String, Any>, useNextTurn: Bool){
             if data["validNavData"] != nil{
                 if data["validNavData"] as! Bool == true{
-                    if !isSpatialSoundPlaying{
+                    
+                    if !isSpatialSoundPlaying && useSonifiedInterface{
                         beaconNode.play()
                         isSpatialSoundPlaying = true
                     }
@@ -365,15 +410,29 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
                     let diffAngle = angleToNode - course
  
                     angleDiffLabel.text = "\(diffAngle)"
-                    let head_rad = diffAngle  * (.pi/180.0)
-                    errorAngleImage.transform = CGAffineTransform(rotationAngle: CGFloat(head_rad));
-                    
+                    let diffAngle_rad = diffAngle  * (.pi/180.0)
+                    errorAngleImage.transform = CGAffineTransform(rotationAngle: CGFloat(diffAngle_rad));
                     environment.listenerAngularOrientation = AVAudioMake3DAngularOrientation(Float(diffAngle) , 0, 0)
+                    
+                    if (useCenterBeacon){
+                        if (abs(diffAngle) < 20){
+                            if (!isCenterBeaconSoundPlaying){
+                                centerBeaconNode.play()
+                                isCenterBeaconSoundPlaying = true
+                            }
+                        }
+                        else{
+                            if (isCenterBeaconSoundPlaying){
+                                centerBeaconNode.pause()
+                                isCenterBeaconSoundPlaying = false
+                            }
+                        }
+                    }
+                    
                 }
                 else{
-                    if isSpatialSoundPlaying{
+                    if isSpatialSoundPlaying && useSonifiedInterface{
                         beaconNode.pause()
-//                        engine.detach(beaconNode)
                         isSpatialSoundPlaying = false
                     }
                 }
@@ -386,21 +445,21 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
             if data["validNavData"] as! Bool == true{
                 let throughDoor = data["destThroughDoor"] as! Bool
                 let nodeType : NodeType = NodeType(rawValue: data["nodeType"] as! Int)!
-                if nodeType == NodeType.Control{
+                //if nodeType == NodeType.Control{
                     let direction : TurnDirection = TurnDirection(rawValue: data["instructions"] as! Int)!
                     switch direction {
                     case TurnDirection.EasyLeft:
                         audioFeedback.pushMessage(message: message_t.init(text: "make an easy left", highPriority: true))
                     case TurnDirection.Left:
-                        audioFeedback.pushMessage(message: message_t.init(text: "make a left", highPriority: true))
+                        audioFeedback.pushMessage(message: message_t.init(text: "please turn left", highPriority: true))
                     case TurnDirection.EasyRight:
                         audioFeedback.pushMessage(message: message_t.init(text: "make an easy right", highPriority: true))
                     case TurnDirection.Right:
-                        audioFeedback.pushMessage(message: message_t.init(text: "make a right", highPriority: true))
+                        audioFeedback.pushMessage(message: message_t.init(text: "please turn right", highPriority: true))
                     case TurnDirection.TurnAround:
                         audioFeedback.pushMessage(message: message_t.init(text: "turn around", highPriority: false))
                     case TurnDirection.Forward:
-                        audioFeedback.pushMessage(message: message_t.init(text: "go straight", highPriority: true))
+                        audioFeedback.pushMessage(message: message_t.init(text: "please go straight", highPriority: true))
                     case TurnDirection.Arrived:
                         let label = data["nodeLabel"] as! String
                         audioFeedback.pushMessage(message: message_t.init(text: "you have arrived at " + label, highPriority: true))
@@ -427,7 +486,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
                         }
                     default:
                         break;
-                    }
+                //    }
                 }
             }
         }
@@ -493,7 +552,6 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
         }
         catch {  }
     }
-    
     
     
     func requestHandler(request: VNRequest, error: Error?) {

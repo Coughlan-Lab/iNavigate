@@ -36,7 +36,12 @@ public:
                 _mask.at<double>(pt.x, pt.y) += p.score;
         }
         
+        double smin, smax;
+        cv::Point min_loc, max_loc;
+        cv::minMaxLoc(_mask, &smin, &smax);
         _mask /= _mask.total();
+//        cv::subtract(_mask, smin, _mask);
+//        cv::divide(_mask, smax-smin, _mask);
         cv::GaussianBlur(_mask, _mask,cv::Size(21,21), 15);
         //cv::Mat  kk = cv::getGaussianKernel(21, 15, CV_64F);
         //cv::GaussianBlur(_mask, _mask,cv::Size(7,7), 3);
@@ -48,11 +53,11 @@ public:
         _hardPeak = false;
         _uncertainPeak = false;
         std::multimap<double, int> peaksMap = _prepareMapForPeaksDetection(_mask, entropy);
-//        std::cout << "Entropy: " << entropy << "\n";
+        std::cout << "Entropy: " << entropy << "\n";
         
         if (entropy < 7.){
-            _findNpeaks(peaksMap, _mask.rows, _mask.cols * _mask.channels(), 1, 50, 25, .001);
-//            _findNpeaks(peaksMap, _mask.rows, _mask.cols * _mask.channels(), 1, 50, 25, .0001);
+//            _findNpeaks(peaksMap, _mask.rows, _mask.cols * _mask.channels(), 1, 50, 25, .001);
+            _findNpeaks(peaksMap, _mask.rows, _mask.cols * _mask.channels(), 1, 50, 25, .00005);
             //_filterPeaks(2.5);
         }
         
@@ -168,12 +173,12 @@ private:
         bool peakOK = true;
         int numTests = 0;
         for (auto rit=peaksMap.rbegin(); rit!=peaksMap.rend(); ++rit){
-            
+//            std::cout << rit->first << "\n";
             if (_peaksLocation.size() == numPeaks)
                 break;
             
             else if (_peaksLocation.size() == 0 && rit->first > threshold){
-                //std::cout << rit->first << " => " << rit->second << '\n';
+//                std::cout << rit->first << " => " << rit->second << '\n';
                 matutils::ind2sub(size, 2, rit->second, sub);
                 _peaksLocation.push_back(cv::Point2i(sub[0], sub[1]));
             }

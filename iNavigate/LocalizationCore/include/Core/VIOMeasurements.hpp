@@ -23,7 +23,7 @@ class VIOMeasurements{
             _x = x; _y = y; _z = z;
             _rx = rx; _ry = ry; _rz = rz;
             _kPa = kPa;
-            _frame = frame;
+            _frame = frame;  // NOTE: image width and height are swapped
             _timestamp = timestamp;
             _init = true;
              _barometerTstamp = barometerTstamp;
@@ -34,7 +34,7 @@ class VIOMeasurements{
             _x = cameraPos[0]; _y = cameraPos[1]; _z = cameraPos[2];
             _rx = rotation[0]; _ry = rotation[1]; _rz = rotation[2];
             _kPa = kPa;
-            _frame = frame;
+            _frame = frame;  // NOTE: image width and height are swapped
             _timestamp = timestamp;
             _init = true;
             _barometerTstamp = barometerTstamp;
@@ -54,7 +54,7 @@ class VIOMeasurements{
             _rx = newData.getPitch();               _ry = newData.getYaw();               _rz = newData.getRoll();
             
             _kPa = newData.getPressure();
-            _frame = newData.getFrame();
+            _frame = newData.getFrame();  // NOTE: image width and height are swapped
             _barometerTstamp = newData.getBarometerTimestamp();
         }
 
@@ -91,7 +91,7 @@ class VIOMeasurements{
         inline std::string getTrackerStatus() const { return _trackerStatus; }
         inline double      getTimestamp()     const { return _timestamp; }
         inline double      getBarometerTimestamp()     const { return _barometerTstamp; }
-        inline cv::Mat     getFrame()         const { return _frame; }
+        inline cv::Mat     getFrame()         const { return _frame; }  // NOTE: image width and height are swapped
         inline cv::Mat     getFrameNonConst()               { return _frame; }
         inline double      getPressure()      const { return _kPa; }
         inline bool        isValid()          const { return _init; }
@@ -103,7 +103,7 @@ class VIOMeasurements{
         double _timestamp; // unused for now
         bool _init;
         
-        // current frame from ARKit
+        // current frame from ARKit,  NOTE: image width and height are swapped
         cv::Mat _frame;
     
         std::string _trackerStatus;

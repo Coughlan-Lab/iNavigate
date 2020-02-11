@@ -32,11 +32,11 @@ class CVObservationsManager{
             cv::warpAffine(frame, rotFrame, R, cv::Size(frame.size[1], frame.size[0]));
            
             _observations.clear();
-            
+            rotFrame.copyTo(img);
             for(CVDetector* detector : _detectors){
                 
                 //if (detector->feedRotatedImage == true){
-                    rotFrame.copyTo(img);
+                    
                 //}
                 //else
                 //    frame.copyTo(img);

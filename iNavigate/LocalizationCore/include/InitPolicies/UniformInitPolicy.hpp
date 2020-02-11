@@ -47,8 +47,8 @@ namespace initpol {
                 if (mapManager->isWalkable(pt)){
                     particlesLeft -= 1;
                     double cameraYaw = dist_yaw(generator);
-//                    double course = cameraYaw;
-                    double course = dist_yaw(generator);
+                    double course = cameraYaw;
+//                    double course = dist_yaw(generator);
                     double gscf = globalScaleCorrFactorDist(generator);
                     particles.push_back(locore::Particle(pt_mt, cameraYaw, course, gscf));
                 }

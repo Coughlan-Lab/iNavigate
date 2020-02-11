@@ -70,7 +70,7 @@
     navsys->destinationId = destId;
 }
 
-- (NSDictionary*) step : (NSString*) trackerStatus timestamp:(double)timestamp x:(double) x y:(double) y z:(double) z  rx:(double) rx ry:(double) ry rz:(double) rz deltaFloors:(int)deltaFloors frame:(UIImage*) frame{
+- (NSDictionary*) step : (NSString*) trackerStatus timestamp:(double)timestamp x:(double) x y:(double) y z:(double) z  rx:(double) rx ry:(double) ry rz:(double) rz deltaFloors:(int)deltaFloors frame:(UIImage*) frame logParticles:(bool) logParticles{
 
     cv::Mat image, image_vga,image_vga_gray;
     UIImageToMat(frame, image);
@@ -78,7 +78,7 @@
     cv::resize(image, image_vga, cv::Size(image.cols/3,image.rows/3), 0, 0, cv::INTER_NEAREST);
     cv::cvtColor(image_vga, image_vga_gray, cv::COLOR_RGB2GRAY);
     locore::VIOMeasurements vioData(tStatus, timestamp, x, y, z, rx, ry, rz, 0, 0, image_vga_gray);
-    navgraph::NavigationSystem::navigation_t navData = navsys->step(vioData, deltaFloors);
+    navgraph::NavigationSystem::navigation_t navData = navsys->step(vioData, deltaFloors, logParticles);
 
     NSDictionary *dict = @{ @"outputImage" : MatToUIImage(navsys->getNavigationGraph()),
                             @"heading": [NSNumber numberWithFloat:(navData.course)],
@@ -112,9 +112,18 @@
 //    });
 //    return yawHist;
 //}
+- (NSDictionary*) getParticlesStats{
+    locore::ParticleFilter::ParticlesStats pstats = navsys->getParticlesStats();
+    NSDictionary *dict = @{ @"gcf_min" : [NSNumber numberWithFloat: (pstats.gsc_min)],
+                            @"gcf_max": [NSNumber numberWithFloat:(pstats.gsc_max)],
+                            @"gcf_mean": [NSNumber numberWithFloat:(pstats.gsc_mean)]
+                        };
+    
+        return dict;
+    
+}
 
-
-- (NSDictionary*) step : (NSString*) trackerStatus timestamp:(double)timestamp camera:(ARCamera*) camera deltaFloors:(int)deltaFloors frame:(UIImage*) frame{
+- (NSDictionary*) step : (NSString*) trackerStatus timestamp:(double)timestamp camera:(ARCamera*) camera deltaFloors:(int)deltaFloors frame:(UIImage*) frame logParticles:(bool) logParticles{
     double x = camera.transform.columns[3].x;
     double y = camera.transform.columns[3].y;
     double z = camera.transform.columns[3].z;
@@ -123,7 +132,7 @@
     double ry = camera.eulerAngles[1];
     double rz = camera.eulerAngles[2];
     
-    return [self step:trackerStatus timestamp:timestamp x:x y:y z:z rx:rx ry:ry rz:rz deltaFloors:deltaFloors frame:frame];
+    return [self step:trackerStatus timestamp:timestamp x:x y:y z:z rx:rx ry:ry rz:rz deltaFloors:deltaFloors frame:frame logParticles:logParticles];
 }
 
 - (void) setCameraHeight : (float) height{

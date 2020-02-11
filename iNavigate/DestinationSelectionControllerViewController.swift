@@ -37,8 +37,11 @@ class DestinationSelectionControllerViewController: UIViewController , UIPickerV
     var startID: Int = -1;
     var startPoint : String = ""
     var startFloor : Int = -1
-    @IBOutlet weak var exploreMode: UISwitch!
+    @IBOutlet weak var spatializedSound: UISwitch!
+    @IBOutlet weak var centerBacon: UISwitch!
+    @IBOutlet weak var voiceFeedback: UISwitch!
     
+    @IBOutlet weak var logOnEventSwitch: UISwitch!
     @IBOutlet weak var locationPicker: UIPickerView!
     @IBOutlet weak var destinationPicker: UIPickerView!
     @IBOutlet weak var startPicker: UIPickerView!
@@ -210,7 +213,11 @@ class DestinationSelectionControllerViewController: UIViewController , UIPickerV
         destVC.start = startPoint
         destVC.startID = startID - 1
         destVC.startFloor = startFloor
-        destVC.exploreMode = exploreMode.isOn
+        destVC.useSonifiedInterface = spatializedSound.isOn
+        destVC.useCenterBeacon = centerBacon.isOn
+        destVC.useVoiceInterface = voiceFeedback.isOn
+        destVC.dumpParticles = logOnEventSwitch.isOn
+        //destVC.exploreMode = exploreMode.isOn
         
     }
     
