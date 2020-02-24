@@ -64,6 +64,8 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
     var useSonifiedInterface: Bool = false
     var useVoiceInterface : Bool = false
     var useCenterBeacon: Bool = false
+    var useYaw : Bool = false
+    var courseDistThr : Float = 2
     
     var saveFrame : Bool = false
     var frameCnt : UInt64 = 0
@@ -81,7 +83,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
     var frameCounter : UInt64 = 0
     var lastProcessedFrameTime: TimeInterval = TimeInterval()
     var lastVibrationFeedbackTime = Date()
-    let numParticles = 10000
+    let numParticles = 50000
     
     var environment = AVAudioEnvironmentNode()
     let engine = AVAudioEngine()
@@ -152,7 +154,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
         setupBeaconSound(file: "drum_mono", atPosition: AVAudio3DPoint(x: 0, y: 0, z: -2))
         setupCenterBeaconSound(file: "point-blank", withExtension: String("mp3"), atPosition: AVAudio3DPoint(x: 0, y: 0, z: -2))
         audioFeedback.pushMessage(message: message_t.init(text: "Initializing tracker", highPriority: true))
-        navigationCore.initNavigationSystem(locationURL.relativePath, currentFloor: Int32(startFloor), exploreMode: exploreMode)
+        navigationCore.initNavigationSystem(locationURL.relativePath, currentFloor: Int32(startFloor), exploreMode: exploreMode, courseDistThr: courseDistThr)
         navigationCore.setDestinationID(Int32(destID))
         lastVibrationFeedbackTime = Date()
         logger.startSession(sessionID : "log")
@@ -256,7 +258,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
         else if (locSysInit) && (frame.timestamp-lastProcessedFrameTime) > 0.1 {
             let deltaFloors = floorChangeDetector.getFloorsDelta()
             let trackerState = "\(frame.camera.trackingState)"
-            var res = navigationCore.step(trackerState, timestamp: frame.timestamp, camera: frame.camera, deltaFloors: Int32(deltaFloors), frame: pixelBufferToUIImage(pixelBuffer: frame.capturedImage), logParticles: dumpParticles) as! Dictionary<String,Any>
+            var res = navigationCore.step(trackerState, timestamp: frame.timestamp, camera: frame.camera, deltaFloors: Int32(deltaFloors), frame: pixelBufferToUIImage(pixelBuffer: frame.capturedImage), useYaw: useYaw, logParticles: dumpParticles) as! Dictionary<String,Any>
             res["cvDetectorImage"] = navigationCore.getCVDetectorOutputFrame()
 
             if dumpParticles{
@@ -451,15 +453,15 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
                     case TurnDirection.EasyLeft:
                         audioFeedback.pushMessage(message: message_t.init(text: "make an easy left", highPriority: true))
                     case TurnDirection.Left:
-                        audioFeedback.pushMessage(message: message_t.init(text: "please turn left", highPriority: true))
+                        audioFeedback.pushMessage(message: message_t.init(text: "left", highPriority: true))
                     case TurnDirection.EasyRight:
-                        audioFeedback.pushMessage(message: message_t.init(text: "make an easy right", highPriority: true))
+                        audioFeedback.pushMessage(message: message_t.init(text: "easy right", highPriority: true))
                     case TurnDirection.Right:
-                        audioFeedback.pushMessage(message: message_t.init(text: "please turn right", highPriority: true))
+                        audioFeedback.pushMessage(message: message_t.init(text: "right", highPriority: true))
                     case TurnDirection.TurnAround:
                         audioFeedback.pushMessage(message: message_t.init(text: "turn around", highPriority: false))
                     case TurnDirection.Forward:
-                        audioFeedback.pushMessage(message: message_t.init(text: "please go straight", highPriority: true))
+                        audioFeedback.pushMessage(message: message_t.init(text: "straight", highPriority: true))
                     case TurnDirection.Arrived:
                         let label = data["nodeLabel"] as! String
                         audioFeedback.pushMessage(message: message_t.init(text: "you have arrived at " + label, highPriority: true))
@@ -500,7 +502,8 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
         case .normal:
             if !trackerInitialized{
                 trackerInitialized = true
-                status = "Tracker ready! Camera height \(userHeight) inches"
+//                status = "Tracker ready! Camera height \(userHeight) inches"
+                status = "Start walking"
                 audioFeedback.pushMessage(message: message_t.init(text: status, highPriority: true))
                 status = ""
             }
@@ -527,7 +530,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
             audioFeedback.pushMessage(message: message_t.init(text: status))
         }
         else if(!trackerInitialized){
-            audioFeedback.pushMessage(message: message_t.init(text: "Initializing tracker", highPriority: true))
+            audioFeedback.pushMessage(message: message_t.init(text: "Hold on", highPriority: true))
         }
     }
     

@@ -47,23 +47,14 @@ class LocalizationSystem{
         cv::Mat step(const VIOMeasurements& vioData, bool logParticles){
             if (_partFilter->particlesInitialized()){
                 _vioData.update(vioData);
-    //          std::cerr << "VIODATA DELTA YAW: " << _vioData.getDeltaYaw()*180/CV_PI << "\n";
-//                std::cerr << ">>> _obsManagerCV.update " << "\n";
                 std::vector<compvis::CVObservation> detections = _obsManagerCV.update(_vioData);
-//                std::cerr << "<<< _obsManagerCV.update " << "\n";
                 _vioData.getFrame().copyTo(_currFrame);
                 signDetected = false;
                 if (detections.size() > 0)
                     signDetected = true;
-//                std::cerr << ">>> _partFilter->step " << "\n";
                 _partFilter->step(_vioData, detections, logParticles);
-//                std::cerr << "<<< _partFilter->step " << "\n";
-//                std::cerr << ">>> _partFilter->getHeatMap " << "\n";
                 cv::Mat kde = _partFilter->getHeatMap();
-//                std::cerr << "<<< _partFilter->getHeatMap " << "\n";
-//                std::cerr << ">>> LocalizationSystem::computeYawMap " << "\n";
                 //computeYawMap();
-//                std::cerr << "<<< LocalizationSystem::computeYawMap " << "\n";
                 _cvDetectorOutputFrame = _obsManagerCV.img;
                 cv::cvtColor(_cvDetectorOutputFrame, _cvDetectorOutputFrame, cv::COLOR_GRAY2RGBA);
                 
@@ -75,13 +66,7 @@ class LocalizationSystem{
                     int x = _cvDetectorOutputFrame.rows - (20 * cnt);
                     int y = floor(_cvDetectorOutputFrame.cols/2) - 10;
                       cv::putText(_cvDetectorOutputFrame, std::to_string(_partFilter->estimatedDistanceToSign),  cv::Point(y,x), cv::FONT_HERSHEY_TRIPLEX, 1.6, cv::Scalar(255,0,0,255) );
-//                    cv::putText(_cvDetectorOutputFrame, std::to_string(_partFilter->estimatedDistanceToSign),  it->getROICenter(), cv::FONT_HERSHEY_SIMPLEX, 1.6, cv::Scalar(255,0,0,255) );
                 }
-//              cv::Mat markers;
-//              markers = _mapManager->getWallsImageRGB().clone();
-//              return getParticlesYawMap();
-                
-                //cv::rotate(kde, kde, cv::ROTATE_90_CLOCKWISE);
                 return kde;
             }
             else{
@@ -123,7 +108,6 @@ class LocalizationSystem{
             yawPeak.valid = false;
             yawPeak.yaw = 1e6;
             yawPeak.variance = 0;
-    
             
             PeakDetector::peak_t peak = getPeak();
             

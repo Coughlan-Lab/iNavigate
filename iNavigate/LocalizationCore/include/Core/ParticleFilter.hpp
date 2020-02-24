@@ -32,8 +32,8 @@ namespace locore{
     public:
         struct PFParameters{
             PFParameters() { motionYawNoise = 0.; positionNoiseMajor = 1.1; positionNoiseMinor = .0;
-                cameraYawNoise = 0.000001; resamplingMotionthreshold = 0.5; minSignScore = 0.1;
-                signYawDifferenceThreshold = -.7; signDetectionScoringCoeff = 0.01;
+                cameraYawNoise = 0.0001; resamplingMotionthreshold = 0.5; minSignScore = 0.1;
+                signYawDifferenceThreshold = -.7; signDetectionScoringCoeff = 0.1;
                 cameraHeight = 1.2; globalScaleCorrectionMin = 1.;
                 globalScaleCorrectionMax = 1.2; arkitAngleCorrection = - CV_PI/2;
             }
@@ -194,31 +194,22 @@ namespace locore{
             
         }
         
-       
-
+        
         void _scoreDistanceToExitSign(const locore::VIOMeasurements& vioData, const compvis::CVObservation& det){
 
             std::vector<double> yawScores;
-
+            
+            // NOTE: image width and height are swapped
+//            float centerRow = vioData.getFrame().size().width/2; //width is actually image height
+            std::cerr << "Image width: " << det.getROI().width;
+            double p = vioData.getFrame().size().width/2 - (det.getROI().y + det.getROI().height);
+                        
             //estimate sign distance
             double gamma = vioData.getPitch();
-            std::cerr << "Gamma: " << gamma << "\n";
-
-            // NOTE: image width and height are swapped
-            float centerRow = vioData.getFrame().size().width/2;
-            float detRow = det.getROICenter().y;
-            double delta = atan((centerRow - detRow)/_fx);
-//            std::cerr << "delta: " << delta << "\n";
-//            double z = y / tan(gamma+delta);
-//            this->estimatedDistanceToSign = z;
-            int columnDetection = det.getROICenter().x;
-            int deltaV = det.getROI().height;
-            std::cerr << "BBox height: " << deltaV << "\n";
-            std::cerr << "BBox width: " << det.getROI().width << "\n";
             float h0 = 0.2032; // exit sign height in meters
-//            this->estimatedDistanceToSign = (_fx/deltaV)*h0*cos(gamma);
-            this->estimatedDistanceToSign = 3;
-
+            this->estimatedDistanceToSign = h0*(_fx*cos(gamma) - p*sin(gamma))/det.getROI().height;
+            
+            int columnDetection = det.getROICenter().x;
             // NOTE: image width and height are swapped (because of how ARKit handles image on the sensor)
             double fov_h = atan(vioData.getFrame().size().height/2*_fx);
             double fov_v = atan(vioData.getFrame().size().width/2*_fx);
@@ -228,48 +219,24 @@ namespace locore{
             for(auto particle = _particles.begin(); particle != _particles.end(); ++particle ){
                 if (particle->valid){
                     cv::Point2i startPoint = _mapManager->uv2pixels(particle->position);
-
                     yawScores.clear();
                     // loop over exit signs
                     for (auto itr = exitSignsFeatureList; itr != features.end(); itr++){
-//                        double y = itr->second.height - pfParameters.cameraHeight;
-//                        double z = y / tan(gamma+delta);
-//                        this->estimatedDistanceToSign = z;
+                        // distance from particle to map feature
                         float dist = cv::norm(particle->getPositionVector() - itr->second.getPositionVector());
-
                         double score = pfParameters.minSignScore;
                         if (_mapManager->isSignVisibleFrom(startPoint, itr->second.id)){
-
-                            //cv::Point2i signPos = _mapManager->uv2pixels(itr->second.position);
-                            // check that particle orientation is compatible with sign orientation
-//                            double yaw_diff = itr->second.normal.dot( cv::Vec2d( cos( particle->cameraYaw ),
-//                                                                                sin( particle->cameraYaw ) ) );
-                            double yaw_diff = itr->second.normal.dot( cv::Vec2d( cos( 3.14/2 ),
-                            sin( 3.14/2 ) ) );
-//                            std::cerr << "yaw diff: " << yaw_diff << "\n";
-//                            if (yaw_diff < pfParameters.signYawDifferenceThreshold){
-                            if (yaw_diff < 0){
-
-                                // warning: x and y are swapped
+                            double yaw_diff = itr->second.normal.dot( cv::Vec2d( cos( particle->cameraYaw ),
+                                                                                                            sin( particle->cameraYaw ) ) );
+                            if (yaw_diff < -0.86){
+                                score = 1;
+//                                // warning: x and y are swapped in the map coordinates
                                 double thetaPred = atan2(itr->second.position.x - particle->getPositionX(), itr->second.position.y - particle->getPositionY());
-                                double thetaDetection = particle->getCameraYaw() + (det.getImageSize().width/2 - columnDetection) * _app;
-//                                double distScore = (this->estimatedDistanceToSign/dist - 0.7) <= (1.3 - 0.7) ? 1. : pfParameters.minSignScore;
+                                double thetaDetection = particle->getCameraYaw() + (det.getImageSize().width/2 - det.getROICenter().x) * _app;
                                 double x = pow(sin((thetaPred - thetaDetection)/2),2);
-//                                double azimuthScore = x < 0.03 ? 1. : pfParameters.minSignScore;
-
-                                //does the sign fall within the horizontal and vertical field of view?
-                                double azimuthScore = abs(sin(thetaDetection - thetaPred)) < sin(fov_h/2) ? 1 :pfParameters.minSignScore;
-                                double betaPred = acos(itr->second.height / dist);
-                                double elevationScore = abs(sin(gamma - betaPred)) < sin(fov_v/2) ? 1 : pfParameters.minSignScore;
-
-//                                score = distScore * azimuthScore;
-//                                double distErrorFraction = abs(this->estimatedDistanceToSign - dist) / this->estimatedDistanceToSign;
                                 double distErrorFraction = abs(this->estimatedDistanceToSign - dist) / dist;
                                 score = pfParameters.signDetectionScoringCoeff/(pfParameters.signDetectionScoringCoeff+x*x);
                                 score *= 1. / (1. + 1. * distErrorFraction);
-                                score *= elevationScore * azimuthScore;
-                                if (score < pfParameters.minSignScore)
-                                    score = pfParameters.minSignScore;
                             }
                         }
 
@@ -295,6 +262,108 @@ namespace locore{
             deltaT = duration_cast<nanoseconds>(stop-start);
             //std::cerr << "sign scoring time : " << deltaT.count() << "\n";
         }
+        
+       
+
+//        void _scoreDistanceToExitSign(const locore::VIOMeasurements& vioData, const compvis::CVObservation& det){
+//
+//            std::vector<double> yawScores;
+//
+//            //estimate sign distance
+//            double gamma = vioData.getPitch();
+//            std::cerr << "Gamma: " << gamma << "\n";
+//
+//            // NOTE: image width and height are swapped
+//            float centerRow = vioData.getFrame().size().width/2;
+//            float detRow = det.getROICenter().y;
+//            double delta = atan((centerRow - detRow)/_fx);
+////            std::cerr << "delta: " << delta << "\n";
+////            double z = y / tan(gamma+delta);
+////            this->estimatedDistanceToSign = z;
+//            int columnDetection = det.getROICenter().x;
+//            int deltaV = det.getROI().height;
+//            std::cerr << "BBox height: " << deltaV << "\n";
+//            std::cerr << "BBox width: " << det.getROI().width << "\n";
+//            float h0 = 0.2032; // exit sign height in meters
+////            this->estimatedDistanceToSign = (_fx/deltaV)*h0*cos(gamma);
+//            this->estimatedDistanceToSign = 3;
+//
+//            // NOTE: image width and height are swapped (because of how ARKit handles image on the sensor)
+//            double fov_h = atan(vioData.getFrame().size().height/2*_fx);
+//            double fov_v = atan(vioData.getFrame().size().width/2*_fx);
+//
+//            auto start = high_resolution_clock::now();
+//            nanoseconds deltaT = nanoseconds(0);
+//            for(auto particle = _particles.begin(); particle != _particles.end(); ++particle ){
+//                if (particle->valid){
+//                    cv::Point2i startPoint = _mapManager->uv2pixels(particle->position);
+//
+//                    yawScores.clear();
+//                    // loop over exit signs
+//                    for (auto itr = exitSignsFeatureList; itr != features.end(); itr++){
+////                        double y = itr->second.height - pfParameters.cameraHeight;
+////                        double z = y / tan(gamma+delta);
+////                        this->estimatedDistanceToSign = z;
+//                        float dist = cv::norm(particle->getPositionVector() - itr->second.getPositionVector());
+//
+//                        double score = pfParameters.minSignScore;
+//                        if (_mapManager->isSignVisibleFrom(startPoint, itr->second.id)){
+//
+//                            //cv::Point2i signPos = _mapManager->uv2pixels(itr->second.position);
+//                            // check that particle orientation is compatible with sign orientation
+////                            double yaw_diff = itr->second.normal.dot( cv::Vec2d( cos( particle->cameraYaw ),
+////                                                                                sin( particle->cameraYaw ) ) );
+//                            double yaw_diff = itr->second.normal.dot( cv::Vec2d( cos( 3.14/2 ),
+//                            sin( 3.14/2 ) ) );
+////                            std::cerr << "yaw diff: " << yaw_diff << "\n";
+////                            if (yaw_diff < pfParameters.signYawDifferenceThreshold){
+//                            if (yaw_diff < 0){
+//
+//                                // warning: x and y are swapped
+//                                double thetaPred = atan2(itr->second.position.x - particle->getPositionX(), itr->second.position.y - particle->getPositionY());
+//                                double thetaDetection = particle->getCameraYaw() + (det.getImageSize().width/2 - columnDetection) * _app;
+////                                double distScore = (this->estimatedDistanceToSign/dist - 0.7) <= (1.3 - 0.7) ? 1. : pfParameters.minSignScore;
+//                                double x = pow(sin((thetaPred - thetaDetection)/2),2);
+////                                double azimuthScore = x < 0.03 ? 1. : pfParameters.minSignScore;
+//
+//                                //does the sign fall within the horizontal and vertical field of view?
+//                                double azimuthScore = abs(sin(thetaDetection - thetaPred)) < sin(fov_h/2) ? 1 :pfParameters.minSignScore;
+//                                double betaPred = acos(itr->second.height / dist);
+//                                double elevationScore = abs(sin(gamma - betaPred)) < sin(fov_v/2) ? 1 : pfParameters.minSignScore;
+//
+////                                score = distScore * azimuthScore;
+////                                double distErrorFraction = abs(this->estimatedDistanceToSign - dist) / this->estimatedDistanceToSign;
+//                                double distErrorFraction = abs(this->estimatedDistanceToSign - dist) / dist;
+//                                score = pfParameters.signDetectionScoringCoeff/(pfParameters.signDetectionScoringCoeff+x*x);
+//                                score *= 1. / (1. + 1. * distErrorFraction);
+//                                score *= elevationScore * azimuthScore;
+//                                if (score < pfParameters.minSignScore)
+//                                    score = pfParameters.minSignScore;
+//                            }
+//                        }
+//
+//                        yawScores.push_back(score);
+//
+//                    }
+//                    // get max score and assign it to the particle
+//
+//                    particle->score = (*std::max_element(yawScores.begin(), yawScores.end()));
+////                    double score = (*std::max_element(yawScores.begin(), yawScores.end()));
+////                    auto it = particle->candidateScores.find(det.tag());
+////                    if (it != particle->candidateScores.end())
+////                        particle->candidateScores[det.tag()].push_back(score);
+////                    else{
+////                        std::vector<double> tmpv;
+////                        tmpv.push_back(score);
+////                        particle->candidateScores.insert(std::make_pair(det.tag(), tmpv));
+////                    }
+//
+//                }
+//            }
+//            auto stop = high_resolution_clock::now();
+//            deltaT = duration_cast<nanoseconds>(stop-start);
+//            //std::cerr << "sign scoring time : " << deltaT.count() << "\n";
+//        }
         
         
         void _updateParticles(const VIOMeasurements& vioData, const std::vector<compvis::CVObservation>& detections){

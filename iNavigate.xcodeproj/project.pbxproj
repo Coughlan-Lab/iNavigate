@@ -126,7 +126,7 @@
 		3FA233472345360900E3BA0D /* AudioFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioFeedback.swift; sourceTree = "<group>"; };
 		3FA23349234545E000E3BA0D /* arrow.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = arrow.jpg; sourceTree = "<group>"; };
 		3FC2BB0B226FC5DE00A1701B /* FloorChangeDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloorChangeDetector.swift; sourceTree = "<group>"; };
-		3FCD2A042253EA800048B140 /* iNavigate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iNavigate.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3FCD2A042253EA800048B140 /* i-Navigate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "i-Navigate.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3FCD2A072253EA800048B140 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3FCD2A092253EA800048B140 /* Scene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = Scene.sks; sourceTree = "<group>"; };
 		3FCD2A0B2253EA800048B140 /* Scene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scene.swift; sourceTree = "<group>"; };
@@ -357,7 +357,7 @@
 		3FCD2A052253EA800048B140 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				3FCD2A042253EA800048B140 /* iNavigate.app */,
+				3FCD2A042253EA800048B140 /* i-Navigate.app */,
 				3FCD2A1C2253EA820048B140 /* iNavigateTests.xctest */,
 				3FCD2A272253EA820048B140 /* iNavigateUITests.xctest */,
 			);
@@ -415,7 +415,7 @@
 			);
 			name = iNavigate;
 			productName = iNavigate;
-			productReference = 3FCD2A042253EA800048B140 /* iNavigate.app */;
+			productReference = 3FCD2A042253EA800048B140 /* i-Navigate.app */;
 			productType = "com.apple.product-type.application";
 		};
 		3FCD2A1B2253EA820048B140 /* iNavigateTests */ = {
@@ -745,14 +745,14 @@
 					/Users/gio/Documents/workspace/iLocalize/iLocalize/LocalizationCore/libsvm,
 				);
 				INFOPLIST_FILE = iNavigate/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = ski.org.iNavigate;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "i-Navigate";
 				SWIFT_OBJC_BRIDGING_HEADER = "iNavigate/iNavigate-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -774,14 +774,14 @@
 					/Users/gio/Documents/workspace/iLocalize/iLocalize/LocalizationCore/libsvm,
 				);
 				INFOPLIST_FILE = iNavigate/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = ski.org.iNavigate;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "i-Navigate";
 				SWIFT_OBJC_BRIDGING_HEADER = "iNavigate/iNavigate-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;

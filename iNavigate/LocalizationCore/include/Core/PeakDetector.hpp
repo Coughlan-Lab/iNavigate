@@ -36,18 +36,9 @@ public:
                 _mask.at<double>(pt.x, pt.y) += p.score;
         }
         
-        double smin, smax;
-        cv::Point min_loc, max_loc;
-        cv::minMaxLoc(_mask, &smin, &smax);
         _mask /= _mask.total();
-//        cv::subtract(_mask, smin, _mask);
-//        cv::divide(_mask, smax-smin, _mask);
         cv::GaussianBlur(_mask, _mask,cv::Size(21,21), 15);
-        //cv::Mat  kk = cv::getGaussianKernel(21, 15, CV_64F);
-        //cv::GaussianBlur(_mask, _mask,cv::Size(7,7), 3);
-        
         _mask.copyTo(_heatMap);
-        //cv::Scalar kdeSum = cv::sum(kde);
         
         double entropy = 0;
         _hardPeak = false;
@@ -56,8 +47,8 @@ public:
         std::cout << "Entropy: " << entropy << "\n";
         
         if (entropy < 7.){
-//            _findNpeaks(peaksMap, _mask.rows, _mask.cols * _mask.channels(), 1, 50, 25, .001);
-            _findNpeaks(peaksMap, _mask.rows, _mask.cols * _mask.channels(), 1, 50, 25, .00005);
+            _findNpeaks(peaksMap, _mask.rows, _mask.cols * _mask.channels(), 1, 50, 25, .0001);
+//            _findNpeaks(peaksMap, _mask.rows, _mask.cols * _mask.channels(), 1, 50, 25, .00005);
             //_filterPeaks(2.5);
         }
         
@@ -126,18 +117,12 @@ private:
     void _visualizeKDE(cv::Point2i topPeaksPos){
         double minV, maxV;
         cv::Point minLoc, maxLoc;
-        //_heatMap.convertTo(_heatMap, CV_8UC1);
-        //_heatMap = 255 * _heatMap;
         cv::minMaxLoc(_mask, &minV, &maxV, &minLoc, &maxLoc);
         _heatMap = (_mask - minV) * ( 255 / (maxV - minV) );
         _heatMap.convertTo(_heatMap, CV_8UC1);
-        //cv::cvtColor(_heatMap,_heatMap,CV_GRAY2RGB);
         cv::Mat colorizedHeatMap;
-        //_currentPeak = cv::Point2i(peaksLocation[0].x, peaksLocation[0].y);
         cv::applyColorMap(_heatMap, colorizedHeatMap, cv::COLORMAP_RAINBOW);
         colorizedHeatMap.copyTo(_heatMap);
-               
-        
         if (_peaksLocation.size() > 0){
             cv::Point2i visPeak = cv::Point2i(_peaksLocation[0].y, _peaksLocation[0].x);
             cv::circle(_heatMap, visPeak, 8, cv::Scalar(255,255,255));
@@ -145,10 +130,7 @@ private:
             cv::circle(_heatMap, visPeak, 4, cv::Scalar(255,255,255));
             cv::drawMarker(_heatMap, visPeak,  cv::Scalar(255, 255, 255), cv::MARKER_CROSS, 11, 2);
         }
-        //_heatMap =_mapManager->getWallsImageRGB() + _heatMap;
         _heatMap = _mapManager->showFeatures() + _heatMap;
-        //cv::rotate(_mapManager->getWallsImageRGB() + _heatMap, _heatMap, cv::ROTATE_90_CLOCKWISE);
-        //cv::rotate(_heatMap, _heatMap, cv::ROTATE_90_CLOCKWISE);
     }
     
     void _filterPeaks(float ratioThreshold){

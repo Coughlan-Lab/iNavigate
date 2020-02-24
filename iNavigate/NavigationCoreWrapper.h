@@ -20,14 +20,14 @@ typedef NS_ENUM(NSInteger,TurnDirection) { Forward = 0, TurnAround = -1, Left = 
 typedef NS_ENUM(NSInteger, NodeType) { Control = 0, Destination = 1, Link = 2, Undef = -1 };
 
 
-- (void) initNavigationSystem : (NSString*) mapFolder currentFloor:(int)currentFloor exploreMode:(bool)exploreMode;
+- (void) initNavigationSystem : (NSString*) mapFolder currentFloor:(int)currentFloor exploreMode:(bool)exploreMode courseDistThr:(float)courseDistThr;
 - (void) initializeLocalizationSystem:(NSString *)resPath numParticles:(int) numParticles posU:(double) posU posV:(double) posV initYaw:(double) initYaw initYawNoise:(double) initYawNoise;
 - (void) initializeLocalizationSystemLocation:(NSString *)resPath numParticles:(int) numParticles posU:(double) posU posV:(double) posV initYaw:(double) initYaw initYawNoise:(double) initYawNoise;
 - (void) initializeLocalizationSystemUnknownLocation:(NSString *)resPath numParticles:(int) numParticles initYaw:(double) initYaw initYawNoise:(double) initYawNoise;
 - (void) initializeLocalizationSystemUniform:(NSString *)resPath numParticles:(int) numParticles initYaw:(double) initYaw initYawNoise:(double) initYawNoise;
   
-- (NSDictionary*) step : (NSString*) trackerStatus timestamp:(double)timestamp x:(double) x y:(double) y z:(double) z  rx:(double) rx ry:(double) ry rz:(double) rz deltaFloors:(int)deltaFloors frame:(UIImage*) frame logParticles:(bool) logParticles;
-- (NSDictionary*) step: (NSString*) trackerStatus timestamp:(double)timestamp camera:(ARCamera*) camera deltaFloors:(int)deltaFloors frame:(UIImage*) frame logParticles:(bool) logParticles;
+- (NSDictionary*) step : (NSString*) trackerStatus timestamp:(double)timestamp x:(double) x y:(double) y z:(double) z  rx:(double) rx ry:(double) ry rz:(double) rz deltaFloors:(int)deltaFloors frame:(UIImage*) frame useYaw:(bool) useYaw logParticles:(bool) logParticles;
+- (NSDictionary*) step: (NSString*) trackerStatus timestamp:(double)timestamp camera:(ARCamera*) camera deltaFloors:(int)deltaFloors frame:(UIImage*) frame useYaw:(bool) useYaw logParticles:(bool) logParticles;
     
 - (float) getParticlesYaw;
 - (float) getNorthCorrectionAngle;

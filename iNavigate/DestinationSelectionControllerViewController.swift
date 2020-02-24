@@ -46,6 +46,8 @@ class DestinationSelectionControllerViewController: UIViewController , UIPickerV
     @IBOutlet weak var destinationPicker: UIPickerView!
     @IBOutlet weak var startPicker: UIPickerView!
     
+    @IBOutlet weak var useYawSwitch: UISwitch!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         initPickers()
@@ -217,6 +219,7 @@ class DestinationSelectionControllerViewController: UIViewController , UIPickerV
         destVC.useCenterBeacon = centerBacon.isOn
         destVC.useVoiceInterface = voiceFeedback.isOn
         destVC.dumpParticles = logOnEventSwitch.isOn
+        destVC.useYaw = useYawSwitch.isOn
         //destVC.exploreMode = exploreMode.isOn
         
     }

@@ -24,8 +24,8 @@
 
 @implementation NavigationCoreWrapper
 
-- (void) initNavigationSystem:(NSString *)mapFolder currentFloor:(int)currentFloor exploreMode:(bool)exploreMode{
-    navsys = new navgraph::NavigationSystem(std::string([mapFolder cStringUsingEncoding:NSUTF8StringEncoding]), currentFloor, exploreMode, 2.);
+- (void) initNavigationSystem:(NSString *)mapFolder currentFloor:(int)currentFloor exploreMode:(bool)exploreMode courseDistThr:(float)courseDistThr{
+    navsys = new navgraph::NavigationSystem(std::string([mapFolder cStringUsingEncoding:NSUTF8StringEncoding]), currentFloor, exploreMode, courseDistThr);
     logFolderCreated = false;
 }
 
@@ -70,7 +70,7 @@
     navsys->destinationId = destId;
 }
 
-- (NSDictionary*) step : (NSString*) trackerStatus timestamp:(double)timestamp x:(double) x y:(double) y z:(double) z  rx:(double) rx ry:(double) ry rz:(double) rz deltaFloors:(int)deltaFloors frame:(UIImage*) frame logParticles:(bool) logParticles{
+- (NSDictionary*) step : (NSString*) trackerStatus timestamp:(double)timestamp x:(double) x y:(double) y z:(double) z  rx:(double) rx ry:(double) ry rz:(double) rz deltaFloors:(int)deltaFloors frame:(UIImage*) frame useYaw:(bool) useYaw logParticles:(bool) logParticles{
 
     cv::Mat image, image_vga,image_vga_gray;
     UIImageToMat(frame, image);
@@ -78,7 +78,7 @@
     cv::resize(image, image_vga, cv::Size(image.cols/3,image.rows/3), 0, 0, cv::INTER_NEAREST);
     cv::cvtColor(image_vga, image_vga_gray, cv::COLOR_RGB2GRAY);
     locore::VIOMeasurements vioData(tStatus, timestamp, x, y, z, rx, ry, rz, 0, 0, image_vga_gray);
-    navgraph::NavigationSystem::navigation_t navData = navsys->step(vioData, deltaFloors, logParticles);
+    navgraph::NavigationSystem::navigation_t navData = navsys->step(vioData, deltaFloors, useYaw, logParticles);
 
     NSDictionary *dict = @{ @"outputImage" : MatToUIImage(navsys->getNavigationGraph()),
                             @"heading": [NSNumber numberWithFloat:(navData.course)],
@@ -123,7 +123,7 @@
     
 }
 
-- (NSDictionary*) step : (NSString*) trackerStatus timestamp:(double)timestamp camera:(ARCamera*) camera deltaFloors:(int)deltaFloors frame:(UIImage*) frame logParticles:(bool) logParticles{
+- (NSDictionary*) step : (NSString*) trackerStatus timestamp:(double)timestamp camera:(ARCamera*) camera deltaFloors:(int)deltaFloors frame:(UIImage*) frame useYaw:(bool) useYaw logParticles:(bool) logParticles{
     double x = camera.transform.columns[3].x;
     double y = camera.transform.columns[3].y;
     double z = camera.transform.columns[3].z;
@@ -132,7 +132,7 @@
     double ry = camera.eulerAngles[1];
     double rz = camera.eulerAngles[2];
     
-    return [self step:trackerStatus timestamp:timestamp x:x y:y z:z rx:rx ry:ry rz:rz deltaFloors:deltaFloors frame:frame logParticles:logParticles];
+    return [self step:trackerStatus timestamp:timestamp x:x y:y z:z rx:rx ry:ry rz:rz deltaFloors:deltaFloors frame:frame useYaw:useYaw logParticles:logParticles];
 }
 
 - (void) setCameraHeight : (float) height{

@@ -45,6 +45,15 @@ namespace navgraph{
             comments(""), nodeLabel(""), valid(false), validTurnNode(false), destThroughDoor(false){};
         };
         
+        struct Course_t{
+            double angleDeg;
+            double angle;
+            double prevAngle;
+            bool valid;
+            bool init;
+            Course_t() : angleDeg(0), angle(0), prevAngle(0), valid(false), init(false){};
+        };
+        
         NavigationSystem(std::string mapFolder, int floor, bool exploreMode, float motionThreshold){
             _mapManager = std::make_shared<maps::MapManager>();
             _mapManager->init(mapFolder, floor);
@@ -62,6 +71,8 @@ namespace navgraph{
             navigation_t navData = navigation_t();
             loggingEvent = false;
             logCounter = 0;
+            course.init = false;
+            course.valid = false;
             
         }
         
@@ -81,8 +92,37 @@ namespace navgraph{
         
         inline void setCameraHeight(float cameraHeight) { _locSystem->setCameraHeight(cameraHeight); }
 
+        void computeUserCourse(const locore::VIOMeasurements& vioData){
+            float t = cv::norm(peak.uvCoord - prevPeak.uvCoord);
+            _distanceMoved += t;
+            if (course.init){
+                if (_distanceMoved >= _motionThreshold){
+                    _distanceMoved = 0;
+                    course.prevAngle = course.angle;
+                    course.angleDeg = atan2(peak.uvCoord.x - prevPeak.uvCoord.x, peak.uvCoord.y - prevPeak.uvCoord.y)*180/CV_PI;
+                    course.angleDeg = fmod(course.angleDeg, 360);
+                    if (course.angleDeg < 0)
+                        course.angleDeg += 360;
+                    course.valid = true;
+                    course.angle = course.angleDeg * CV_PI/180;
+                }
+            }
+            else{
+                // we now have the first peak
+                course.init = true;
+                course.valid = false;
+            }
+//            if (_distanceMoved >= _motionThreshold){
+//                _distanceMoved = 0;
+//                _course = atan2(peak.uvCoord.x - _prevPeak.uvCoord.x, peak.uvCoord.y - _prevPeak.uvCoord.y)*180/CV_PI;
+//                _prevPeak = peak;
+//                _course = fmod(_course, 360);
+//                if (_course < 0)
+//                    _course += 360;
+//            }
+        }
         
-        navigation_t step(const locore::VIOMeasurements& vioData, int deltaFloors, bool logParticles){
+        navigation_t step(const locore::VIOMeasurements& vioData, int deltaFloors, bool useYaw, bool logParticles){
             navData.valid = false;
             navData.validTurnNode = false;
             
@@ -91,14 +131,17 @@ namespace navgraph{
             // run the localization and get an estimated location for the user
             // if peak.valid == false it means that we do not have a localization estimate
             _navigationImage = _locSystem->step(vioData, logParticles);
-        
-            locore::PeakDetector::peak_t peak = _locSystem->getPeak();
+            
+            prevPeak = peak;
+            peak = _locSystem->getPeak();
+            computeUserCourse(vioData);
+            
             _prevPeakYaw = peakYaw.yaw;
             peakYaw = computeYaw(peak, vioData);
             navData.yawVariance = peakYaw.variance;
             
-            if (destinationId >= 0 && peak.valid && peakYaw.valid){ //we have a destination and the peak is valid and the variance of the peak yaw is acceptable
-                navData.course = peakYaw.yaw;
+            if (destinationId >= 0 && peak.valid && (peakYaw.valid || !useYaw)){ //we have a destination and the peak is valid and the variance of the peak yaw is acceptable
+                navData.course = useYaw==true? peakYaw.yaw : course.angle;
                 // project the peak location on the navigation graph
                 _currSnappedPosition = _navGraph->snapUV2Graph(peak.uvCoord, 0, _mapManager->currentFloor, true);
 
@@ -111,7 +154,7 @@ namespace navgraph{
                     navData.approachingNodeType = _navGraph->getNode(_path[0]).type;
                     navData.nodeLabel = _navGraph->getNode(_path[0]).label;
                     navData.comments = _navGraph->getNode(_path[0]).comments;
-                    navData.valid = true;
+                    navData.valid = useYaw || course.valid;
                     navData.userUVPos[0] = peak.uvCoord.x;
                     navData.userUVPos[1] = peak.uvCoord.y;
                     navData.turnNodeUVPos[0] = -1;
@@ -131,9 +174,9 @@ namespace navgraph{
                     }
 
 //                    float yawDelta = fabs(atan2(sin((_prevPeakYaw-peakYaw.yaw)*CV_PI/180), cos((_prevPeakYaw-peakYaw.yaw)*CV_PI/180)));
-                    float yawDelta = fabs(_prevPeakYaw-peakYaw.yaw)*180/CV_PI;
+                    float yawDelta = fabs(_prevPeakYaw-navData.course)*180/CV_PI;
 
-                    float diffAngle = atan2(sin((_refAngle-peakYaw.yaw)*CV_PI/180), cos((_refAngle-peakYaw.yaw)*CV_PI/180));
+                    float diffAngle = atan2(sin((_refAngle-navData.course)*CV_PI/180), cos((_refAngle-navData.course)*CV_PI/180));
                     
                     // if the next node is the destination and we are close enough, we have arrived
 //                    if (_path[0] == destinationId && distToNextNode <= 1.){
@@ -171,7 +214,7 @@ namespace navgraph{
             else{
                     navData.valid = false;
             }
-            navData.course = peakYaw.yaw;
+//            navData.course = peakYaw.yaw;
             navData.refAngle = _refAngle;
             return navData;
         }
@@ -324,8 +367,9 @@ namespace navgraph{
         bool loggingEvent;
         int logCounter;
         
-        locore::PeakDetector::peak_t _prevPeak;
+        locore::PeakDetector::peak_t prevPeak, peak;
         locore::LocalizationSystem::PeakYaw_t peakYaw;
+        Course_t course;
         NavGraph::SnappedPosition _currSnappedPosition;
         cv::Mat _navigationImage;
 
