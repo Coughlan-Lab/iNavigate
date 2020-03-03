@@ -20,8 +20,7 @@ namespace initpol {
     public:
         KnownLocationInitPolicy(){ _radiusMeters = 2.; _initPos = cv::Point2i(0,0); _initPosMt = cv::Point2d(0,0);}
         ~KnownLocationInitPolicy(){;}
-        
-        
+
         
         // out: particles vector
         bool initializeParticles(int numParticles, const locore::VIOMeasurements vioData, std::vector<locore::Particle>& particles, std::shared_ptr<maps::MapManager> mapManager, float minGlobalScaleFactor, float maxGlobalScaleFactor){

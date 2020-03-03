@@ -75,9 +75,11 @@
     cv::Mat image, image_vga,image_vga_gray;
     UIImageToMat(frame, image);
     std::string tStatus([trackerStatus cStringUsingEncoding:NSUTF8StringEncoding]);
-    cv::resize(image, image_vga, cv::Size(image.cols/3,image.rows/3), 0, 0, cv::INTER_NEAREST);
+//    cv::cvtColor(image, image, cv::COLOR_RGB2GRAY);
+    cv::resize(image, image_vga, cv::Size(image.cols/3, image.rows/3), 0, 0, cv::INTER_CUBIC);
     cv::cvtColor(image_vga, image_vga_gray, cv::COLOR_RGB2GRAY);
     locore::VIOMeasurements vioData(tStatus, timestamp, x, y, z, rx, ry, rz, 0, 0, image_vga_gray);
+//    locore::VIOMeasurements vioData(tStatus, timestamp, x, y, z, rx, ry, rz, 0, 0, image);
     navgraph::NavigationSystem::navigation_t navData = navsys->step(vioData, deltaFloors, useYaw, logParticles);
 
     NSDictionary *dict = @{ @"outputImage" : MatToUIImage(navsys->getNavigationGraph()),

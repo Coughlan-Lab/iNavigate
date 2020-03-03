@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import SpriteKit
+//import SpriteKit
 import ARKit
 import CoreLocation
 import CoreMotion
@@ -60,7 +60,9 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
     var start : String = ""
     var startID : Int = -1
     var startFloor : Int = -1
+    var destFloor : Int = -1
     var exploreMode : Bool = false
+    var gotoElevator : Bool = false
     var useSonifiedInterface: Bool = false
     var useVoiceInterface : Bool = false
     var useCenterBeacon: Bool = false
@@ -83,7 +85,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
     var frameCounter : UInt64 = 0
     var lastProcessedFrameTime: TimeInterval = TimeInterval()
     var lastVibrationFeedbackTime = Date()
-    let numParticles = 50000
+    let numParticles = 100000
     
     var environment = AVAudioEnvironmentNode()
     let engine = AVAudioEngine()
@@ -143,16 +145,16 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
         sceneView.session.delegate = self
         
         // Initializing the spatial sound
-        initSpatializedSound()
+//        initSpatializedSound()
         
         notificationFeedbackGenerator.prepare()
         
 //        setupBarometer()
-        startQrCodeDetection()
+//        startQrCodeDetection()
         locationManager.headingOrientation = .portrait
         locationManager.delegate = self;
-        setupBeaconSound(file: "drum_mono", atPosition: AVAudio3DPoint(x: 0, y: 0, z: -2))
-        setupCenterBeaconSound(file: "point-blank", withExtension: String("mp3"), atPosition: AVAudio3DPoint(x: 0, y: 0, z: -2))
+//        setupBeaconSound(file: "drum_mono", atPosition: AVAudio3DPoint(x: 0, y: 0, z: -2))
+//        setupCenterBeaconSound(file: "point-blank", withExtension: String("mp3"), atPosition: AVAudio3DPoint(x: 0, y: 0, z: -2))
         audioFeedback.pushMessage(message: message_t.init(text: "Initializing tracker", highPriority: true))
         navigationCore.initNavigationSystem(locationURL.relativePath, currentFloor: Int32(startFloor), exploreMode: exploreMode, courseDistThr: courseDistThr)
         navigationCore.setDestinationID(Int32(destID))
@@ -166,49 +168,49 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
     }
     
     // Spatial Sound Initialization
-   func setupBeaconSound(file:String, withExtension ext:String = "mp3", atPosition position:AVAudio3DPoint) {
-           
-       beaconNode.position = position
-       beaconNode.reverbBlend = 0.0001
-       beaconNode.renderingAlgorithm = .HRTF
-       beaconNode.position = AVAudio3DPoint(x: 0, y: 0, z: 0)
-       let url = Bundle.main.url(forResource: file, withExtension: ext)!
-       let file = try! AVAudioFile(forReading: url)
-       let buffer = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: AVAudioFrameCount(file.length))
-       try! file.read(into: buffer!)
-       engine.attach(beaconNode)
-       engine.connect(beaconNode, to: environment, format: buffer?.format)
-       beaconNode.scheduleBuffer(buffer!, at: nil, options: .loops, completionHandler: nil)
-
-   }
-    
-    func setupCenterBeaconSound(file:String, withExtension ext:String = "mp3", atPosition position:AVAudio3DPoint) {
-      centerBeaconNode.position = position
-      centerBeaconNode.reverbBlend = 0.0001
-      centerBeaconNode.renderingAlgorithm = .HRTF
-      centerBeaconNode.position = AVAudio3DPoint(x: 0, y: 0, z: 0)
-      let url = Bundle.main.url(forResource: file, withExtension: ext)!
-      let file = try! AVAudioFile(forReading: url)
-      let buffer = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: AVAudioFrameCount(file.length))
-      try! file.read(into: buffer!)
-      engine.attach(centerBeaconNode)
-      engine.connect(centerBeaconNode, to: environment, format: buffer?.format)
-      centerBeaconNode.scheduleBuffer(buffer!, at: nil, options: .loops, completionHandler: nil)
-
-      }
-    
-    
-    func initSpatializedSound(){
-        environment.listenerPosition = AVAudio3DPoint(x: 0, y: 0, z: 0)
-        engine.attach(environment)
-        engine.connect(environment, to: engine.mainMixerNode, format: nil)
-        engine.prepare()
-        do {
-            try engine.start()
-        } catch let e as NSError {
-            print("Couldn't start sound engine", e)
-        }
-    }
+//   func setupBeaconSound(file:String, withExtension ext:String = "mp3", atPosition position:AVAudio3DPoint) {
+//
+//       beaconNode.position = position
+//       beaconNode.reverbBlend = 0.0001
+//       beaconNode.renderingAlgorithm = .HRTF
+//       beaconNode.position = AVAudio3DPoint(x: 0, y: 0, z: 0)
+//       let url = Bundle.main.url(forResource: file, withExtension: ext)!
+//       let file = try! AVAudioFile(forReading: url)
+//       let buffer = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: AVAudioFrameCount(file.length))
+//       try! file.read(into: buffer!)
+//       engine.attach(beaconNode)
+//       engine.connect(beaconNode, to: environment, format: buffer?.format)
+//       beaconNode.scheduleBuffer(buffer!, at: nil, options: .loops, completionHandler: nil)
+//
+//   }
+//
+//    func setupCenterBeaconSound(file:String, withExtension ext:String = "mp3", atPosition position:AVAudio3DPoint) {
+//      centerBeaconNode.position = position
+//      centerBeaconNode.reverbBlend = 0.0001
+//      centerBeaconNode.renderingAlgorithm = .HRTF
+//      centerBeaconNode.position = AVAudio3DPoint(x: 0, y: 0, z: 0)
+//      let url = Bundle.main.url(forResource: file, withExtension: ext)!
+//      let file = try! AVAudioFile(forReading: url)
+//      let buffer = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: AVAudioFrameCount(file.length))
+//      try! file.read(into: buffer!)
+//      engine.attach(centerBeaconNode)
+//      engine.connect(centerBeaconNode, to: environment, format: buffer?.format)
+//      centerBeaconNode.scheduleBuffer(buffer!, at: nil, options: .loops, completionHandler: nil)
+//
+//      }
+//
+//
+//    func initSpatializedSound(){
+//        environment.listenerPosition = AVAudio3DPoint(x: 0, y: 0, z: 0)
+//        engine.attach(environment)
+//        engine.connect(environment, to: engine.mainMixerNode, format: nil)
+//        engine.prepare()
+//        do {
+//            try engine.start()
+//        } catch let e as NSError {
+//            print("Couldn't start sound engine", e)
+//        }
+//    }
     
     
     func initLocCore(frame: ARFrame){
@@ -221,13 +223,9 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
 
         if startID >= 0{
             let pos = navigationCore.getNodeUVPosition(Int32(startID))
-//            navigationCore.initializeLocalizationSystemUnknownLocation(resURL.relativePath, numParticles: Int32(numParticles), initYaw: Double(0), initYawNoise: 0)
-//            navigationCore.initializeLocalizationSystemLocation(resURL.relativePath, numParticles: Int32(numParticles), posU: pos[0] as! Double, posV: pos[1] as! Double, initYaw: Double(yaw), initYawNoise: 2 * compassAccuracy * .pi / 180)
-            navigationCore.initializeLocalizationSystem(resURL.relativePath, numParticles: Int32(numParticles), posU: pos[0] as! Double, posV: pos[1] as! Double, initYaw: Double(0), initYawNoise: 0)
-//            navigationCore.initializeLocalizationSystem(resURL.relativePath, numParticles: Int32(numParticles), posU: pos[0] as! Double, posV: pos[1] as! Double, initYaw: Double(0), initYawNoise: 0)
+            navigationCore.initializeLocalizationSystemLocation(resURL.relativePath, numParticles: Int32(numParticles), posU: pos[0] as! Double, posV: pos[1] as! Double, initYaw: Double(yaw), initYawNoise: 2 * compassAccuracy * .pi / 180)
         }
         else{
-            //navigationCore.initializeLocalizationSystemUnknownLocation(resURL.relativePath, numParticles: Int32(numParticles), initYaw: Double(yaw), initYawNoise: 2 * compassAccuracy * .pi / 180)
             navigationCore.initializeLocalizationSystemUniform(resURL.relativePath, numParticles: Int32(numParticles), initYaw: Double(yaw), initYawNoise: 2 * compassAccuracy * .pi / 180)
         }
         
@@ -246,13 +244,9 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
             res["outputImage"] = UIImage(color: .black)
             res["distance"] = -1
             res["nodeLabel"] = ""
-            //audioFeedback.announce(string: "please start walking", delay:1)
-//            if (compassAccuracy <= 95){
-              initLocCore(frame : frame)
-//            }
-//            else{
-//                audioFeedback.announce(string: "insufficient heading accuracy, please calibrate compass", delay:3.0)
-//            }
+
+            initLocCore(frame : frame)
+
             return res;
         }
         else if (locSysInit) && (frame.timestamp-lastProcessedFrameTime) > 0.1 {
@@ -310,11 +304,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
             }
                 
         }
-        
-        //check if needs to update camera height
-        if (frameCounter % 150 == 0 && locSysInit){
-            checkQRCode(image: frame.capturedImage)
-        }
+
     }
     
     func sendVibrationFeedback(data: Dictionary<String, Any> ){
@@ -538,37 +528,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
         self.compassHeading = newHeading.trueHeading
         self.compassAccuracy = newHeading.headingAccuracy
     }
-        
-    func startQrCodeDetection() {
-        // Create a Barcode Detection Request
-        let request = VNDetectBarcodesRequest(completionHandler: self.requestHandler)
-        // Set it to recognize QR code only
-        request.symbologies = [.QR]
-        self.qrRequests = [request]
-    }
-    
-    func checkQRCode(image : CVPixelBuffer){
-        let imageRequestHandler = VNImageRequestHandler(cvPixelBuffer: image,
-                                                        options: [:])
-        do{
-            try imageRequestHandler.perform(self.qrRequests)
-        }
-        catch {  }
-    }
-    
-    
-    func requestHandler(request: VNRequest, error: Error?) {
-        // Get the first result out of the results, if there are any
-        if (self.trackerInitialized){
-            if let results = request.results, let result = results.first as? VNBarcodeObservation {
-                guard let payload = result.payloadStringValue else {return}
-                userHeight = payload
-                //audioFeedback.announceNow(string: "Camera height set to \(userHeight)")
-                navigationCore.setCameraHeight(Float(userHeight)!*Float(2.54/100)) //convert inches to mt
-            }
-        }
-    }
-    
+            
     
     func pixelBufferToUIImage(pixelBuffer: CVPixelBuffer) -> UIImage {
         let ciImage = CIImage(cvPixelBuffer: pixelBuffer)

@@ -34,6 +34,7 @@ class DestinationSelectionControllerViewController: UIViewController , UIPickerV
     
     var destination : String = ""
     var destID : Int = -1
+    var destFloor : Int = -1
     var startID: Int = -1;
     var startPoint : String = ""
     var startFloor : Int = -1
@@ -134,6 +135,7 @@ class DestinationSelectionControllerViewController: UIViewController , UIPickerV
         else if pickerView == destinationPicker{
             destination = destinationPickerData[row]
             destID = destinationIDs[row]
+            destFloor = destinationsFloor[row]
         }
         else if pickerView == startPicker{
             startPoint = startPickerData[row]
@@ -160,7 +162,7 @@ class DestinationSelectionControllerViewController: UIViewController , UIPickerV
                 for (_, value) in nodes{
                     let n = Node(value as! [String : Any])
                     if (n.type == "destination" || n.type == "link"){
-                        destinationPickerData.append(n.label)
+                        destinationPickerData.append("Floor \(n.floor), " + n.label)
                         destinationIDs.append(n.id)
                         destinationsFloor.append(Int(n.floor) ?? -1)
                     }
@@ -212,6 +214,7 @@ class DestinationSelectionControllerViewController: UIViewController , UIPickerV
         destVC.locationURL = locationURL
         destVC.destination = destination
         destVC.destID = destID - 1
+        destVC.destFloor = destFloor
         destVC.start = startPoint
         destVC.startID = startID - 1
         destVC.startFloor = startFloor

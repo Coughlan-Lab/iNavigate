@@ -172,14 +172,6 @@ class LocalizationSystem{
         std::chrono::time_point<std::chrono::high_resolution_clock> yawMapTimeStamp;
         int _arucoID;
         int _targetID;
-      
-        // estimated location in meters (relative to map origin)
-//        float _posx;
-//        float _posz;
-    
-        // estimated location in pixels (on map)
-//        int _posu;
-//        int _posv;
     
         float _cameraHeightMt;
     
@@ -221,7 +213,6 @@ class LocalizationSystem{
                               };
             
             double dcoeff[5] = {2.79707782e-01, -1.51142752e+00, -1.93469830e-03, -1.46837375e-03, 2.63094958e+00};
-            // ***
             
             double w = 480/2;
 
