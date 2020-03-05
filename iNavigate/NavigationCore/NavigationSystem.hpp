@@ -21,6 +21,10 @@ namespace navgraph{
     public:
         
         int destinationId;
+        int destFloor;
+        int currentFloor;
+        bool gotoElevator;
+        int linkId; //id of elevator at starting floor (needed if multi-floor navigation)
         
         enum TurnDirection { Forward = 0, TurnAround = -1, Left = 1, Right = 2, EasyLeft = 3, EasyRight = 4, None = -2,
                              Arrived = 100, LeftToDest = 101, RightToDest = 102, ForwardToDest = 103 };
@@ -73,6 +77,7 @@ namespace navgraph{
             logCounter = 0;
             course.init = false;
             course.valid = false;
+            currentFloor = floor;
             
         }
         
@@ -112,14 +117,6 @@ namespace navgraph{
                 course.init = true;
                 course.valid = false;
             }
-//            if (_distanceMoved >= _motionThreshold){
-//                _distanceMoved = 0;
-//                _course = atan2(peak.uvCoord.x - _prevPeak.uvCoord.x, peak.uvCoord.y - _prevPeak.uvCoord.y)*180/CV_PI;
-//                _prevPeak = peak;
-//                _course = fmod(_course, 360);
-//                if (_course < 0)
-//                    _course += 360;
-//            }
         }
         
         navigation_t step(const locore::VIOMeasurements& vioData, int deltaFloors, bool useYaw, bool logParticles){
@@ -127,6 +124,12 @@ namespace navgraph{
             navData.validTurnNode = false;
             
             updateCurrentFloor(deltaFloors);
+            std::cerr << "Curr Floor" << currentFloor << "Dest: " << destFloor;
+            
+            if (currentFloor != destFloor)
+                gotoElevator = true;
+            else
+                gotoElevator = false;
             
             // run the localization and get an estimated location for the user
             // if peak.valid == false it means that we do not have a localization estimate
@@ -147,7 +150,10 @@ namespace navgraph{
 
                 if (_currSnappedPosition.srcNodeId >= 0 && _currSnappedPosition.destNodeId >= 0){
                     //need to calculate the route angle based on the path
-                    _path = _navGraph->getPathFromCurrentLocation(_currSnappedPosition, destinationId);
+                    if (!gotoElevator)
+                        _path = _navGraph->getPathFromCurrentLocation(_currSnappedPosition, destinationId);
+                    else
+                        _path = _navGraph->getPathFromCurrentLocation(_currSnappedPosition, linkId);
                     
                     std::cerr << "Path Len: " << _path.size() << "\n";
                     std::cerr << "_path[0]:" << _path[0] << ", destId:" << destinationId << "\n";
@@ -347,6 +353,7 @@ namespace navgraph{
         
         void updateCurrentFloor(int floorNumDelta){
             _mapManager->currentFloor += floorNumDelta;
+            currentFloor = _mapManager->currentFloor;
         }
         
         

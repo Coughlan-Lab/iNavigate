@@ -154,5 +154,5 @@ class AudioFeedback: NSObject{
     func pushMessage(message: message_t){
             speechThread.pushMessage(message: message)
     }
-    
+        
 }

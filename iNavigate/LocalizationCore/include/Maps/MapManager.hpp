@@ -50,6 +50,7 @@ namespace maps{
         inline cv::Vec2i   uv2pixelsVec(cv::Vec2f pt)     { cv::Point2i tmp = _maps.at(currentFloor).uv2pixels(cv::Point2f(pt[0], pt[1]));
             return cv::Vec2i(tmp.x, tmp.y);}
         inline cv::Point2d pixels2uv(cv::Point2i pt) { return _maps.at(currentFloor).pixels2uv(pt); };
+        inline cv::Point2d pixels2uv(cv::Point2i pt, int floor) { return _maps.at(floor).pixels2uv(pt); };
         inline cv::Point2d pixels2uvDouble(cv::Point2d pt) { return _maps.at(currentFloor).pixels2uvDouble(pt);}
         
         inline const cv::Mat getWallsImage()            { return _maps.at(currentFloor).getWallsImage(); }

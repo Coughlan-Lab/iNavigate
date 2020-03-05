@@ -66,8 +66,10 @@
     return outpos;
 }
 
-- (void) setDestinationID: (int) destId{
+- (void) setDestination: (int) destId destFloor:(int)destFloor linkID:(int)linkID{
     navsys->destinationId = destId;
+    navsys->destFloor = destFloor;
+    navsys->linkId = linkID;
 }
 
 - (NSDictionary*) step : (NSString*) trackerStatus timestamp:(double)timestamp x:(double) x y:(double) y z:(double) z  rx:(double) rx ry:(double) ry rz:(double) rz deltaFloors:(int)deltaFloors frame:(UIImage*) frame useYaw:(bool) useYaw logParticles:(bool) logParticles{

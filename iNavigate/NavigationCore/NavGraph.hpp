@@ -307,14 +307,14 @@ namespace navgraph{
                 else if (ntype.compare("link") == 0)
                     node.type = NodeType::Link;
                 
-                //            node.type = it->value["type"].GetString();
                 node.floor = std::stoi(it->value["floor"].GetString());
                 node.label = it->value["label"].GetString();
                 node.isDoor = it->value["isDoor"].GetInt();
                 node.comments = it->value["comments"].GetString();
                 
                 const auto& pos = it->value["position"].GetArray();
-                node.positionUV = _mapManager->pixels2uv(cv::Point2i(pos[1].GetFloat(), pos[0].GetFloat()));
+                // UV position of a node has to use the scale of the specific floor
+                node.positionUV = _mapManager->pixels2uv(cv::Point2i(pos[1].GetFloat(), pos[0].GetFloat()), node.floor);
                 
                 float* wi = _weights.ptr<float>(nodeId);
                 float* ai = _angles.ptr<float>(nodeId);

@@ -27,6 +27,7 @@ class DestinationSelectionControllerViewController: UIViewController , UIPickerV
     var destinationPickerData: [String] = [String]()
     var destinationIDs : [Int] = [Int]()
     var destinationsFloor : [Int] = [Int]()
+    var links: [Int: Int] = [:]
     
     var startPickerData: [String] = [String]()
     var startIDs : [Int] = [Int]()
@@ -161,10 +162,13 @@ class DestinationSelectionControllerViewController: UIViewController , UIPickerV
                                 
                 for (_, value) in nodes{
                     let n = Node(value as! [String : Any])
-                    if (n.type == "destination" || n.type == "link"){
+                    if (n.type == "destination") && n.label != "elevator"{
                         destinationPickerData.append("Floor \(n.floor), " + n.label)
                         destinationIDs.append(n.id)
                         destinationsFloor.append(Int(n.floor) ?? -1)
+                    }
+                    else if (n.label == "elevator"){
+                        links[Int(n.floor)!] = n.id 
                     }
                 }
                 
@@ -223,6 +227,7 @@ class DestinationSelectionControllerViewController: UIViewController , UIPickerV
         destVC.useVoiceInterface = voiceFeedback.isOn
         destVC.dumpParticles = logOnEventSwitch.isOn
         destVC.useYaw = useYawSwitch.isOn
+        destVC.linkID = links[startFloor]! - 1
         //destVC.exploreMode = exploreMode.isOn
         
     }

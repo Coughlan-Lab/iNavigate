@@ -68,6 +68,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
     var useCenterBeacon: Bool = false
     var useYaw : Bool = false
     var courseDistThr : Float = 2
+    var linkID : Int = -1
     
     var saveFrame : Bool = false
     var frameCnt : UInt64 = 0
@@ -145,7 +146,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
         sceneView.session.delegate = self
         
         // Initializing the spatial sound
-//        initSpatializedSound()
+        initSpatializedSound()
         
         notificationFeedbackGenerator.prepare()
         
@@ -153,11 +154,11 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
 //        startQrCodeDetection()
         locationManager.headingOrientation = .portrait
         locationManager.delegate = self;
-//        setupBeaconSound(file: "drum_mono", atPosition: AVAudio3DPoint(x: 0, y: 0, z: -2))
-//        setupCenterBeaconSound(file: "point-blank", withExtension: String("mp3"), atPosition: AVAudio3DPoint(x: 0, y: 0, z: -2))
+        setupBeaconSound(file: "drum_mono", atPosition: AVAudio3DPoint(x: 0, y: 0, z: -2))
+        setupCenterBeaconSound(file: "point-blank", withExtension: String("mp3"), atPosition: AVAudio3DPoint(x: 0, y: 0, z: -2))
         audioFeedback.pushMessage(message: message_t.init(text: "Initializing tracker", highPriority: true))
         navigationCore.initNavigationSystem(locationURL.relativePath, currentFloor: Int32(startFloor), exploreMode: exploreMode, courseDistThr: courseDistThr)
-        navigationCore.setDestinationID(Int32(destID))
+        navigationCore.setDestination(Int32(destID), destFloor: Int32(destFloor), linkID:Int32(linkID))
         lastVibrationFeedbackTime = Date()
         logger.startSession(sessionID : "log")
     }
@@ -168,49 +169,49 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
     }
     
     // Spatial Sound Initialization
-//   func setupBeaconSound(file:String, withExtension ext:String = "mp3", atPosition position:AVAudio3DPoint) {
-//
-//       beaconNode.position = position
-//       beaconNode.reverbBlend = 0.0001
-//       beaconNode.renderingAlgorithm = .HRTF
-//       beaconNode.position = AVAudio3DPoint(x: 0, y: 0, z: 0)
-//       let url = Bundle.main.url(forResource: file, withExtension: ext)!
-//       let file = try! AVAudioFile(forReading: url)
-//       let buffer = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: AVAudioFrameCount(file.length))
-//       try! file.read(into: buffer!)
-//       engine.attach(beaconNode)
-//       engine.connect(beaconNode, to: environment, format: buffer?.format)
-//       beaconNode.scheduleBuffer(buffer!, at: nil, options: .loops, completionHandler: nil)
-//
-//   }
-//
-//    func setupCenterBeaconSound(file:String, withExtension ext:String = "mp3", atPosition position:AVAudio3DPoint) {
-//      centerBeaconNode.position = position
-//      centerBeaconNode.reverbBlend = 0.0001
-//      centerBeaconNode.renderingAlgorithm = .HRTF
-//      centerBeaconNode.position = AVAudio3DPoint(x: 0, y: 0, z: 0)
-//      let url = Bundle.main.url(forResource: file, withExtension: ext)!
-//      let file = try! AVAudioFile(forReading: url)
-//      let buffer = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: AVAudioFrameCount(file.length))
-//      try! file.read(into: buffer!)
-//      engine.attach(centerBeaconNode)
-//      engine.connect(centerBeaconNode, to: environment, format: buffer?.format)
-//      centerBeaconNode.scheduleBuffer(buffer!, at: nil, options: .loops, completionHandler: nil)
-//
-//      }
-//
-//
-//    func initSpatializedSound(){
-//        environment.listenerPosition = AVAudio3DPoint(x: 0, y: 0, z: 0)
-//        engine.attach(environment)
-//        engine.connect(environment, to: engine.mainMixerNode, format: nil)
-//        engine.prepare()
-//        do {
-//            try engine.start()
-//        } catch let e as NSError {
-//            print("Couldn't start sound engine", e)
-//        }
-//    }
+   func setupBeaconSound(file:String, withExtension ext:String = "mp3", atPosition position:AVAudio3DPoint) {
+
+       beaconNode.position = position
+       beaconNode.reverbBlend = 0.0001
+       beaconNode.renderingAlgorithm = .HRTF
+       beaconNode.position = AVAudio3DPoint(x: 0, y: 0, z: 0)
+       let url = Bundle.main.url(forResource: file, withExtension: ext)!
+       let file = try! AVAudioFile(forReading: url)
+       let buffer = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: AVAudioFrameCount(file.length))
+       try! file.read(into: buffer!)
+       engine.attach(beaconNode)
+       engine.connect(beaconNode, to: environment, format: buffer?.format)
+       beaconNode.scheduleBuffer(buffer!, at: nil, options: .loops, completionHandler: nil)
+
+   }
+
+    func setupCenterBeaconSound(file:String, withExtension ext:String = "mp3", atPosition position:AVAudio3DPoint) {
+      centerBeaconNode.position = position
+      centerBeaconNode.reverbBlend = 0.0001
+      centerBeaconNode.renderingAlgorithm = .HRTF
+      centerBeaconNode.position = AVAudio3DPoint(x: 0, y: 0, z: 0)
+      let url = Bundle.main.url(forResource: file, withExtension: ext)!
+      let file = try! AVAudioFile(forReading: url)
+      let buffer = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: AVAudioFrameCount(file.length))
+      try! file.read(into: buffer!)
+      engine.attach(centerBeaconNode)
+      engine.connect(centerBeaconNode, to: environment, format: buffer?.format)
+      centerBeaconNode.scheduleBuffer(buffer!, at: nil, options: .loops, completionHandler: nil)
+
+      }
+
+
+    func initSpatializedSound(){
+        environment.listenerPosition = AVAudio3DPoint(x: 0, y: 0, z: 0)
+        engine.attach(environment)
+        engine.connect(environment, to: engine.mainMixerNode, format: nil)
+        engine.prepare()
+        do {
+            try engine.start()
+        } catch let e as NSError {
+            print("Couldn't start sound engine", e)
+        }
+    }
     
     
     func initLocCore(frame: ARFrame){

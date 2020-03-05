@@ -33,7 +33,7 @@ typedef NS_ENUM(NSInteger, NodeType) { Control = 0, Destination = 1, Link = 2, U
 - (float) getNorthCorrectionAngle;
 - (NSDictionary*) getParticlesStats;
 
-- (void) setDestinationID: (int) destId;
+- (void) setDestination: (int) destId destFloor:(int)destFloor linkID:(int)linkID;
 - (NSArray*) getNodeUVPosition : (int)nodeId;
 - (void) setCameraHeight : (float) height;
 //- (void) setInitialCourse : (float) yaw;
