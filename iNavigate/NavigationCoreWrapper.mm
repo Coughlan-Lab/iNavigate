@@ -116,6 +116,8 @@
 //    });
 //    return yawHist;
 //}
+
+
 - (NSDictionary*) getParticlesStats{
     locore::ParticleFilter::ParticlesStats pstats = navsys->getParticlesStats();
     NSDictionary *dict = @{ @"gcf_min" : [NSNumber numberWithFloat: (pstats.gsc_min)],

@@ -201,7 +201,7 @@ namespace locore{
             
             // NOTE: image width and height are swapped
 //            float centerRow = vioData.getFrame().size().width/2; //width is actually image height
-            std::cerr << "Image width: " << det.getROI().width;
+            //std::cerr << "Image width: " << det.getROI().width;
             double p = vioData.getFrame().size().width/2 - (det.getROI().y + det.getROI().height);
                         
             //estimate sign distance
@@ -260,7 +260,7 @@ namespace locore{
             }
             auto stop = high_resolution_clock::now();
             deltaT = duration_cast<nanoseconds>(stop-start);
-            //std::cerr << "sign scoring time : " << deltaT.count() << "\n";
+            std::cerr << "sign scoring time : " << deltaT.count() << "\n";
         }
         
        
