@@ -47,7 +47,7 @@ public:
         std::cout << "Entropy: " << entropy << "\n";
         
         if (entropy < 7.){
-            _findNpeaks(peaksMap, _mask.rows, _mask.cols * _mask.channels(), 1, 50, 25, .0001);
+            _findNpeaks(peaksMap, _mask.rows, _mask.cols * _mask.channels(), 1, 50, 25, .00016);
 //            _findNpeaks(peaksMap, _mask.rows, _mask.cols * _mask.channels(), 1, 50, 25, .00005);
             //_filterPeaks(2.5);
         }

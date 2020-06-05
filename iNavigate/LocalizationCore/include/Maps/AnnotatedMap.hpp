@@ -123,11 +123,12 @@ namespace maps{
 //                }
                 cv::Point2d pt = cv::Point2d(mf->second.position.x, mf->second.position.y);
                 cv::Point2i px = uv2pixels(pt);
-                cv::circle(map, cv::Point(px.y,px.x)  , 3, cv::Scalar(0,150,255));
-                cv::circle(map, cv::Point(px.y,px.x)  , 1, cv::Scalar(0,150,255));
+                cv::circle(map, cv::Point(px.y,px.x)  , 7, cv::Scalar(255,0,0));
+                cv::circle(map, cv::Point(px.y,px.x)  , 6, cv::Scalar(255,0,0));
+                cv::circle(map, cv::Point(px.y,px.x)  , 3, cv::Scalar(255,0,0));
                 std::string posstr = std::to_string(mf->second.position.x) + ", " + std::to_string(mf->second.position.y);
                 std::string idstr = std::to_string(mf->second.id);
-                cv::putText(map, idstr, cv::Point(px.y,px.x), cv::FONT_HERSHEY_PLAIN, 1.65, cv::Scalar(0,255,0));
+                //cv::putText(map, std::string("x"), cv::Point(px.y,px.x), cv::FONT_HERSHEY_PLAIN, 1.65, cv::Scalar(0,255,0));
             }
             //cv::imshow("Features", map);
             return map;

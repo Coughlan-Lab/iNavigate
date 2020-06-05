@@ -301,7 +301,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
                 if useSonifiedInterface || useCenterBeacon{
                     dispatchSonifiedInstruction(data: res, useNextTurn: false)
                 }
-                updateArrowsUI(data: res)
+                //updateArrowsUI(data: res)
             }
                 
         }
@@ -450,7 +450,7 @@ class ViewController: UIViewController, ARSessionDelegate, CLLocationManagerDele
                     case TurnDirection.Right:
                         audioFeedback.pushMessage(message: message_t.init(text: "right", highPriority: true))
                     case TurnDirection.TurnAround:
-                        audioFeedback.pushMessage(message: message_t.init(text: "turn around", highPriority: false))
+                        audioFeedback.pushMessage(message: message_t.init(text: "turn around", highPriority: true))
                     case TurnDirection.Forward:
                         audioFeedback.pushMessage(message: message_t.init(text: "straight", highPriority: true))
                     case TurnDirection.Arrived:

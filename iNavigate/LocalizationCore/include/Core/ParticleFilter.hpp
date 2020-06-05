@@ -206,7 +206,7 @@ namespace locore{
                         
             //estimate sign distance
             double gamma = vioData.getPitch();
-            float h0 = 0.2032; // exit sign height in meters
+            float h0 = 0.195; // exit sign height in meters
             this->estimatedDistanceToSign = h0*(_fx*cos(gamma) - p*sin(gamma))/det.getROI().height;
             
             int columnDetection = det.getROICenter().x;
@@ -238,6 +238,8 @@ namespace locore{
                                 score = pfParameters.signDetectionScoringCoeff/(pfParameters.signDetectionScoringCoeff+x*x);
                                 score *= 1. / (1. + 1. * distErrorFraction);
                             }
+                            else
+                                score = 0.5;
                         }
 
                         yawScores.push_back(score);
