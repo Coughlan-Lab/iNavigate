@@ -737,15 +737,15 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = E9BKVZ8679;
-				FRAMEWORK_SEARCH_PATHS = "/Users/gio/Documents/workspace/opencv-4.0.1/platforms/ios";
+				DEVELOPMENT_TEAM = N4N3993NGJ;
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)";
 				HEADER_SEARCH_PATHS = (
-					/Users/gio/Documents/workspace/rapidjson/include/,
-					/Users/gio/Documents/workspace/iLocalize/iLocalize/LocalizationCore/include,
-					/Users/gio/Documents/workspace/iLocalize/iLocalize/LocalizationCore/libsvm,
+					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/iNavigate/LocalizationCore/include",
+					"$(PROJECT_DIR)/iNavigate/LocalizationCore/libsvm",
 				);
 				INFOPLIST_FILE = iNavigate/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -766,15 +766,15 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = E9BKVZ8679;
-				FRAMEWORK_SEARCH_PATHS = "/Users/gio/Documents/workspace/opencv-4.0.1/platforms/ios";
+				DEVELOPMENT_TEAM = N4N3993NGJ;
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)";
 				HEADER_SEARCH_PATHS = (
-					/Users/gio/Documents/workspace/rapidjson/include/,
-					/Users/gio/Documents/workspace/iLocalize/iLocalize/LocalizationCore/include,
-					/Users/gio/Documents/workspace/iLocalize/iLocalize/LocalizationCore/libsvm,
+					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/iNavigate/LocalizationCore/include",
+					"$(PROJECT_DIR)/iNavigate/LocalizationCore/libsvm",
 				);
 				INFOPLIST_FILE = iNavigate/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
