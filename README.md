@@ -4,7 +4,7 @@ indoor navigation using ARKit
 ## INSTALL INSTRUCTIONS
 
 <p>
-Download file https://www.dropbox.com/s/7ys0vfdksxn8be3/opencv2.zip and extract to iNavigate/opencv2.framework
+Download file https://www.dropbox.com/s/o7u4rk1my70r70x/opencv2.zip and extract to iNavigate/opencv2.framework
 If errors persist with opencv, trying building locally following instructions from:</p>
    https://thecodinginterface.com/blog/opencv-cpp-vscode/
 <p>and</p>
